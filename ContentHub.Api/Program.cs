@@ -1,3 +1,4 @@
+using ContentHub.Api;
 using ContentHub.Domain.Data.Identity;
 using ContentHub.Infrastructure;
 using Microsoft.AspNetCore.Identity;
@@ -61,4 +62,7 @@ app.UseAuthorization();
 
 app.MapControllers();
 
+
+//Seeding Data
+app.MigrateDatabase();
 app.Run();
