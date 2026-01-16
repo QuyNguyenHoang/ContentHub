@@ -1,4 +1,9 @@
-﻿using ContentHub.Domain.SeedWorks;
+﻿using AutoMapper;
+using ContentHub.Domain.Data.Entities;
+using ContentHub.Domain.Data.Identity;
+using ContentHub.Domain.SeedWorks;
+using ContentHub.Infrastructure.Repositories;
+using Microsoft.AspNetCore.Identity;
 
 namespace ContentHub.Infrastructure.SeedWorks
 {
@@ -10,6 +15,7 @@ namespace ContentHub.Infrastructure.SeedWorks
         {
             _context = context;
         }
+        
         public async Task<int> CompleteAsync()
         {
             return await _context.SaveChangesAsync();

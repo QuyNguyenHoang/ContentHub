@@ -1,6 +1,10 @@
 using ContentHub.Api;
+using ContentHub.Application.Models.Contents;
 using ContentHub.Domain.Data.Identity;
+using ContentHub.Domain.SeedWorks;
 using ContentHub.Infrastructure;
+using ContentHub.Infrastructure.Repositories;
+using ContentHub.Infrastructure.SeedWorks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -46,6 +50,48 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+
+
+
+// Add services to the container.
+builder.Services.AddScoped(typeof(IRepository<,>), typeof(RepositoryBase<,>));
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+// Business services and repositories
+var services = typeof(PostRepository).Assembly.GetTypes()
+    .Where(x => x.GetInterfaces().Any(i => i.Name == typeof(IRepository<,>).Name)
+    && !x.IsAbstract && x.IsClass && !x.IsGenericType);
+//var services = typeof(PostRepository).Assembly.GetTypes()
+//    .Where(x =>
+//        x.IsClass &&
+//        !x.IsAbstract &&
+//        x.GetInterfaces().Any(i =>
+//            i.IsGenericType &&
+//            i.GetGenericTypeDefinition() == typeof(IRepository<,>)
+//        )
+//    );
+foreach (var service in services)
+{
+    var allInterfaces = service.GetInterfaces();
+    var directInterface = allInterfaces.Except(allInterfaces.SelectMany(t => t.GetInterfaces())).FirstOrDefault();
+    if (directInterface != null)
+    {
+        builder.Services.Add(new ServiceDescriptor(directInterface, service, ServiceLifetime.Scoped));
+    }
+}
+
+//foreach (var service in services)
+//{
+//    var interfaces = service.GetInterfaces()
+//        .Where(i => !i.IsGenericType);
+
+//    foreach (var i in interfaces)
+//    {
+//        builder.Services.AddScoped(i, service);
+//    }
+//}
+
+builder.Services.AddAutoMapper(typeof(PostInListDto));
 
 var app = builder.Build();
 
