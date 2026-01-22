@@ -1,114 +1,104 @@
-using ContentHub.Api;
-using ContentHub.Application.Models.Contents;
+﻿using ContentHub.Api;
+using ContentHub.Api.Services;
+using ContentHub.Application.ConfigOptions;
 using ContentHub.Domain.Data.Identity;
 using ContentHub.Domain.SeedWorks;
 using ContentHub.Infrastructure;
-using ContentHub.Infrastructure.Repositories;
 using ContentHub.Infrastructure.SeedWorks;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
-var config = builder.Configuration;
-var connectionString = config.GetConnectionString("DefaultConnection");
-// Add services to the container.
+var configuration = builder.Configuration;
 
-
-
-
-
-
-//Identity
+// =======================
+// Database + Identity
+// =======================
 builder.Services.AddDbContext<ContentHubDbContext>(options =>
-                options.UseSqlServer(connectionString));
+    options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
 
-builder.Services.AddIdentity<AppUser, AppRole>(options => options.SignIn.RequireConfirmedAccount = false)
-    .AddEntityFrameworkStores<ContentHubDbContext>();
+builder.Services.AddIdentity<AppUser, AppRole>()
+    .AddEntityFrameworkStores<ContentHubDbContext>()
+    .AddDefaultTokenProviders();
 
-builder.Services.Configure<IdentityOptions>(options =>
+// =======================
+// JWT CONFIG
+// =======================
+builder.Services.Configure<JwtTokenSettings>(
+    configuration.GetSection("JwtTokenSettings"));
+
+var jwtSettings = configuration
+    .GetSection("JwtTokenSettings")
+    .Get<JwtTokenSettings>();
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidIssuer = jwtSettings!.Issuer,
+
+            ValidateAudience = true,
+            ValidAudience = jwtSettings.Audience,
+
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(jwtSettings.Key)),
+
+            ValidateLifetime = true,
+            ClockSkew = TimeSpan.Zero
+        };
+    });
+
+// =======================
+// CORS
+// =======================
+var allowedOrigins = configuration["AllowedOrigins"]
+    ?.Split(";", StringSplitOptions.RemoveEmptyEntries);
+
+builder.Services.AddCors(options =>
 {
-    // Password settings.
-    options.Password.RequireDigit = true;
-    options.Password.RequireLowercase = true;
-    options.Password.RequireNonAlphanumeric = true;
-    options.Password.RequireUppercase = true;
-    options.Password.RequiredLength = 6;
-    options.Password.RequiredUniqueChars = 1;
-
-    // Lockout settings.
-    options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
-    options.Lockout.MaxFailedAccessAttempts = 5;
-    options.Lockout.AllowedForNewUsers = false;
-
-    // User settings.
-    options.User.AllowedUserNameCharacters =
-    "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+";
-    options.User.RequireUniqueEmail = true;
+    options.AddPolicy("TeduCorsPolicy", policy =>
+    {
+        policy.WithOrigins(allowedOrigins ?? Array.Empty<string>())
+              .AllowAnyHeader()
+              .AllowAnyMethod()
+              .AllowCredentials();
+    });
 });
 
+// =======================
+// Services
+// =======================
+builder.Services.AddScoped<ITokenService, TokenService>();
+builder.Services.AddScoped(typeof(IRepository<,>), typeof(RepositoryBase<,>));
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-
-
-
-// Add services to the container.
-builder.Services.AddScoped(typeof(IRepository<,>), typeof(RepositoryBase<,>));
-builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
-// Business services and repositories
-var services = typeof(PostRepository).Assembly.GetTypes()
-    .Where(x => x.GetInterfaces().Any(i => i.Name == typeof(IRepository<,>).Name)
-    && !x.IsAbstract && x.IsClass && !x.IsGenericType);
-//var services = typeof(PostRepository).Assembly.GetTypes()
-//    .Where(x =>
-//        x.IsClass &&
-//        !x.IsAbstract &&
-//        x.GetInterfaces().Any(i =>
-//            i.IsGenericType &&
-//            i.GetGenericTypeDefinition() == typeof(IRepository<,>)
-//        )
-//    );
-foreach (var service in services)
-{
-    var allInterfaces = service.GetInterfaces();
-    var directInterface = allInterfaces.Except(allInterfaces.SelectMany(t => t.GetInterfaces())).FirstOrDefault();
-    if (directInterface != null)
-    {
-        builder.Services.Add(new ServiceDescriptor(directInterface, service, ServiceLifetime.Scoped));
-    }
-}
-
-//foreach (var service in services)
-//{
-//    var interfaces = service.GetInterfaces()
-//        .Where(i => !i.IsGenericType);
-
-//    foreach (var i in interfaces)
-//    {
-//        builder.Services.AddScoped(i, service);
-//    }
-//}
-
-builder.Services.AddAutoMapper(typeof(PostInListDto));
-
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// =======================
+// Middleware
+// =======================
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
+app.UseCors("TeduCorsPolicy");
 app.UseHttpsRedirection();
 
+app.UseAuthentication(); // ⚠️ BẮT BUỘC
 app.UseAuthorization();
 
 app.MapControllers();
-
-
-//Seeding Data
 app.MigrateDatabase();
 app.Run();
