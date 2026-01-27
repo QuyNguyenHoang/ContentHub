@@ -22,7 +22,7 @@ namespace ContentHub.Api.Services
 
             var tokeOptions = new JwtSecurityToken(
                 issuer: _jwtTokenSettings.Issuer,
-                audience: _jwtTokenSettings.Issuer,
+                audience: _jwtTokenSettings.Audience,
                 claims: claims,
                 expires: DateTime.Now.AddHours(_jwtTokenSettings.ExpireInHours),
                 signingCredentials: signinCredentials

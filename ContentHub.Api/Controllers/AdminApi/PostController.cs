@@ -4,6 +4,8 @@ using ContentHub.Application.Models.Contents;
 using ContentHub.Domain.Data.Entities;
 using ContentHub.Domain.Data.Identity;
 using ContentHub.Domain.SeedWorks;
+using ContentHub.Domain.SeedWorks.Constant;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
@@ -27,6 +29,7 @@ namespace ContentHub.Api.Controllers.AdminApi
             _unitOfWork = unitOfWork;
         }
         [HttpPost]
+        [Authorize(Policy = Permissions.Posts.Create)]
         public async Task<IActionResult> CreatePost([FromBody] CreatePostRequest request)
         {
             if (await _postRepository.IsSlugAlreadyExistedAsync(request.Slug))

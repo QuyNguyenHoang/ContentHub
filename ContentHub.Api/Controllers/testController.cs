@@ -1,23 +1,23 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using ContentHub.Domain.SeedWorks.Constant;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ContentHub.Api.Controllers
 {
-    [Route("api/[controller]")]
     [ApiController]
-    public class testcontroller : ControllerBase
+    [Route("api/test")]
+    public class TestController : ControllerBase
     {
         [HttpGet("ping")]
+        [Authorize(Permissions.Posts.Create)]
         public IActionResult Ping()
         {
             return Ok(new
             {
                 success = true,
                 message = "API OK",
-                time = DateTime.Now
+                time = DateTime.UtcNow
             });
         }
-
-
     }
 }

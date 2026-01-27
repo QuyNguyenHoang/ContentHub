@@ -1,4 +1,5 @@
 ﻿using ContentHub.Api;
+using ContentHub.Api.Authorization;
 using ContentHub.Api.Services;
 using ContentHub.Application.ConfigOptions;
 using ContentHub.Domain.Data.Identity;
@@ -6,6 +7,7 @@ using ContentHub.Domain.SeedWorks;
 using ContentHub.Infrastructure;
 using ContentHub.Infrastructure.SeedWorks;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -25,49 +27,51 @@ builder.Services.AddIdentity<AppUser, AppRole>()
     .AddDefaultTokenProviders();
 
 // =======================
-// JWT CONFIG
+// JWT
 // =======================
 builder.Services.Configure<JwtTokenSettings>(
     configuration.GetSection("JwtTokenSettings"));
 
-var jwtSettings = configuration
-    .GetSection("JwtTokenSettings")
-    .Get<JwtTokenSettings>();
-
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer(options =>
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    options.RequireHttpsMetadata = false;
+    options.SaveToken = true;
+    options.TokenValidationParameters = new TokenValidationParameters
     {
-        options.TokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateIssuer = true,
-            ValidIssuer = jwtSettings!.Issuer,
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ClockSkew = TimeSpan.Zero,
+        ValidIssuer = configuration["JwtTokenSettings:Issuer"],
+        ValidAudience = configuration["JwtTokenSettings:Issuer"],
+        IssuerSigningKey = new SymmetricSecurityKey(
+            Encoding.UTF8.GetBytes(configuration["JwtTokenSettings:Key"]!)
+        )
+    };
+});
 
-            ValidateAudience = true,
-            ValidAudience = jwtSettings.Audience,
-
-            ValidateIssuerSigningKey = true,
-            IssuerSigningKey = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(jwtSettings.Key)),
-
-            ValidateLifetime = true,
-            ClockSkew = TimeSpan.Zero
-        };
-    });
+// =======================
+// AUTHORIZATION (CUSTOM PERMISSION)
+// =======================
+builder.Services.AddSingleton<IAuthorizationPolicyProvider, PermissionPolicyProvider>();
+builder.Services.AddScoped<IAuthorizationHandler, PermissionAuthorizationHandler>();
 
 // =======================
 // CORS
 // =======================
-var allowedOrigins = configuration["AllowedOrigins"]
-    ?.Split(";", StringSplitOptions.RemoveEmptyEntries);
-
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("TeduCorsPolicy", policy =>
+    options.AddPolicy("ContentHubPolicy", policy =>
     {
-        policy.WithOrigins(allowedOrigins ?? Array.Empty<string>())
+        policy.AllowAnyOrigin()
               .AllowAnyHeader()
-              .AllowAnyMethod()
-              .AllowCredentials();
+              .AllowAnyMethod();
     });
 });
 
@@ -93,10 +97,10 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseCors("TeduCorsPolicy");
+app.UseCors("ContentHubPolicy");
 app.UseHttpsRedirection();
 
-app.UseAuthentication(); // ⚠️ BẮT BUỘC
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
