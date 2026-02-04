@@ -21,7 +21,7 @@ namespace ContentHub.Api.Authorization
         public Task<AuthorizationPolicy?> GetPolicyAsync(string policyName)
         {
             
-            if (policyName.StartsWith("Permissions.", StringComparison.OrdinalIgnoreCase))
+            if (policyName.StartsWith("permissions.", StringComparison.OrdinalIgnoreCase))
             {
                 var policy = new AuthorizationPolicyBuilder();
                 policy.AddRequirements(new PermissionRequirement(policyName));

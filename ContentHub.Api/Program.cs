@@ -2,6 +2,7 @@
 using ContentHub.Api.Authorization;
 using ContentHub.Api.Services;
 using ContentHub.Application.ConfigOptions;
+using ContentHub.Application.Models.Contents;
 using ContentHub.Domain.Data.Identity;
 using ContentHub.Domain.SeedWorks;
 using ContentHub.Infrastructure;
@@ -86,6 +87,10 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+
+
+//Auto mapper
+builder.Services.AddAutoMapper(typeof(PostInListDto));
 var app = builder.Build();
 
 // =======================

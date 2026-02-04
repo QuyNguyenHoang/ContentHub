@@ -5,9 +5,9 @@ namespace ContentHub.Api.Authorization
     public class PermissionRequirement : IAuthorizationRequirement
     {
         public string Permission { get; private set; }
-        public PermissionRequirement(string permission)
+        public PermissionRequirement(string permissions)
         {
-            Permission = permission;
+            Permission = permissions;
         }
     }
 }

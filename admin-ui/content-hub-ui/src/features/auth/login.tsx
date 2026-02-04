@@ -10,7 +10,7 @@ import {
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
 import { cilUser, cilLockLocked } from '@coreui/icons'
-import { loginApi } from '../../api/auth.api'
+import { loginApi } from '../../api/auth/auth.api'
 
 const LoginForm = () => {
   const navigate = useNavigate()

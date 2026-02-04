@@ -56,7 +56,7 @@ namespace ContentHub.Api.Authorization
                 var claims = await _roleManager.GetClaimsAsync(role);
 
                 var hasPermission = claims.Any(c =>
-                    c.Type == "permission" &&
+                    c.Type == "permissions" &&
                     c.Value == requirement.Permission &&
                     c.Issuer == "LOCAL AUTHORITY");
 
