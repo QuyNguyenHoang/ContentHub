@@ -18,7 +18,20 @@ import {
   CTableRow,
   CPagination,
   CPaginationItem,
+  CToast,
+  CToastBody,
+  CToastHeader,
+  CToaster,
 } from '@coreui/react'
+
+import CIcon from '@coreui/icons-react'
+import {
+  cilCheckCircle,
+  cilWarning,
+  cilXCircle,
+  cilReload,
+  cilX,
+} from '@coreui/icons'
 
 import { roleApi } from '../../api/system/role.api'
 import type { RoleResponse } from '../../api/system/role.api'
@@ -35,6 +48,17 @@ const RoleList = () => {
   const [totalCount, setTotalCount] = useState(0)
   const [loading, setLoading] = useState(false)
 
+  // ===== TOAST =====
+  const [toast, setToast] = useState<{
+    visible: boolean
+    color: 'success' | 'danger' | 'warning'
+    message: string
+  }>({
+    visible: false,
+    color: 'success',
+    message: '',
+  })
+
   // ===== LOAD DATA =====
   const loadData = async () => {
     try {
@@ -48,6 +72,12 @@ const RoleList = () => {
       setItems(res.data.results)
       setTotalCount(res.data.rowCount)
       setSelectedIds([])
+    } catch {
+      setToast({
+        visible: true,
+        color: 'danger',
+        message: 'Không thể tải danh sách role',
+      })
     } finally {
       setLoading(false)
     }
@@ -70,19 +100,38 @@ const RoleList = () => {
 
   // ===== DELETE =====
   const deleteItems = async () => {
-    if (!window.confirm('Xóa các quyền đã chọn?')) return
-    for (const id of selectedIds) {
-      await roleApi.delete(id)
+    if (!window.confirm('Xóa các role đã chọn?')) return
+
+    try {
+      for (const id of selectedIds) {
+        await roleApi.delete(id)
+      }
+
+      setToast({
+        visible: true,
+        color: 'success',
+        message: 'Xóa role thành công',
+      })
+
+      loadData()
+    } catch (error: any) {
+      const message =
+        error.response?.data?.message ||
+        error.response?.data ||
+        'Không thể xoá role'
+
+      setToast({
+        visible: true,
+        color: 'danger',
+        message,
+      })
     }
-    loadData()
   }
 
-  // ===== PAGINATION =====
   const totalPages = Math.ceil(totalCount / pageSize)
 
   return (
     <CCard>
-      {/* ===== HEADER ===== */}
       <CCardHeader>
         <strong>Quản lý quyền</strong>
       </CCardHeader>
@@ -174,12 +223,14 @@ const RoleList = () => {
                   <CTableDataCell>{r.displayName}</CTableDataCell>
                   <CTableDataCell>
                     <CButton
-  color="info"
-  size="sm"
-  onClick={() => navigate(`/roles/${r.id}/permissions`)}
->
-  Phân quyền
-</CButton>
+                      color="info"
+                      size="sm"
+                      onClick={() =>
+                        navigate(`/roles/${r.id}/permissions`)
+                      }
+                    >
+                      Phân quyền
+                    </CButton>
                   </CTableDataCell>
                 </CTableRow>
               ))}
@@ -187,7 +238,7 @@ const RoleList = () => {
           </CTable>
         )}
 
-        {/* ===== FOOTER ===== */}
+        {/* ===== PAGINATION ===== */}
         <div className="d-flex justify-content-between align-items-center mt-3">
           <div>Tổng số: {totalCount}</div>
 
@@ -218,6 +269,65 @@ const RoleList = () => {
           </CPagination>
         </div>
       </CCardBody>
+
+      {/* ===== TOAST ===== */}
+      <CToaster placement="top-end">
+        <CToast
+          visible={toast.visible}
+          color={toast.color}
+          autohide
+          delay={4000}
+          className="shadow-lg"
+          onClose={() =>
+            setToast((t) => ({ ...t, visible: false }))
+          }
+        >
+          <CToastHeader closeButton={false}>
+            <CIcon
+              icon={
+                toast.color === 'success'
+                  ? cilCheckCircle
+                  : toast.color === 'warning'
+                  ? cilWarning
+                  : cilXCircle
+              }
+              className="me-2"
+            />
+            <strong className="me-auto">
+              {toast.color === 'success'
+                ? 'Thành công'
+                : toast.color === 'warning'
+                ? 'Cảnh báo'
+                : 'Lỗi'}
+            </strong>
+
+            <CButton
+              size="sm"
+              color="link"
+              className="p-0 me-2"
+              onClick={() => {
+                loadData()
+                setToast((t) => ({ ...t, visible: false }))
+              }}
+            >
+              <CIcon icon={cilReload} />
+            </CButton>
+
+            <CButton
+              size="sm"
+              color="link"
+              className="p-0"
+              onClick={() =>
+                setToast((t) => ({ ...t, visible: false }))
+              }
+            >
+              <CIcon icon={cilX} />
+            </CButton>
+          </CToastHeader>
+
+          <CToastBody>{toast.message}</CToastBody>
+        </CToast>
+      </CToaster>
     </CCard>
   )
 }

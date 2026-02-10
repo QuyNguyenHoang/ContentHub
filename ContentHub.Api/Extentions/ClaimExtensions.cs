@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using System.ComponentModel;
 using System.Reflection;
 using System.Security.Claims;
+using static ContentHub.Api.Controllers.RoleController;
 
 namespace ContentHub.Api.Extentions
 {
@@ -22,7 +23,7 @@ namespace ContentHub.Api.Extentions
                     var description = (DescriptionAttribute)attribute[0];
                     displayName = description.Description;
                 }
-                allPermissions.Add(new RoleClaimsDto { Value = fi.GetValue(null).ToString(), Type = "Permissions", DisplayName = displayName });
+                allPermissions.Add(new RoleClaimsDto { Value = fi.GetValue(null).ToString(), Type = AppClaimTypes.Permission, DisplayName = displayName });
             }
         }
         public static async Task AddPermissionClaim(this RoleManager<AppRole> roleManager, AppRole role, string permission)
@@ -30,7 +31,7 @@ namespace ContentHub.Api.Extentions
             var allClaims = await roleManager.GetClaimsAsync(role);
             if (!allClaims.Any(a => a.Type == "Permission" && a.Value == permission))
             {
-                await roleManager.AddClaimAsync(role, new Claim("Permission", permission));
+                await roleManager.AddClaimAsync(role, new Claim(AppClaimTypes.Permission, permission));
             }
         }
     }

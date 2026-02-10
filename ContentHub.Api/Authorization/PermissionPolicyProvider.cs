@@ -20,8 +20,8 @@ namespace ContentHub.Api.Authorization
 
         public Task<AuthorizationPolicy?> GetPolicyAsync(string policyName)
         {
-            
-            if (policyName.StartsWith("permissions.", StringComparison.OrdinalIgnoreCase))
+
+            if (policyName.StartsWith("Permissions.", StringComparison.OrdinalIgnoreCase))
             {
                 var policy = new AuthorizationPolicyBuilder();
                 policy.AddRequirements(new PermissionRequirement(policyName));

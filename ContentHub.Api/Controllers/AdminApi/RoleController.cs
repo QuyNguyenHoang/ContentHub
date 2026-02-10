@@ -22,7 +22,7 @@ namespace ContentHub.Api.Controllers
         private readonly IMapper _mapper;
         public static class AppClaimTypes
         {
-            public const string Permission = "permissions";
+            public const string Permission = "permission";
         }
         public RoleController(
             RoleManager<AppRole> roleManager,
@@ -50,7 +50,7 @@ namespace ContentHub.Api.Controllers
         // GET ROLES PAGING
         // =========================
         [HttpGet("paging")]
-        //[Authorize(Permissions.Roles.View)]
+        [Authorize(Policy = Permissions.Roles.View)]
         public async Task<ActionResult<PagedResult<RoleDto>>> GetPaging(
             string? keyword,
             int pageIndex = 1,
@@ -64,7 +64,7 @@ namespace ContentHub.Api.Controllers
             if (!string.IsNullOrEmpty(keyword))
             {
                 query = query.Where(x =>
-                    x.Name.Contains(keyword) ||
+                    x.Name!.Contains(keyword) ||
                     x.DisplayName.Contains(keyword));
             }
 
@@ -88,7 +88,7 @@ namespace ContentHub.Api.Controllers
         // GET ALL ROLES
         // =========================
         [HttpGet("all")]
-        [Authorize(Permissions.Roles.View)]
+        [Authorize(Policy = Permissions.Roles.View)]
         public async Task<ActionResult<List<RoleDto>>> GetAll()
         {
             var roles = await _mapper
@@ -102,7 +102,7 @@ namespace ContentHub.Api.Controllers
         // CREATE ROLE
         // =========================
         [HttpPost]
-        //[Authorize(Permissions.Roles.Create)]
+        [Authorize(Policy = Permissions.Roles.Create)]
         public async Task<IActionResult> Create(RoleRequestDto request)
         {
             var existingRole = await _roleManager.FindByNameAsync(request.Name);
@@ -132,7 +132,7 @@ namespace ContentHub.Api.Controllers
         // UPDATE ROLE
         // =========================
         [HttpPut("{id}")]
-        [Authorize(Permissions.Roles.Edit)]
+        [Authorize(Policy = Permissions.Roles.Edit)]
         public async Task<IActionResult> Update(Guid id, RoleRequestDto request)
         {
             var role = await _roleManager.FindByIdAsync(id.ToString());
@@ -162,17 +162,21 @@ namespace ContentHub.Api.Controllers
         // DELETE ROLE
         // =========================
         [HttpDelete("{id}")]
-        [Authorize(Permissions.Roles.Delete)]
+        [Authorize(Policy = Permissions.Roles.Delete)]
         public async Task<IActionResult> Delete(Guid id)
         {
             var role = await _roleManager.FindByIdAsync(id.ToString());
             if (role == null)
                 return NotFound("Role not found");
+            if (role.Name == "admin" || role.NormalizedName == Roles.Admin.ToUpper())
+            {
+                return BadRequest("Không thể xoá role Admin");
+            }
 
             var result = await _roleManager.DeleteAsync(role);
             if (!result.Succeeded)
                 return BadRequest(result.Errors);
-
+           
             return Ok(new
             {
                 success = true,
@@ -228,7 +232,7 @@ namespace ContentHub.Api.Controllers
         // SAVE ROLE PERMISSIONS
         // =========================
         [HttpPut("permissions")]
-        //[Authorize(Permissions.Roles.Edit)]
+        [Authorize(Policy = Permissions.Roles.Edit)]
         public async Task<IActionResult> SavePermissions(PermissionDto model)
         {
             var role = await _roleManager.FindByIdAsync(model.RoleId);
@@ -251,8 +255,6 @@ namespace ContentHub.Api.Controllers
                     new Claim(AppClaimTypes.Permission, claim.Value)
                 );
             }
-
-
             return Ok(new
             {
                 success = true,
