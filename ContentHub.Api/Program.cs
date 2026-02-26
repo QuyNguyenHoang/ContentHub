@@ -91,6 +91,12 @@ builder.Services.AddSwaggerGen();
 
 
 
+var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
+builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
+
+
+
+
 //Auto mapper
 builder.Services.AddAutoMapper(typeof(PostInListDto));
 var app = builder.Build();
