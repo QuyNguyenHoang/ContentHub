@@ -16,7 +16,8 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 var configuration = builder.Configuration;
-
+Console.WriteLine("ENV: " + builder.Environment.EnvironmentName);
+Console.WriteLine("CONNECTION: " + configuration.GetConnectionString("DefaultConnection"));
 // =======================
 // Database + Identity
 // =======================
