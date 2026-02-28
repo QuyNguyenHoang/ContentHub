@@ -25,7 +25,7 @@ namespace ContentHub.Infrastructure
             // Kiểm tra môi trường
             if (environment == "Production")
             {
-                builder.UseSqlServer(
+                builder.UseNpgsql(
                     configuration.GetConnectionString("DefaultConnection"));
             }
             else
