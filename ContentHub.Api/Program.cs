@@ -122,7 +122,11 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseCors("ContentHubPolicy");
-app.UseHttpsRedirection();
+
+if (app.Environment.IsDevelopment())
+{
+    app.UseHttpsRedirection();
+}
 
 app.UseAuthentication();
 app.UseAuthorization();
