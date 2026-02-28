@@ -4,6 +4,7 @@ using ContentHub.Domain.SeedWorks.Constant;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 
 namespace ContentHub.Infrastructure
@@ -26,7 +27,10 @@ namespace ContentHub.Infrastructure
         public DbSet<Wallet> Wallets { get; set; }
         public DbSet<WalletTransaction> WalletTransactions { get; set; }
         protected override void OnModelCreating(ModelBuilder builder)
+
         {
+            builder.Entity<AppUser>().ToTable("AppUsers");
+            builder.Entity<AppRole>().ToTable("AppRoles");
             builder.Entity<IdentityUserClaim<Guid>>().ToTable("AppUserClaims").HasKey(x => x.Id);
 
             builder.Entity<IdentityRoleClaim<Guid>>().ToTable("AppRoleClaims")
@@ -39,6 +43,22 @@ namespace ContentHub.Infrastructure
 
             builder.Entity<IdentityUserToken<Guid>>().ToTable("AppUserTokens")
                .HasKey(x => new { x.UserId });
+            // 🔥 Convert toàn bộ DateTime sang UTC cho PostgreSQL
+            foreach (var entityType in builder.Model.GetEntityTypes())
+            {
+                foreach (var property in entityType.GetProperties())
+                {
+                    if (property.ClrType == typeof(DateTime))
+                    {
+                        property.SetValueConverter(
+                            new ValueConverter<DateTime, DateTime>(
+                                v => v.Kind == DateTimeKind.Utc ? v : v.ToUniversalTime(),
+                                v => DateTime.SpecifyKind(v, DateTimeKind.Utc)
+                            )
+                        );
+                    }
+                }
+            }
         }
         public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
         {

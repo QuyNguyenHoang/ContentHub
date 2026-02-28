@@ -22,7 +22,18 @@ var configuration = builder.Configuration;
 // Database + Identity
 // =======================
 builder.Services.AddDbContext<ContentHubDbContext>(options =>
-    options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
+{
+    var connectionString = configuration.GetConnectionString("DefaultConnection");
+
+    if (builder.Environment.IsDevelopment())
+    {
+        options.UseSqlServer(connectionString);
+    }
+    else
+    {
+        options.UseNpgsql(connectionString);
+    }
+});
 
 builder.Services.AddIdentity<AppUser, AppRole>()
     .AddEntityFrameworkStores<ContentHubDbContext>()
@@ -91,8 +102,8 @@ builder.Services.AddSwaggerGen();
 
 
 
-var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
-builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
+//var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
+//builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
 
 
 

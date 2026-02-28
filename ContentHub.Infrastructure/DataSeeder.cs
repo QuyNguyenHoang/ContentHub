@@ -48,7 +48,7 @@ namespace ContentHub.Infrastructure
                     IsActive = true,
                     SecurityStamp = Guid.NewGuid().ToString(),
                     LockoutEnabled = false,
-                    DateCreated = DateTime.Now,
+                    DateCreated = DateTime.UtcNow,
                     EmailConfirmed = true
                 };
 
