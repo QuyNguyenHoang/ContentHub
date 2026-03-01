@@ -25,14 +25,14 @@ builder.Services.AddDbContext<ContentHubDbContext>(options =>
 {
     var connectionString = configuration.GetConnectionString("DefaultConnection");
 
-    //if (builder.Environment.IsDevelopment())
-    //{
-    //    options.UseSqlServer(connectionString);
-    //}
-    //else
-    //{
+    if (builder.Environment.IsDevelopment())
+    {
+        options.UseSqlServer(connectionString);
+    }
+    else
+    {
         options.UseNpgsql(connectionString);
-    //}
+    }
 });
 
 builder.Services.AddIdentity<AppUser, AppRole>()
