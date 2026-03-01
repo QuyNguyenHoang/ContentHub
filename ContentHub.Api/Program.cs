@@ -132,5 +132,12 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
-app.MigrateDatabase();
+try
+{
+    app.MigrateDatabase();
+}
+catch (Exception ex)
+{
+    Console.WriteLine("Migration failed: " + ex.Message);
+}
 app.Run();
