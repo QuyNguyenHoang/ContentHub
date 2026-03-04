@@ -43,7 +43,7 @@ namespace ContentHub.Infrastructure
 
             builder.Entity<IdentityUserToken<Guid>>().ToTable("AppUserTokens")
                .HasKey(x => new { x.UserId });
-            // 🔥 Convert toàn bộ DateTime sang UTC cho PostgreSQL
+           
             foreach (var entityType in builder.Model.GetEntityTypes())
             {
                 foreach (var property in entityType.GetProperties())

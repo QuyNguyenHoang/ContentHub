@@ -26,19 +26,22 @@ const LoginForm = () => {
     setLoading(true)
 
     try {
-      await loginApi({
+      const res = await loginApi({
         username,
         password,
       })
 
-      // ✅ login OK → redirect
-      navigate('/', { replace: true })
+      // login OK → redirect
+      if (res.roles === 'admin') {
+        navigate('/admin', { replace: true })
+      } else {
+        navigate('/', { replace: true })
+      }
     } catch (err: any) {
-      // ❗ backend bạn đang return BadRequest("Đăng nhập không đúng")
       setError(
         err.response?.data ??
-          err.response?.data?.message ??
-          'Sai tài khoản hoặc mật khẩu'
+        err.response?.data?.message ??
+        'Sai tài khoản hoặc mật khẩu'
       )
     } finally {
       setLoading(false)

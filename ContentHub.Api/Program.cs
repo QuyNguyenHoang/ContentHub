@@ -16,8 +16,7 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 var configuration = builder.Configuration;
-Console.WriteLine("ENV: " + builder.Environment.EnvironmentName);
-Console.WriteLine("CONNECTION: " + configuration.GetConnectionString("DefaultConnection"));
+
 // =======================
 // Database + Identity
 // =======================
@@ -64,7 +63,7 @@ builder.Services.AddAuthentication(options =>
         ValidIssuer = configuration["JwtTokenSettings:Issuer"],
         ValidAudience = configuration["JwtTokenSettings:Issuer"],
         IssuerSigningKey = new SymmetricSecurityKey(
-            Encoding.UTF8.GetBytes(configuration["JwtTokenSettings:Key"]!)
+           Encoding.UTF8.GetBytes(configuration["JwtTokenSettings:Key"]!)
         )
     };
 });
@@ -102,8 +101,8 @@ builder.Services.AddSwaggerGen();
 
 
 
-var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
-builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
+//var port = Environment.GetEnvironmentVariable("PORT") ?? "7202";
+//builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
 
 
 
@@ -115,18 +114,17 @@ var app = builder.Build();
 // =======================
 // Middleware
 // =======================
-if (app.Environment.IsDevelopment())
-{
+
     app.UseSwagger();
     app.UseSwaggerUI();
-}
 
+app.UseHttpsRedirection();
 app.UseCors("ContentHubPolicy");
 
-if (app.Environment.IsDevelopment())
-{
-    app.UseHttpsRedirection();
-}
+//if (app.Environment.IsDevelopment())
+//{
+   
+//}
 
 app.UseAuthentication();
 app.UseAuthorization();

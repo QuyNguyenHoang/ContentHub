@@ -15,7 +15,8 @@ namespace ContentHub.Infrastructure
             // ===================== ROLE =====================
             var adminRole = await context.Roles
                 .FirstOrDefaultAsync(r => r.NormalizedName == "ADMIN");
-
+            var userRole = await context.Roles
+                .FirstOrDefaultAsync(r => r.NormalizedName == "USER");
             if (adminRole == null)
             {
                 adminRole = new AppRole
@@ -27,6 +28,19 @@ namespace ContentHub.Infrastructure
                 };
 
                 context.Roles.Add(adminRole);
+                await context.SaveChangesAsync();
+            }
+            if (userRole == null)
+            {
+                userRole = new AppRole
+                {
+                    Id = Guid.NewGuid(),
+                    Name = "user",
+                    NormalizedName = "USER",
+                    DisplayName = "Người dùng"
+                };
+
+                context.Roles.Add(userRole);
                 await context.SaveChangesAsync();
             }
 

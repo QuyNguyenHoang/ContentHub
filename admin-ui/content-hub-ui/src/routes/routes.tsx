@@ -1,17 +1,22 @@
 import { lazy } from 'react'
-import { Navigate } from 'react-router-dom'
 import DefaultLayout from '../components/layouts/adminLayout'
+import UserLayout from '../components/layouts/userLayout'
 import RolePermission from '../pages/system/role.permission'
 
 const Home = lazy(() => import('../pages/home/Home'))
-const Login = lazy(() => import('../pages/auth/login/Login'))
+const ContentHub = lazy(() => import('../pages/home/ContentHub'))
+const Login = lazy(() => import('../pages/auth/login/LoginUI'))
 const ApiTest = lazy(() => import('../features/test/ApiTest'))
 const Dashboard = lazy(() => import('../pages/dashboard/DashBoard'))
 const RoleList = lazy(() => import('../features/system/Role'))
 const RoleForm = lazy(() => import('../pages/system/role.form'))
+const UserList = lazy(() => import('../features/system/User'))
+const UserUpdate = lazy(() => import('../pages/system/user.update'))
+const Regiter = lazy(()=> import('../pages/auth/register/Register'))
+
 const routes = [
   {
-    path: '/',
+    path: '/admin',
     element: <DefaultLayout />,
     children: [
       { index: true, element: <Home /> },
@@ -20,15 +25,20 @@ const routes = [
       { path: 'roles', element: <RoleList /> },
       { path: 'roles/create', element: <RoleForm /> },
       { path: 'roles/edit/:id', element: <RoleForm /> },
-      { path: 'roles/:id/permissions', element: <RolePermission /> }
-
-
+      { path: 'roles/:id/permissions', element: <RolePermission /> },
+      { path: 'users', element: <UserList /> },
+      { path: 'users/update/:id', element: <UserUpdate /> },
     ],
-
+  },
+  {
+    path: '/',
+    element: <UserLayout />,
+    children: [
+      {index:true, path: 'ContentHub', element: <ContentHub /> },
+    ],
   },
   { path: '/login', element: <Login /> },
-  { path: '/home', element: <Navigate to="/" replace /> },
-
-]
+   { path: '/register', element: <Regiter/> },
+  ]
 
 export default routes

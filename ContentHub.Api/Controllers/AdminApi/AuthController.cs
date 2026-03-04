@@ -156,7 +156,7 @@ namespace ContentHub.Api.Controllers.AdminApi
                 return BadRequest(result.Errors.Select(e => e.Description));
 
             // gán role USER
-            await _userManager.AddToRoleAsync(user, "admin");
+            await _userManager.AddToRoleAsync(user, "user");
 
             // tạo token confirm
             var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
