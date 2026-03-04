@@ -101,7 +101,7 @@ builder.Services.AddSwaggerGen();
 
 
 
-var port = Environment.GetEnvironmentVariable("PORT") ?? "7202";
+var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
 builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
 
 
