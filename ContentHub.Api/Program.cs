@@ -101,8 +101,8 @@ builder.Services.AddSwaggerGen();
 
 
 
-//var port = Environment.GetEnvironmentVariable("PORT") ?? "7202";
-//builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
+var port = Environment.GetEnvironmentVariable("PORT") ?? "7202";
+builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
 
 
 
@@ -118,7 +118,7 @@ var app = builder.Build();
     app.UseSwagger();
     app.UseSwaggerUI();
 
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
 app.UseCors("ContentHubPolicy");
 
 //if (app.Environment.IsDevelopment())
