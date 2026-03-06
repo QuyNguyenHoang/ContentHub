@@ -24,7 +24,7 @@ namespace ContentHub.Api.Services
                 issuer: _jwtTokenSettings.Issuer,
                 audience: _jwtTokenSettings.Audience,
                 claims: claims,
-                expires: DateTime.Now.AddHours(_jwtTokenSettings.ExpireInHours),
+                expires: DateTime.UtcNow.AddHours(_jwtTokenSettings.ExpireInHours),
                 signingCredentials: signinCredentials
             );
 

@@ -2,17 +2,24 @@
 
 namespace ContentHub.Domain.SeedWorks
 {
-    public interface IRepository<T, Key> where T : class where Key : notnull
+    public interface IRepository<T, Key>
+     where T : class
+     where Key : notnull
     {
+        IQueryable<T> GetAll();
+        Task<List<T>> GetAllAsync();
 
-        Task<IEnumerable<T>> GetAllAsync();
         Task<T?> GetByIdAsync(Key id);
+
         IQueryable<T> Find(Expression<Func<T, bool>> predicate);
 
-        void Add(T entity);
-        void AddRange(IEnumerable<T> entities);
+        Task Add(T entity);
+
+        Task AddRangeAsync(IEnumerable<T> entities);
+        Task<int> CompleteAsync();
 
         void Remove(T entity);
+
         void RemoveRange(IEnumerable<T> entities);
     }
 }

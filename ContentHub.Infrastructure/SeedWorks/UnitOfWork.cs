@@ -1,9 +1,4 @@
-﻿using AutoMapper;
-using ContentHub.Domain.Data.Entities;
-using ContentHub.Domain.Data.Identity;
-using ContentHub.Domain.SeedWorks;
-using ContentHub.Infrastructure.Repositories;
-using Microsoft.AspNetCore.Identity;
+﻿using ContentHub.Domain.SeedWorks;
 
 namespace ContentHub.Infrastructure.SeedWorks
 {

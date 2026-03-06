@@ -28,33 +28,33 @@ namespace ContentHub.Api.Controllers.AdminApi
             _categoryRepository = categoryRepository;
             _unitOfWork = unitOfWork;
         }
-        [HttpPost]
-        [Authorize(Policy = Permissions.Posts.Create)]
-        public async Task<IActionResult> CreatePost([FromBody] CreatePostRequest request)
-        {
-            if (await _postRepository.IsSlugAlreadyExistedAsync(request.Slug))
-            {
-                return BadRequest("Slug already existed!");
-            }
-            var category = await _categoryRepository.GetByIdAsync(request.CategoryId);
-            if (category == null)
-            {
-                return BadRequest("Category not found!");
-            }
-            var post = _mapper.Map<Post>(request);
+        //[HttpPost]
+        //[Authorize(Policy = Permissions.Posts.Create)]
+        //public async Task<IActionResult> CreatePost([FromBody] CreatePostRequest request)
+        //{
+        //    if (await _postRepository.IsSlugAlreadyExistedAsync(request.Slug))
+        //    {
+        //        return BadRequest("Slug already existed!");
+        //    }
+        //    var category = await _categoryRepository.GetByIdAsync(request.CategoryId);
+        //    if (category == null)
+        //    {
+        //        return BadRequest("Category not found!");
+        //    }
+        //    var post = _mapper.Map<Post>(request);
 
-            post.Id = Guid.NewGuid();
-            post.Name = request.Name;
-            post.Slug = request.Slug;
-            post.CategoryId = request.CategoryId;
-            post.DateCreated = DateTime.UtcNow;
-            post.Status = PostStatus.Draft;
-            post.ViewCount = 0;
-            _postRepository.Add(post);
-            await _unitOfWork.CompleteAsync();
+        //    post.Id = Guid.NewGuid();
+        //    post.Name = request.Name;
+        //    post.Slug = request.Slug;
+        //    post.CategoryId = request.CategoryId;
+        //    post.DateCreated = DateTime.UtcNow;
+        //    post.Status = PostStatus.Draft;
+        //    post.ViewCount = 0;
+        //    _postRepository.Add(post);
+        //    await _unitOfWork.CompleteAsync();
 
-            return Ok($"Create new is successfully! {post.Id}");
-        }
+        //    return Ok($"Create new is successfully! {post.Id}");
+        //}
 
     }
 }

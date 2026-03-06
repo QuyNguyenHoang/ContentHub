@@ -17,7 +17,7 @@ namespace ContentHub.Domain.Data.Entities
         [Column(TypeName = "varchar(250)")]
         [Required]
         public required string Slug { get; set; }
-        public Guid ParentId { get; set; }
+        public Guid? ParentId { get; set; }
         public bool IsActive { get; set; }
         public DateTime? DateCreated { get; set; }
         public DateTime? DateModified { get; set; }

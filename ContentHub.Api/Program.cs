@@ -2,10 +2,12 @@
 using ContentHub.Api.Authorization;
 using ContentHub.Api.Services;
 using ContentHub.Application.ConfigOptions;
+using ContentHub.Application.IRepositories;
 using ContentHub.Application.Models.Contents;
 using ContentHub.Domain.Data.Identity;
 using ContentHub.Domain.SeedWorks;
 using ContentHub.Infrastructure;
+using ContentHub.Infrastructure.Repositories;
 using ContentHub.Infrastructure.SeedWorks;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -94,6 +96,10 @@ builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<ContentHub.Api.Services.IEmailSender, SmtpEmailSender>();
 builder.Services.AddScoped(typeof(IRepository<,>), typeof(RepositoryBase<,>));
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+
+
+
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -101,8 +107,8 @@ builder.Services.AddSwaggerGen();
 
 
 
-var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
-builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
+//var port = Environment.GetEnvironmentVariable("PORT") ?? "7202";
+//builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
 
 
 
@@ -115,17 +121,17 @@ var app = builder.Build();
 // Middleware
 // =======================
 
-    app.UseSwagger();
-    app.UseSwaggerUI();
 
-//app.UseHttpsRedirection();
+
+app.UseHttpsRedirection();
 app.UseCors("ContentHubPolicy");
 
 //if (app.Environment.IsDevelopment())
 //{
-   
-//}
 
+//}
+app.UseSwagger();
+app.UseSwaggerUI();
 app.UseAuthentication();
 app.UseAuthorization();
 
