@@ -7,7 +7,7 @@ namespace ContentHub.Domain.Data.Entities
     public class PostTag
     {
         [Key]
-        public Guid Guid { get; set; }
+        public Guid Id { get; set; }
         public Guid PostId { get; set; }
         public Guid TagId { get; set; }
     }

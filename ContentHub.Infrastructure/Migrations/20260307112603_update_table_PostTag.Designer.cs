@@ -3,6 +3,7 @@ using System;
 using ContentHub.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ContentHub.Infrastructure.Migrations
 {
     [DbContext(typeof(ContentHubDbContext))]
-    partial class ContentHubDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260307112603_update_table_PostTag")]
+    partial class update_table_PostTag
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

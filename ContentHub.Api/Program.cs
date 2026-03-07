@@ -97,6 +97,7 @@ builder.Services.AddScoped<ContentHub.Api.Services.IEmailSender, SmtpEmailSender
 builder.Services.AddScoped(typeof(IRepository<,>), typeof(RepositoryBase<,>));
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+builder.Services.AddScoped<ITagRepository, TagRepository>();
 
 
 
