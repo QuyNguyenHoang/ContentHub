@@ -44,9 +44,9 @@ namespace ContentHub.Infrastructure.Repositories
             };
 
         }
-        public async Task<bool> HasPostAsync(Guid categoryId)
+        public  Task<bool> HasPost(Guid categoryId)
         {
-            return await _context.Posts.AsNoTracking().AnyAsync(x => x.CategoryId == categoryId);
+            return  _context.Posts.AsNoTracking().AnyAsync(x => x.CategoryId == categoryId);
         }
         public async Task<PostCategoriesDto> GetBySlug(string slug)
         {

@@ -18,9 +18,9 @@ namespace ContentHub.Infrastructure.Repositories
             _mapper = mapper;
         }
         //Check Name or Slug exist
-        public async Task<bool> NameOrSlugExistAsync(string name, string slug)
+        public async Task<bool> NameOrSlugExistAsync(string name)
         {
-            return await _context.Tags.AnyAsync(t => t.Name == name || t.Slug == slug);
+            return await _context.Tags.AnyAsync(t => t.Name == name);
         }
         //Tag paging
         public async Task<PagedResult<TagDto>> GetAllTagsAsync(string? keyword, int pageNumber = 1, int pageSize = 10)
@@ -28,7 +28,7 @@ namespace ContentHub.Infrastructure.Repositories
             var query = _context.Tags.AsNoTracking();
             if (!string.IsNullOrWhiteSpace(keyword))
             {
-                query = query.Where(x => x.Name.Contains(keyword));
+                query = query.Where(x => x.Name.Contains(keyword) || x.Slug.Contains(keyword));
             }
             query = query.OrderBy(x => x.Name);
             var totalRow = await query.CountAsync();

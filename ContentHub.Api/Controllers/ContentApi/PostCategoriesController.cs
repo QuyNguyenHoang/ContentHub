@@ -90,7 +90,7 @@ namespace ContentHub.Api.Controllers.ContentApi
                     if (category == null) {
                     return NotFound();
                         }
-                if(await _categoryRepository.HasPostAsync(id))
+                if(await _categoryRepository.HasPost(id))
                 {
                     return BadRequest("The category contrains the article and can not be deleted!!!");
                 }

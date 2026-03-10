@@ -26,7 +26,7 @@ namespace ContentHub.Api.Controllers.ContentApi
         [HttpPost("create")]
         public async Task<ActionResult<TagDto>> CreateTag([FromBody] CreateTagDto tagDto)
         {
-            var checkName = await _tag.NameOrSlugExistAsync(tagDto.Name, tagDto.Slug);
+            var checkName = await _tag.NameOrSlugExistAsync(tagDto.Name);
             if (checkName)
             {
                 return BadRequest("Name or Slug is already exist!!!");

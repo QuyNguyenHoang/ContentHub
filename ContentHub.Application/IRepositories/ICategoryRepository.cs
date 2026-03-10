@@ -9,7 +9,7 @@ namespace ContentHub.Application.IRepositories
     {
         Task<bool> CategoryExistsAsync(Guid categoryId);
         Task<PagedResult<PostCategoriesDto>> GetAllCategoriesAsync(string? keyword, int pageNumber = 1, int pageSize = 10);
-        Task<bool> HasPostAsync(Guid postId);
+        Task<bool> HasPost(Guid postId);
         Task<PostCategoriesDto> GetBySlug(string slug);
         Task<List<CategoryMenuDto>> MenuCategoryAsync();
     }

@@ -11,6 +11,7 @@ using ContentHub.Infrastructure.Repositories;
 using ContentHub.Infrastructure.SeedWorks;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -98,7 +99,7 @@ builder.Services.AddScoped(typeof(IRepository<,>), typeof(RepositoryBase<,>));
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<ITagRepository, TagRepository>();
-
+builder.Services.AddScoped<ISeriesRepository, SeriesRepository>();
 
 
 
@@ -145,4 +146,23 @@ catch (Exception ex)
 {
     Console.WriteLine("Migration failed: " + ex.Message);
 }
+
+
+//Middleware
+app.UseExceptionHandler(errorApp =>
+{
+    errorApp.Run(async context =>
+    {
+        var error = context.Features.Get<IExceptionHandlerFeature>()?.Error;
+
+        context.Response.StatusCode = StatusCodes.Status400BadRequest;
+
+        await context.Response.WriteAsJsonAsync(new
+        {
+            message = error?.Message
+        });
+    });
+});
+
+
 app.Run();
