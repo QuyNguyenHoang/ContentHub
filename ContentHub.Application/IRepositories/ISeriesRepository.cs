@@ -16,5 +16,6 @@ namespace ContentHub.Application.IRepositories
         Task <SeriesDto> AddNewSeriesAsync(SeriesRequestDto seriesRequest);
         Task<SeriesDto> UpdateSeriesAsync(Guid id, SeriesRequestDto seriesRequest);
         Task<int> DeleteSeriesAsync(Guid[] ids);
+        Task<List<SeriesDto>> GetDropDownSeriesAsync();
     }
 }

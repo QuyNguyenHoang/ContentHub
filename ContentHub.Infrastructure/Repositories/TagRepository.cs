@@ -3,6 +3,7 @@ using ContentHub.Application.IRepositories;
 using ContentHub.Application.Models;
 using ContentHub.Application.Models.Contents;
 using ContentHub.Domain.Data.Entities;
+using ContentHub.Domain.SeedWorks;
 using Microsoft.EntityFrameworkCore;
 
 namespace ContentHub.Infrastructure.Repositories
@@ -11,11 +12,14 @@ namespace ContentHub.Infrastructure.Repositories
     {
         private readonly ContentHubDbContext _context;
         private readonly IMapper _mapper;
+        private readonly IRepository<Tag, Guid> _repo;
         public TagRepository(ContentHubDbContext context,
-            IMapper mapper)
+            IMapper mapper,
+            IRepository<Tag, Guid> repo)
         {
             _context = context;
             _mapper = mapper;
+            _repo = repo;
         }
         //Check Name or Slug exist
         public async Task<bool> NameOrSlugExistAsync(string name)
@@ -41,7 +45,8 @@ namespace ContentHub.Infrastructure.Repositories
                 RowCount = totalRow,
                 PageSize = pageSize,
                 Results = tag,
-                CurrentPage = pageNumber
+                CurrentPage = pageNumber,
+
             };
         }
 
@@ -52,7 +57,8 @@ namespace ContentHub.Infrastructure.Repositories
                 .OrderBy(x => x.Name)
                 .Select(x => new TagDto
                 {
-                    Name = x.Name,
+                    Id = x.Id,
+                    Name = x.Name
                 })
                 .ToListAsync();
             return listnameTag;
@@ -69,6 +75,15 @@ namespace ContentHub.Infrastructure.Repositories
             }
             return _mapper.Map<TagDto>(tagbySlug);               
             
+        }
+        public async Task<TagDto?> GetTagByIdAsync(Guid id)
+        {
+            var tag = await _repo.GetByIdAsync(id);
+            if (tag == null)
+            {
+                return null; 
+            }
+            return _mapper.Map<TagDto?>(tag);
         }
     }
 }

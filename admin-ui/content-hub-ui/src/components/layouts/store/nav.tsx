@@ -4,7 +4,6 @@ import {
   cilBell,
   cilCalculator,
   cilChartPie,
-  cilCursor,
   cilDescription,
   cilDrop,
   cilExternalLink,
@@ -15,6 +14,8 @@ import {
   cilSpeedometer,
   cilStar,
   cilUser,
+  cilTag,
+
 } from '@coreui/icons'
 import { CNavGroup, CNavItem, CNavTitle } from '@coreui/react'
 
@@ -22,7 +23,7 @@ const nav = [
   {
     component: CNavItem,
     name: 'Dashboard',
-    to: '/dashboard',
+    to: '/admin/dashboard',
     icon: <CIcon icon={cilSpeedometer} customClassName="nav-icon" />,
     badge: {
       color: 'info',
@@ -57,7 +58,7 @@ const nav = [
       {
         component: CNavItem,
         name: 'Roles',
-        to: '/roles',
+        to: '/admin/roles',
         icon: <CIcon icon={cilUser} customClassName="nav-icon" />,
       },
       {
@@ -66,24 +67,24 @@ const nav = [
         to: '/roles/create',
         icon: <CIcon icon={cilPlus} customClassName="nav-icon" />,
       },
-       {
+      {
         component: CNavItem,
         name: 'User Manager',
-        to: '/users',
+        to: '/admin/users',
         icon: <CIcon icon={cilPlus} customClassName="nav-icon" />,
       },
     ],
   },
   {
     component: CNavGroup,
-    name: 'Buttons',
-    to: '/buttons',
-    icon: <CIcon icon={cilCursor} customClassName="nav-icon" />,
+    name: 'Content',
+    icon: <CIcon icon={cilDescription} customClassName="nav-icon" />,
     items: [
       {
         component: CNavItem,
-        name: 'Buttons',
-        to: '/buttons/buttons',
+        name: 'Tags',
+        to: '/admin/tags',
+        icon:<CIcon icon={cilTag} customClassName="nav-icon"/>
       },
       {
         component: CNavItem,

@@ -34,10 +34,23 @@ namespace ContentHub.Infrastructure.Repositories
                  })
                  .ToListAsync();
         }
+        public Task<List<SeriesDto>> GetDropDownSeriesAsync()
+        {
+            return _context.Series
+                .OrderByDescending(s => s.DateCreated)
+                .Select(s => new SeriesDto
+                {
+                    Id = s.Id,
+                    Name = s.Name
+                }).ToListAsync();
 
+        }
         public async Task<PagedResult<SeriesDto>> GetAllSeriesPagingAsync(string? keyword, int pageNumber = 1, int pageSize = 10)
         {
-            var query = _context.Series.AsNoTracking();
+            pageNumber = pageNumber < 1 ? 1 : pageNumber;
+            pageSize = pageSize <= 0 ? 10 : pageSize;
+            keyword = keyword?.Trim();
+            var query = _context.Series.Where(s=>s.IsActive == true).AsNoTracking();
             if (!string.IsNullOrWhiteSpace(keyword))
             {
                 query = query.Where(s => s.Name.Contains(keyword) || s.Slug == keyword);
@@ -56,7 +69,6 @@ namespace ContentHub.Infrastructure.Repositories
                 PageSize = pageSize,
                 CurrentPage = pageNumber
             };
-
 
         }
 

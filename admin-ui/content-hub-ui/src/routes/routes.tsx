@@ -13,6 +13,7 @@ const RoleForm = lazy(() => import('../pages/system/role.form'))
 const UserList = lazy(() => import('../features/system/User'))
 const UserUpdate = lazy(() => import('../pages/system/user.update'))
 const Regiter = lazy(()=> import('../pages/auth/register/Register'))
+const TagList = lazy(() => import('../features/content/TagComponent'))
 
 const routes = [
   {
@@ -28,6 +29,8 @@ const routes = [
       { path: 'roles/:id/permissions', element: <RolePermission /> },
       { path: 'users', element: <UserList /> },
       { path: 'users/update/:id', element: <UserUpdate /> },
+      { path: 'tags', element: < TagList/> },
+    
     ],
   },
   {

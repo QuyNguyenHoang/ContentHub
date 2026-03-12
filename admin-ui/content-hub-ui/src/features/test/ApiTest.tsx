@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { pingApi } from '../../api/testApi'
 import type { PingResponse } from '../../api/testApi'
 import { CAlert, CSpinner } from '@coreui/react'
-
+import './../../../../content-hub-ui/src/index.css'
 const ApiTest = () => {
   console.log('API URL =', import.meta.env.VITE_API_URL)
 

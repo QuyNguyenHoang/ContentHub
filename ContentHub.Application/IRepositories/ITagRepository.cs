@@ -9,6 +9,7 @@ namespace ContentHub.Application.IRepositories
         Task<bool> NameOrSlugExistAsync(string name);
         Task<List<TagDto>> GetTagDropdown();
         Task<TagDto?> GetTagBySlugAsync(string slug);
+        Task<TagDto?> GetTagByIdAsync(Guid tagId);
         
     }
 }

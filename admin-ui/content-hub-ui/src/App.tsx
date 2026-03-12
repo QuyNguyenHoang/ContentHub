@@ -4,11 +4,13 @@ import AppRoutes from './routes/AppRoutes'
 
 import './components/layouts/styles/scss/style.scss'
 import './components/layouts/styles/scss/examples.scss'
+
+
 export default function App() {
   return (
     <Suspense
       fallback={
-        <div className="d-flex justify-content-center align-items-center vh-100">
+        <div className="flex items-center justify-center h-screen">
           <CSpinner color="primary" />
         </div>
       }

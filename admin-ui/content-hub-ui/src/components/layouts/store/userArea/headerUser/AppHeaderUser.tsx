@@ -116,7 +116,7 @@ const AppHeaderUser = () => {
                 ref={inputRef}
                 type="search"
                 placeholder="Tìm kiếm khóa học, bài viết, kiến thức..."
-                className="flex-grow-1 border-0 shadow-none fs-5"
+                className=" border-0 shadow-none fs-5"
               />
 
               <CButton color="primary" className="ms-3 px-4 rounded-pill">

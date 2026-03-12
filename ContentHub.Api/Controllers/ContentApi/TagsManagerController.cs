@@ -85,7 +85,7 @@ namespace ContentHub.Api.Controllers.ContentApi
         }
 
         [HttpGet("dropdown")]
-        public async Task<ActionResult<List<TagDto>>> GetListTag ()
+        public async Task<ActionResult<List<TagDto>>> GetListTag()
         {
             var listTag = await _tag.GetTagDropdown();
             return Ok(listTag);
@@ -94,19 +94,27 @@ namespace ContentHub.Api.Controllers.ContentApi
         public async Task<ActionResult<TagDto>> GetTagBySlug(string slug)
         {
             var result = await _tag.GetTagBySlugAsync(slug);
-            if(result == null)
+            if (result == null)
             {
                 return NotFound($"Can not found tag with slug = {slug}");
             }
             return Ok(result);
         }
 
-        [HttpGet]
+        [HttpGet("all")]
         public async Task<ActionResult<PagedResult<TagDto>>> GetAllTag(string? keyword, int pageNumber = 1, int pageSize = 10)
         {
             var tagResult = await _tag.GetAllTagsAsync(keyword, pageNumber, pageSize);
             return Ok(tagResult);
         }
+        [HttpGet("{id}")]
+        public async Task<ActionResult<TagDto>> GetTagById(Guid id)
+        {
+            var result = await _tag.GetTagByIdAsync(id);
+            return Ok(result);
+        }
+
+
 
 
     }
