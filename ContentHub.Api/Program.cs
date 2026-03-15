@@ -17,6 +17,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 
+
 var builder = WebApplication.CreateBuilder(args);
 var configuration = builder.Configuration;
 
@@ -126,8 +127,9 @@ var app = builder.Build();
 
 
 app.UseHttpsRedirection();
+app.UseStaticFiles();
 app.UseCors("ContentHubPolicy");
-
+Console.WriteLine("WebRootPath: " + app.Environment.WebRootPath);
 //if (app.Environment.IsDevelopment())
 //{
 

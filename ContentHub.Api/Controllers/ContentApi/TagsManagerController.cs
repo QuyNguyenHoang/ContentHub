@@ -69,8 +69,10 @@ namespace ContentHub.Api.Controllers.ContentApi
         {
             foreach (var id in ids)
             {
+                var checkHasPost = await _tag.HasPostAsync(id);
                 var tag = await _repo.GetByIdAsync(id);
-                if (tag == null)
+                if (checkHasPost) { return BadRequest($"Can not delete tag with id = {id} because it contrain with POST"); }
+                if (tag == null )
                 {
                     return NotFound($"Can not found tag with id = {id}");
                 }

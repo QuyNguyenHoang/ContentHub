@@ -16,4 +16,8 @@
     <ProjectReference Include="..\ContentHub.Infrastructure\ContentHub.Infrastructure.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="wwwroot\" />
+  </ItemGroup>
+
 </Project>

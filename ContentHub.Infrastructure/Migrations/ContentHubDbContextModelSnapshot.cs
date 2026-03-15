@@ -185,10 +185,6 @@ namespace ContentHub.Infrastructure.Migrations
 
             modelBuilder.Entity("ContentHub.Domain.Data.Entities.PostSeries", b =>
                 {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
                     b.Property<Guid>("PostId")
                         .HasColumnType("uuid");
 
@@ -198,24 +194,20 @@ namespace ContentHub.Infrastructure.Migrations
                     b.Property<int>("SortOrder")
                         .HasColumnType("integer");
 
-                    b.HasKey("Id");
+                    b.HasKey("PostId", "SeriesId");
 
                     b.ToTable("PostSeries");
                 });
 
             modelBuilder.Entity("ContentHub.Domain.Data.Entities.PostTag", b =>
                 {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
                     b.Property<Guid>("PostId")
                         .HasColumnType("uuid");
 
                     b.Property<Guid>("TagId")
                         .HasColumnType("uuid");
 
-                    b.HasKey("Id");
+                    b.HasKey("PostId", "TagId");
 
                     b.ToTable("PostTags");
                 });
@@ -290,7 +282,7 @@ namespace ContentHub.Infrastructure.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)");
 
-                    b.Property<Guid>("UserId")
+                    b.Property<Guid?>("UserId")
                         .HasColumnType("uuid");
 
                     b.HasKey("Id");

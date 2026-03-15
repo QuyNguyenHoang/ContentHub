@@ -44,10 +44,10 @@ namespace ContentHub.Api.Controllers.ContentApi
         }
         [HttpGet("paging")]
         public async Task<ActionResult<PagedResult<SeriesDto>>> GetAllPagingSeries(string? keyword,
-            int pageNuber = 1,
+            int pageNumber = 1,
             int pageSize = 10)
         {
-            var result = await _seriesRepository.GetAllSeriesPagingAsync(keyword, pageNuber, pageSize);
+            var result = await _seriesRepository.GetAllSeriesPagingAsync(keyword, pageNumber, pageSize);
             return Ok(result);
         }
         [HttpGet("dropdown")]

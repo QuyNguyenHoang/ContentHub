@@ -85,5 +85,10 @@ namespace ContentHub.Infrastructure.Repositories
             }
             return _mapper.Map<TagDto?>(tag);
         }
+        public async Task<bool> HasPostAsync(Guid tagId)
+        {
+            return await _context.PostTags.AsNoTracking().AnyAsync(t=>t.TagId == tagId);
+        }
+
     }
 }

@@ -1,13 +1,12 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ContentHub.Domain.Data.Entities
 {
     [Table("PostSeries")]
+    [PrimaryKey(nameof(PostId), nameof(SeriesId))]
     public class PostSeries
     {
-        [Key]
-        public Guid Id { get; set; }
         public Guid SeriesId { get; set; }
         public Guid PostId { get; set; }
         public int SortOrder { get; set; }

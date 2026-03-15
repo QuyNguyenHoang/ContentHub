@@ -54,10 +54,7 @@ export const tagApi = {
   // DELETE MULTIPLE
 delete: (ids: string[]) =>
   axiosClient.delete('/api/tags', {
-    params: { ids },
-    paramsSerializer: {
-      indexes: null
-    }
+    data: { ids },
   }),
 
   // GET BY SLUG

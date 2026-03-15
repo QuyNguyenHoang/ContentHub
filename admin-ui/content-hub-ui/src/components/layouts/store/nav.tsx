@@ -15,6 +15,7 @@ import {
   cilStar,
   cilUser,
   cilTag,
+  cilLayers
 
 } from '@coreui/icons'
 import { CNavGroup, CNavItem, CNavTitle } from '@coreui/react'
@@ -82,14 +83,15 @@ const nav = [
     items: [
       {
         component: CNavItem,
-        name: 'Tags',
+        name: 'Tags Management',
         to: '/admin/tags',
         icon:<CIcon icon={cilTag} customClassName="nav-icon"/>
       },
       {
         component: CNavItem,
-        name: 'Buttons groups',
-        to: '/buttons/button-groups',
+        name: 'Series Management',
+        to: '/admin/series',
+        icon:<CIcon icon={cilLayers} customClassName="nav-icon"/>
       },
       {
         component: CNavItem,

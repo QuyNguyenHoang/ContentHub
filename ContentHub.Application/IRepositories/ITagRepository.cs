@@ -10,6 +10,7 @@ namespace ContentHub.Application.IRepositories
         Task<List<TagDto>> GetTagDropdown();
         Task<TagDto?> GetTagBySlugAsync(string slug);
         Task<TagDto?> GetTagByIdAsync(Guid tagId);
+        Task<bool> HasPostAsync(Guid tagId);
         
     }
 }

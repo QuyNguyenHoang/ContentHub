@@ -27,7 +27,7 @@ namespace ContentHub.Domain.Data.Entities
         public string? Thumbnail { get;set; }
         public string? Content { get; set; }
         public DateTime DateCreated { get; set; } = DateTime.UtcNow;
-        public Guid UserId { get; set; }
+        public Guid? UserId { get; set; }
 
     }
 }

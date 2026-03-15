@@ -18,7 +18,7 @@ namespace ContentHub.Application.Models.Contents
 
         public string? Thumbnail { get; set; }
         public string? Content { get; set; }
-        public Guid UserId { get; set; }
+        public Guid? UserId { get; set; }
 
         public class AutoMapperProfile : Profile
         {

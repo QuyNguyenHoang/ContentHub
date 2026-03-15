@@ -50,13 +50,15 @@ namespace ContentHub.Infrastructure.Repositories
             pageNumber = pageNumber < 1 ? 1 : pageNumber;
             pageSize = pageSize <= 0 ? 10 : pageSize;
             keyword = keyword?.Trim();
-            var query = _context.Series.Where(s=>s.IsActive == true).AsNoTracking();
+            var query = _context.Series.AsNoTracking();
             if (!string.IsNullOrWhiteSpace(keyword))
             {
                 query = query.Where(s => s.Name.Contains(keyword) || s.Slug == keyword);
 
             }
-            query = query.OrderByDescending(s => s.DateCreated);
+            query = query
+                .OrderByDescending(s => s.IsActive)
+                .ThenByDescending(s => s.DateCreated);
             var rowCount = await query.CountAsync();
             var seriesResult = await _mapper.ProjectTo<SeriesDto>(query)
                 .Skip((pageNumber - 1) * pageSize)
@@ -134,26 +136,46 @@ namespace ContentHub.Infrastructure.Repositories
             await _repo.CompleteAsync();
             return _mapper.Map<SeriesDto>(series);
         }
-
+        public async Task<bool> HasPostAsync(Guid seriesId)
+        {
+            return await _context.PostSeries.AsNoTracking().AnyAsync(s => s.SeriesId == seriesId);
+        }
         public async Task<int> DeleteSeriesAsync(Guid[] ids)
         {
             if (ids == null || ids.Length == 0)
                 throw new Exception("Ids cannot be empty");
 
             var seriesList = await _context.Series
-                .Where(s => ids.Contains(s.Id) && s.IsActive == true)
+                .Where(s => ids.Contains(s.Id) && s.IsActive)
                 .ToListAsync();
 
             if (!seriesList.Any())
                 throw new Exception("Series not found");
-            var deletecount = seriesList.Count;
-            //_context.Series.RemoveRange(seriesList);
+
+            var seriesHasPost = await _context.PostSeries
+                .Where(x => ids.Contains(x.SeriesId))
+                .Select(x => x.SeriesId)
+                .Distinct()
+                .ToListAsync();
+
+            var seriesHasPostSet = new HashSet<Guid>(seriesHasPost);
+
+            int deleteCount = 0;
+
             foreach (var series in seriesList)
             {
+                if (seriesHasPostSet.Contains(series.Id))
+                {
+                    continue;
+                }
+
                 series.IsActive = false;
+                deleteCount++;
             }
+
             await _context.SaveChangesAsync();
-            return deletecount;
+
+            return deleteCount;
         }
     }
 }
