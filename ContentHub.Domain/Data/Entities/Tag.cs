@@ -17,6 +17,7 @@ namespace ContentHub.Domain.Data.Entities
         [Required]
         [Column(TypeName = "varchar(250)")]
         public required string Slug { get; set; }
+        public ICollection<PostTag> PostTags { get; set; } = new List<PostTag>();
 
     }
 }

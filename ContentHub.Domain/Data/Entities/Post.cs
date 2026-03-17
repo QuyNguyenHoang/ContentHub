@@ -29,13 +29,17 @@ namespace ContentHub.Domain.Data.Entities
         public DateTime DateCreated { get; set; } = DateTime.UtcNow;
         public DateTime? DateModified { get; set; }
         public bool IsPaid { get; set; }
+        public bool IsDeleted { get; set; }
         [Column(TypeName = "Decimal(18,2)")]
-        public decimal RoyaltyAmout { get; set; }
+        public decimal RoyaltyAmount { get; set; }
         [Required]
         public Guid CategoryId { get; set; }
-
+        public PostCategory? Category { get; set; }
+        public ICollection<PostActivityLog> ActivityLogs { get; set; } = new List<PostActivityLog>();
+        public ICollection<PostTag> PostTags { get; set; } = new List<PostTag>();
+        public ICollection<PostSeries> PostSeries { get; set; } = new List<PostSeries>();
     }
-    public enum PostStatus
+    public enum PostStatus:byte
     {
         Draft = 0,
         WaitingForApproval = 1,

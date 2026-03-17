@@ -6,7 +6,7 @@ namespace ContentHub.Application.IRepositories
 {
     public interface ISeriesRepository
     {
-        Task<PagedResult<SeriesDto>> GetAllSeriesPagingAsync(string? keyword, 
+        Task<PagedResult<SeriesDto>> GetAllSeriesPagingAsync(string? keyword, string? filter,
             int pageNumber = 1 , int pageSize = 10);
         Task<List<SeriesDto>> GetAllSeriesAsync();
         Task<SeriesDto> GetSeriesByIdAsync(Guid id);

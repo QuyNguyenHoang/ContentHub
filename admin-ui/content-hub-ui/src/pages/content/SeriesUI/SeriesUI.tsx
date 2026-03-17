@@ -8,7 +8,7 @@ import {
   cilTrash,
   cilReload,
   cilFilter,
-  cilSortAlphaDown,
+  cilSwapVertical,
 } from "@coreui/icons";
 
 interface Props {
@@ -19,6 +19,8 @@ interface Props {
   onEdit: (id: string) => void;
   onCreate: () => void;
   toggleSelectAll: () => void;
+  filter: string;
+  setFilter: (value: string) => void;
 }
 
 export default function SeriesTable({
@@ -29,9 +31,10 @@ export default function SeriesTable({
   onDelete,
   onEdit,
   onCreate,
+  filter,
+  setFilter,
 }: Props) {
-  const [filter, setFilter] = useState("active");
-  const [sortType, setSortType] = useState("date");
+  const [sortType, setSortType] = useState("sortOrder");
 
   if (series.length === 0) {
     return <div className="text-center py-5 text-muted">No series found</div>;
@@ -40,16 +43,12 @@ export default function SeriesTable({
   // PROCESS DATA
   let processedSeries = [...series];
 
-  // FILTER
-  if (filter === "active") {
-    processedSeries = processedSeries.filter((s) => s.isActive);
-  } else if (filter === "deleted") {
-    processedSeries = processedSeries.filter((s) => !s.isActive);
-  } else {
-    processedSeries = processedSeries.filter((s) => !s.isActive || s.isActive);
+  // SORT
+  // SORT
+  if (sortType === "sortOrder") {
+    processedSeries.sort((a, b) => a.sortOrder - b.sortOrder);
   }
 
-  // SORT
   if (sortType === "name") {
     processedSeries.sort((a, b) => a.name.localeCompare(b.name));
   }
@@ -60,7 +59,7 @@ export default function SeriesTable({
         new Date(b.dateCreated).getTime() - new Date(a.dateCreated).getTime(),
     );
   }
-
+  const URL = import.meta.env.VITE_API_URL
   return (
     <div className="card shadow-sm">
       {/* HEADER */}
@@ -90,14 +89,6 @@ export default function SeriesTable({
 
         {/* SORT + FILTER */}
         <div className="d-flex justify-content-end align-items-center gap-2 pt-3">
-          <button
-            className="btn btn-outline-secondary btn-sm d-flex align-items-center"
-            onClick={() => setSortType(sortType === "date" ? "name" : "date")}
-          >
-            <CIcon icon={cilSortAlphaDown} className="me-1" />
-            Sort
-          </button>
-
           <div
             className="input-group input-group-sm"
             style={{ width: "170px" }}
@@ -133,13 +124,55 @@ export default function SeriesTable({
                   />
                 </th>
 
-                <th className="text-center">Sort</th>
+                <th className="text-center">
+                  Sort
+                  <CIcon
+                    icon={cilSwapVertical}
+                    size="sm"
+                    className="ms-1"
+                    title="Sort by Order number"
+                    style={{ cursor: "pointer" }}
+                    onMouseEnter={(e) =>
+                      (e.currentTarget.style.color = "#0d6efd")
+                    }
+                    onMouseLeave={(e) => (e.currentTarget.style.color = "")}
+                    onClick={() => setSortType("sortOrder")}
+                  />
+                </th>
 
-                <th>Name</th>
+                <th>
+                  Name
+                  <CIcon
+                    icon={cilSwapVertical}
+                    size="sm"
+                    className="ms-1"
+                    title="Sort by Name (A->Z)"
+                    style={{ cursor: "pointer" }}
+                    onMouseEnter={(e) =>
+                      (e.currentTarget.style.color = "#0d6efd")
+                    }
+                    onMouseLeave={(e) => (e.currentTarget.style.color = "")}
+                    onClick={() => setSortType("name")}
+                  />
+                </th>
 
                 <th className="text-center">Thumbnail</th>
 
-                <th className="text-nowrap">Date Created</th>
+                <th className="text-nowrap">
+                  Date Created
+                  <CIcon
+                    icon={cilSwapVertical}
+                    size="sm"
+                    className="ms-1"
+                    title="Sort by Date Created"
+                    style={{ cursor: "pointer" }}
+                    onMouseEnter={(e) =>
+                      (e.currentTarget.style.color = "#0d6efd")
+                    }
+                    onMouseLeave={(e) => (e.currentTarget.style.color = "")}
+                    onClick={() => setSortType("date")}
+                  />
+                </th>
 
                 <th className="text-center">Status</th>
 
@@ -167,13 +200,15 @@ export default function SeriesTable({
 
                     <td className="text-center">
                       <div className="d-flex justify-content-center align-items-center gap-1">
-                        {s.thumbnail && (
+                        {s.thumbnail ? (
                           <img
-                            src={`https://localhost:7202${s.thumbnail}`}
+                            src={`${URL}${s.thumbnail}`}
                             alt="thumbnail"
                             className="rounded"
-                            width="50"
+                            width="40"
                           />
+                        ) : (
+                          <span className="text-muted small">No thumbnail</span>
                         )}
 
                         <CIcon
@@ -236,11 +271,6 @@ export default function SeriesTable({
             </tbody>
           </table>
         </div>
-      </div>
-
-      {/* FOOTER */}
-      <div className="card-footer text-muted small">
-        Total series: {processedSeries.length}
       </div>
     </div>
   );

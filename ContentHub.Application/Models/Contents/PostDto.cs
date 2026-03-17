@@ -11,7 +11,7 @@ namespace ContentHub.Application.Models.Contents
         public string? SeoKeywords { get; set; }
         public string? SeoDescription { get; set; }
         public DateTime? DateModified { get; set; }
-        public decimal RoyaltyAmout { get; set; }
+        public decimal RoyaltyAmount { get; set; } 
         public Guid CategoryId { get; set; }
         public class AutomapperProfiles : Profile
         {

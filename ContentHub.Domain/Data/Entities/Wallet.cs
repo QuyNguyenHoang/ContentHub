@@ -10,13 +10,14 @@ namespace ContentHub.Domain.Data.Entities
         public Guid Id { get; set; }
         [MaxLength(250)]
         public string? Name { get; set; }
-        public DateTime? CreatedDate { get; set; }
+        public DateTime? DateCreated { get; set; }
         public bool IsActive { get; set; }
         [Column(TypeName = "decimal(18,2)")]
         public  decimal Balance { get; private set; } = 0;
-        public DateTime? DateUpdate { get; set; }
+        public DateTime? DateModified { get; set; }
         [Timestamp]
         public byte[] RowVersion { get; set; } = default!;
-        public Guid UserId { get; set; }    
+        public Guid UserId { get; set; }
+        public ICollection<WalletTransaction> Transactions { get; set; } = new List<WalletTransaction>();
     }
 }

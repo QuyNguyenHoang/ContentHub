@@ -1,10 +1,12 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ContentHub.Domain.Data.Entities
 {
-    [Table("PostActivityBlogs")]
-    public class PostActivityBlog
+    [Table("PostActivityLogs")]
+    [Index(nameof(PostId))]
+    public class PostActivityLog
     {
         [Key]
         public required Guid Id { get; set; }
@@ -16,5 +18,6 @@ namespace ContentHub.Domain.Data.Entities
         public Guid UserId { get; set; }
         [Required]
         public Guid PostId { get; set; }
+        public Post? Post { get; set; }
     }
 }

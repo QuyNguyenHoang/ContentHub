@@ -1,9 +1,11 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ContentHub.Domain.Data.Entities
 {
     [Table("PostPictures")]
+    [Index(nameof(PostId))]
     public class PostPicture
     {
         [Key]
@@ -14,7 +16,7 @@ namespace ContentHub.Domain.Data.Entities
         public string? Url { get; set; }
         public int? SortOrder { get; set; }
         public string? Description { get; set; }
-        public Guid Postid { get; set; }
-
+        public Guid PostId { get; set; }
+        public Post? Post { get; set; }
     }
 }

@@ -18,8 +18,8 @@ namespace ContentHub.Domain.Data.Entities
         public Guid? GrantedByUserId { get; set; }
         [MaxLength(500)]
         public string? GrantedByUserName { get; set; }
-        public DateTime CreatedDate { get; set; }
-        public DateTime CancelledDate { get; set; }
+        public DateTime DateCreated { get; set; }
+        public DateTime? CancelledDate { get; set; }
         public bool IsActive { get; set; }
         public Guid UserId { get; set; }
     }

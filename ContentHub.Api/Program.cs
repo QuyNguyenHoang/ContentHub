@@ -101,7 +101,7 @@ builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<ITagRepository, TagRepository>();
 builder.Services.AddScoped<ISeriesRepository, SeriesRepository>();
-
+builder.Services.AddScoped<IPostRepository, PostRepository>();
 
 
 builder.Services.AddControllers();

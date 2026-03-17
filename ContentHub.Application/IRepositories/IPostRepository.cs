@@ -7,8 +7,9 @@ namespace ContentHub.Application.IRepositories
 {
     public interface IPostRepository : IRepository<Post, Guid>
     {
-        Task<PagedResult<PostInListDto>> GetAllPaging(string? keyword, Guid? CategoryId, int pageIndex = 1, int pageSize = 10);
-        Task<bool> IsSlugAlreadyExistedAsync(string slug, Guid? currentId = null);
+        Task<bool> IsSlugAlreadyExisted(string? slug,Guid? currentId = null);
+        Task<PagedResult<PostDto>> GetPostPagingAsync(string? keyword, string? filter, int pageNumber = 1, int pageSize = 10);
+        
 
         
     }

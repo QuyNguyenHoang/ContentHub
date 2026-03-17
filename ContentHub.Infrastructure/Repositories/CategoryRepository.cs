@@ -10,11 +10,9 @@ namespace ContentHub.Infrastructure.Repositories
 {
     public class CategoryRepository : RepositoryBase<PostCategory, Guid>, ICategoryRepository
     {
-        private readonly ContentHubDbContext _context;
         private readonly IMapper _mapper;
         public CategoryRepository(ContentHubDbContext context, IMapper mapper) : base(context)
         {
-            _context = context;
             _mapper = mapper;
         }
         public async Task<bool> CategoryExistsAsync(Guid categoryId)

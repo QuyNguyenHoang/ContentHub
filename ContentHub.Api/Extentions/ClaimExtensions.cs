@@ -12,30 +12,56 @@ namespace ContentHub.Api.Extentions
     {
         public static void GetPermissions(this List<RoleClaimsDto> allPermissions, Type policy)
         {
-            FieldInfo[] fields = policy.GetFields(BindingFlags.Static | BindingFlags.Public);
-            foreach (FieldInfo fi in fields)
+            if (policy == null) throw new ArgumentNullException(nameof(policy));
+            if (allPermissions == null) throw new ArgumentNullException(nameof(allPermissions));
+
+            var fields = policy.GetFields(BindingFlags.Static | BindingFlags.Public);
+
+            foreach (var fi in fields)
             {
-                var attribute = fi.GetCustomAttributes(typeof(DescriptionAttribute), true);
-                string displayName = fi.GetValue(null).ToString();
+                // Lấy value an toàn
+                var value = fi.GetValue(null)?.ToString();
+                if (string.IsNullOrWhiteSpace(value))
+                    continue;
+
+                // Lấy description nếu có
                 var attributes = fi.GetCustomAttributes(typeof(DescriptionAttribute), true);
-                if (attributes.Length > 0)
+
+                var displayName = attributes.Length > 0
+                    ? ((DescriptionAttribute)attributes[0]).Description
+                    : value;
+
+                // Add vào list
+                allPermissions.Add(new RoleClaimsDto
                 {
-                    var description = (DescriptionAttribute)attribute[0];
-                    displayName = description.Description;
-                }
-                allPermissions.Add(new RoleClaimsDto { Value = fi.GetValue(null).ToString(), Type = AppClaimTypes.Permission, DisplayName = displayName });
+                    Value = value,
+                    Type = AppClaimTypes.Permission,
+                    DisplayName = displayName
+                });
             }
         }
-        public static async Task AddPermissionClaim(this RoleManager<AppRole> roleManager, AppRole role, string permission)
+
+        public static async Task AddPermissionClaim(
+            this RoleManager<AppRole> roleManager,
+            AppRole role,
+            string permission)
         {
+            if (roleManager == null) throw new ArgumentNullException(nameof(roleManager));
+            if (role == null) throw new ArgumentNullException(nameof(role));
+            if (string.IsNullOrWhiteSpace(permission)) return;
+
             var allClaims = await roleManager.GetClaimsAsync(role);
-            if (!allClaims.Any(a => a.Type == "Permission" && a.Value == permission))
+
+            var exists = allClaims.Any(c =>
+                c.Type == AppClaimTypes.Permission &&
+                c.Value == permission);
+
+            if (!exists)
             {
-                await roleManager.AddClaimAsync(role, new Claim(AppClaimTypes.Permission, permission));
+                await roleManager.AddClaimAsync(
+                    role,
+                    new Claim(AppClaimTypes.Permission, permission));
             }
         }
     }
 }
-
-
-

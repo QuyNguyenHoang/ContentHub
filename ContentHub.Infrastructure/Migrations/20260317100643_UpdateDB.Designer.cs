@@ -3,6 +3,7 @@ using System;
 using ContentHub.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ContentHub.Infrastructure.Migrations
 {
     [DbContext(typeof(ContentHubDbContext))]
-    partial class ContentHubDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260317100643_UpdateDB")]
+    partial class UpdateDB
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -43,9 +46,6 @@ namespace ContentHub.Infrastructure.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("text");
 
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("boolean");
-
                     b.Property<bool>("IsPaid")
                         .HasColumnType("boolean");
 
@@ -54,7 +54,7 @@ namespace ContentHub.Infrastructure.Migrations
                         .HasMaxLength(250)
                         .HasColumnType("character varying(250)");
 
-                    b.Property<decimal>("RoyaltyAmount")
+                    b.Property<decimal>("RoyaltyAmout")
                         .HasColumnType("Decimal(18,2)");
 
                     b.Property<string>("SeoDescription")
@@ -73,8 +73,8 @@ namespace ContentHub.Infrastructure.Migrations
                     b.Property<string>("Source")
                         .HasColumnType("text");
 
-                    b.Property<byte>("Status")
-                        .HasColumnType("smallint");
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
 
                     b.Property<string>("Tags")
                         .HasColumnType("text");
@@ -84,15 +84,13 @@ namespace ContentHub.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CategoryId");
-
                     b.HasIndex("Slug")
                         .IsUnique();
 
                     b.ToTable("Posts");
                 });
 
-            modelBuilder.Entity("ContentHub.Domain.Data.Entities.PostActivityLog", b =>
+            modelBuilder.Entity("ContentHub.Domain.Data.Entities.PostActivityBlog", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -101,8 +99,8 @@ namespace ContentHub.Infrastructure.Migrations
                     b.Property<DateTime>("DateCreated")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<byte>("FromStatus")
-                        .HasColumnType("smallint");
+                    b.Property<int>("FromStatus")
+                        .HasColumnType("integer");
 
                     b.Property<string>("Note")
                         .HasColumnType("text");
@@ -110,17 +108,15 @@ namespace ContentHub.Infrastructure.Migrations
                     b.Property<Guid>("PostId")
                         .HasColumnType("uuid");
 
-                    b.Property<byte>("ToStatus")
-                        .HasColumnType("smallint");
+                    b.Property<int>("ToStatus")
+                        .HasColumnType("integer");
 
                     b.Property<Guid>("UserId")
                         .HasColumnType("uuid");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("PostId");
-
-                    b.ToTable("PostActivityLogs");
+                    b.ToTable("PostActivityBlogs");
                 });
 
             modelBuilder.Entity("ContentHub.Domain.Data.Entities.PostCategory", b =>
@@ -129,16 +125,13 @@ namespace ContentHub.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<DateTime>("DateCreated")
+                    b.Property<DateTime?>("DateCreated")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<DateTime?>("DateModified")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
-
-                    b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
                     b.Property<string>("Name")
@@ -158,8 +151,6 @@ namespace ContentHub.Infrastructure.Migrations
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("ParentId");
 
                     b.HasIndex("Slug")
                         .IsUnique();
@@ -210,8 +201,6 @@ namespace ContentHub.Infrastructure.Migrations
 
                     b.HasKey("PostId", "SeriesId");
 
-                    b.HasIndex("SeriesId");
-
                     b.ToTable("PostSeries");
                 });
 
@@ -224,8 +213,6 @@ namespace ContentHub.Infrastructure.Migrations
                         .HasColumnType("uuid");
 
                     b.HasKey("PostId", "TagId");
-
-                    b.HasIndex("TagId");
 
                     b.ToTable("PostTags");
                 });
@@ -319,10 +306,10 @@ namespace ContentHub.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<DateTime?>("CancelledDate")
+                    b.Property<DateTime>("CancelledDate")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<DateTime>("DateCreated")
+                    b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<DateTime>("EndDay")
@@ -432,10 +419,10 @@ namespace ContentHub.Infrastructure.Migrations
                     b.Property<decimal>("Balance")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<DateTime?>("DateCreated")
+                    b.Property<DateTime?>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<DateTime?>("DateModified")
+                    b.Property<DateTime?>("DateUpdate")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<bool>("IsActive")
@@ -471,7 +458,7 @@ namespace ContentHub.Infrastructure.Migrations
                     b.Property<decimal>("BalanceAfter")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<DateTime>("DateCreated")
+                    b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<byte>("Direction")
@@ -490,8 +477,6 @@ namespace ContentHub.Infrastructure.Migrations
                         .HasColumnType("uuid");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("WalletId");
 
                     b.ToTable("WalletTransactions");
                 });
@@ -707,90 +692,21 @@ namespace ContentHub.Infrastructure.Migrations
                     b.ToTable("AppUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("ContentHub.Domain.Data.Entities.Post", b =>
-                {
-                    b.HasOne("ContentHub.Domain.Data.Entities.PostCategory", "Category")
-                        .WithMany("Posts")
-                        .HasForeignKey("CategoryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Category");
-                });
-
-            modelBuilder.Entity("ContentHub.Domain.Data.Entities.PostActivityLog", b =>
-                {
-                    b.HasOne("ContentHub.Domain.Data.Entities.Post", "Post")
-                        .WithMany("ActivityLogs")
-                        .HasForeignKey("PostId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Post");
-                });
-
-            modelBuilder.Entity("ContentHub.Domain.Data.Entities.PostCategory", b =>
-                {
-                    b.HasOne("ContentHub.Domain.Data.Entities.PostCategory", "Parent")
-                        .WithMany("Children")
-                        .HasForeignKey("ParentId");
-
-                    b.Navigation("Parent");
-                });
-
             modelBuilder.Entity("ContentHub.Domain.Data.Entities.PostPicture", b =>
                 {
                     b.HasOne("ContentHub.Domain.Data.Entities.Post", "Post")
-                        .WithMany()
+                        .WithMany("Pictures")
                         .HasForeignKey("PostId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Post");
-                });
-
-            modelBuilder.Entity("ContentHub.Domain.Data.Entities.PostSeries", b =>
-                {
-                    b.HasOne("ContentHub.Domain.Data.Entities.Post", "Post")
-                        .WithMany("PostSeries")
-                        .HasForeignKey("PostId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("ContentHub.Domain.Data.Entities.Series", "Series")
-                        .WithMany("PostSeries")
-                        .HasForeignKey("SeriesId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Post");
-
-                    b.Navigation("Series");
-                });
-
-            modelBuilder.Entity("ContentHub.Domain.Data.Entities.PostTag", b =>
-                {
-                    b.HasOne("ContentHub.Domain.Data.Entities.Post", "Post")
-                        .WithMany("PostTags")
-                        .HasForeignKey("PostId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("ContentHub.Domain.Data.Entities.Tag", "Tag")
-                        .WithMany("PostTags")
-                        .HasForeignKey("TagId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Post");
-
-                    b.Navigation("Tag");
                 });
 
             modelBuilder.Entity("ContentHub.Domain.Data.Entities.PostVideo", b =>
                 {
                     b.HasOne("ContentHub.Domain.Data.Entities.Post", "Post")
-                        .WithMany()
+                        .WithMany("Videos")
                         .HasForeignKey("PostId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -798,46 +714,11 @@ namespace ContentHub.Infrastructure.Migrations
                     b.Navigation("Post");
                 });
 
-            modelBuilder.Entity("ContentHub.Domain.Data.Entities.WalletTransaction", b =>
-                {
-                    b.HasOne("ContentHub.Domain.Data.Entities.Wallet", "Wallet")
-                        .WithMany("Transactions")
-                        .HasForeignKey("WalletId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Wallet");
-                });
-
             modelBuilder.Entity("ContentHub.Domain.Data.Entities.Post", b =>
                 {
-                    b.Navigation("ActivityLogs");
+                    b.Navigation("Pictures");
 
-                    b.Navigation("PostSeries");
-
-                    b.Navigation("PostTags");
-                });
-
-            modelBuilder.Entity("ContentHub.Domain.Data.Entities.PostCategory", b =>
-                {
-                    b.Navigation("Children");
-
-                    b.Navigation("Posts");
-                });
-
-            modelBuilder.Entity("ContentHub.Domain.Data.Entities.Series", b =>
-                {
-                    b.Navigation("PostSeries");
-                });
-
-            modelBuilder.Entity("ContentHub.Domain.Data.Entities.Tag", b =>
-                {
-                    b.Navigation("PostTags");
-                });
-
-            modelBuilder.Entity("ContentHub.Domain.Data.Entities.Wallet", b =>
-                {
-                    b.Navigation("Transactions");
+                    b.Navigation("Videos");
                 });
 #pragma warning restore 612, 618
         }

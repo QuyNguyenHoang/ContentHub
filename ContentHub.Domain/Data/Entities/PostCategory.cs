@@ -18,9 +18,13 @@ namespace ContentHub.Domain.Data.Entities
         [Required]
         public required string Slug { get; set; }
         public Guid? ParentId { get; set; }
-        public bool IsActive { get; set; }
-        public DateTime? DateCreated { get; set; }
+        public bool IsActive { get; set; } = true;
+        public bool IsDeleted { get; set; } = false;
+        public DateTime DateCreated { get; set; } = DateTime.UtcNow;
         public DateTime? DateModified { get; set; }
         public int? SortOrder { get; set; }
+        public PostCategory? Parent { get; set; }
+        public ICollection<PostCategory> Children { get; set; } = new List<PostCategory>();
+        public ICollection<Post> Posts { get; set; } = new List<Post>();
     }
 }

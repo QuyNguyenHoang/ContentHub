@@ -25,7 +25,8 @@ namespace ContentHub.Domain.Data.Entities
 
         public string? Note { get; set; }
 
-        public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
+        public DateTime DateCreated { get; set; } = DateTime.UtcNow;
+        public Wallet? Wallet { get; set; }
     }
     public enum WalletTransactionDirection : byte
     {

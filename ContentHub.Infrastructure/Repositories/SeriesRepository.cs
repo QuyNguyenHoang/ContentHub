@@ -45,25 +45,56 @@ namespace ContentHub.Infrastructure.Repositories
                 }).ToListAsync();
 
         }
-        public async Task<PagedResult<SeriesDto>> GetAllSeriesPagingAsync(string? keyword, int pageNumber = 1, int pageSize = 10)
+        public async Task<PagedResult<SeriesDto>> GetAllSeriesPagingAsync(
+    string? keyword,
+    string? filter,
+    int pageNumber = 1,
+    int pageSize = 10)
         {
             pageNumber = pageNumber < 1 ? 1 : pageNumber;
             pageSize = pageSize <= 0 ? 10 : pageSize;
+
             keyword = keyword?.Trim();
+            filter = filter?.Trim()?.ToLower();
+
             var query = _context.Series.AsNoTracking();
+
+            // SEARCH
             if (!string.IsNullOrWhiteSpace(keyword))
             {
-                query = query.Where(s => s.Name.Contains(keyword) || s.Slug == keyword);
-
+                query = query.Where(s =>
+                    s.Name.Contains(keyword) ||
+                    s.Slug.Contains(keyword));
             }
+
+            // FILTER STATUS
+            if (!string.IsNullOrWhiteSpace(filter))
+            {
+                if (filter == "active")
+                {
+                    query = query.Where(s => s.IsActive);
+                }
+                else if (filter == "deleted")
+                {
+                    query = query.Where(s => !s.IsActive);
+                }
+            }
+
             query = query
-                .OrderByDescending(s => s.IsActive)
-                .ThenByDescending(s => s.DateCreated);
+    .OrderBy(s => s.SortOrder == 0 ? int.MaxValue : s.SortOrder)
+    .ThenByDescending(s => s.IsActive)
+    .ThenBy(s => s.DateCreated);
+            Console.WriteLine(query.ToQueryString());
+            // COUNT
             var rowCount = await query.CountAsync();
-            var seriesResult = await _mapper.ProjectTo<SeriesDto>(query)
+
+            // PAGINATION
+            var seriesResult = await _mapper
+                .ProjectTo<SeriesDto>(query)
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
+
             return new PagedResult<SeriesDto>
             {
                 Results = seriesResult,
@@ -71,7 +102,6 @@ namespace ContentHub.Infrastructure.Repositories
                 PageSize = pageSize,
                 CurrentPage = pageNumber
             };
-
         }
 
         public async Task<SeriesDto> GetSeriesByIdAsync(Guid id)

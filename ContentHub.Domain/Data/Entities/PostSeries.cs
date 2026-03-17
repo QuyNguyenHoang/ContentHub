@@ -10,5 +10,7 @@ namespace ContentHub.Domain.Data.Entities
         public Guid SeriesId { get; set; }
         public Guid PostId { get; set; }
         public int SortOrder { get; set; }
+        public Post? Post { get; set; }
+        public Series? Series { get; set; }
     }
 }

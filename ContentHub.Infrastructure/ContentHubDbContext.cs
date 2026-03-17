@@ -13,7 +13,7 @@ namespace ContentHub.Infrastructure
     {
         public ContentHubDbContext (DbContextOptions options) : base(options) { }
         public DbSet<Post> Posts { get; set; }
-        public DbSet<PostActivityBlog> PostActivityBlogs { get; set; }
+        public DbSet<PostActivityLog> PostActivityBlogs { get; set; }
         public DbSet<PostCategory> PostCategories { get; set; }
         public DbSet<PostPicture> PostPictures { get; set; }
         public DbSet<PostSeries> PostSeries { get; set; }

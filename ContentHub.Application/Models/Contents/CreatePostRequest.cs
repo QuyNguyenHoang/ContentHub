@@ -8,9 +8,7 @@ namespace ContentHub.Application.Models.Contents
     {
         public required string Name { get; set; }
 
-        public required string Slug { get; set; }
-
-        [MaxLength(500)]
+         [MaxLength(500)]
         public string? Description { get; set; }
 
         public string? Thumbnail { get; set; }
@@ -20,14 +18,14 @@ namespace ContentHub.Application.Models.Contents
 
         public string? Source { get; set; }
 
-        public string[]? Tags { get; set; }
+        public required string[] Tags { get; set; }
 
         public string? SeoDescription { get; set; }
         public class AutoMapperProfile : Profile
         {
             public AutoMapperProfile()
             {
-                CreateMap<CreatePostRequest, Post>();
+                CreateMap<CreatePostRequest, Post>().ForMember(dest=>dest.Slug, opt=>opt.MapFrom(src=>SlugExtensions.GenerateSlug(src.Name)));
             }
         }
 

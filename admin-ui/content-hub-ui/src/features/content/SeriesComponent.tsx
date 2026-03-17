@@ -12,8 +12,9 @@ export default function SeriesList() {
   const [loading, setLoading] = useState(false);
   const [keyword, setKeyword] = useState("");
   const [pageNumber, setPageNumber] = useState(1);
-  const [pageSize] = useState(1);
+  const [pageSize] = useState(10);
   const [pageCount, setPageCount] = useState(1);
+  const [filter, setFilter] = useState("active");
   // Pagination logic
   const visiblePages = 5;
 
@@ -50,7 +51,7 @@ export default function SeriesList() {
   }
 
   //upload Thubnail
-  
+
   const getUserIdFromToken = (): string | null => {
     const token = localStorage.getItem("access_token");
 
@@ -175,6 +176,7 @@ export default function SeriesList() {
         keyword,
         pageNumber,
         pageSize,
+        filter,
       });
 
       const data = res.data;
@@ -186,11 +188,17 @@ export default function SeriesList() {
       setLoading(false);
       setSelectedIds([]);
     }
-  }, [keyword, pageNumber, pageSize]);
+  }, [keyword, pageNumber, pageSize, filter]);
 
-  useEffect(() => {
-    loadSeries();
-  }, [loadSeries]);
+ // reset page khi filter thay đổi
+useEffect(() => {
+  setPageNumber(1);
+}, [filter]);
+
+// load data
+useEffect(() => {
+  loadSeries();
+}, [loadSeries]);
 
   //Select Row
   const toggleSelectItem = (id: string) => {
@@ -254,7 +262,7 @@ export default function SeriesList() {
               <input
                 type="text"
                 className="form-control"
-                placeholder="Search tag..."
+                placeholder="Search series..."
                 value={keyword}
                 onChange={(e) => {
                   setKeyword(e.target.value);
@@ -271,17 +279,17 @@ export default function SeriesList() {
                 Search
               </button>
             </div>
+            {selectedIds.length > 0 && (
+              <div className="col-6 col-md-auto">
+                <button
+                  className="btn btn-danger w-100"
+                  onClick={handleDeleteSelected}
+                >
+                  Delete ({selectedIds.length})
+                </button>
+              </div>
+            )}
           </div>
-          {selectedIds.length > 0 && (
-            <div className="col-6 col-md-auto">
-              <button
-                className="btn btn-danger w-100"
-                onClick={handleDeleteSelected}
-              >
-                Delete ({selectedIds.length})
-              </button>
-            </div>
-          )}
         </div>
 
         {/* CONTENT */}
@@ -299,6 +307,8 @@ export default function SeriesList() {
               onDelete={handleDeleted}
               onEdit={handleEdit}
               onCreate={handleCreate}
+              filter={filter}
+              setFilter={setFilter}
             />
           )}
           <SeriesCreateDrawer
