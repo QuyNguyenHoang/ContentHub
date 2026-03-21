@@ -9,7 +9,7 @@ import {
 
 export default function ContentHub() {
   return (
-    <CContainer className="mt-4">
+    <CContainer className="mt-4 min-vh-100">
       <CRow>
         <CCol>
           <CCard>

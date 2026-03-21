@@ -15,6 +15,7 @@ const UserUpdate = lazy(() => import("../pages/system/user.update"));
 const Regiter = lazy(() => import("../pages/auth/register/Register"));
 const TagList = lazy(() => import("../features/content/TagComponent"));
 const SeriesList = lazy(() => import("../features/content/SeriesComponent"));
+const PostList = lazy(() => import("../features/content/PostComponent"));
 const routes = [
   {
     path: "/admin",
@@ -31,15 +32,19 @@ const routes = [
       { path: "users/update/:id", element: <UserUpdate /> },
       { path: "tags", element: <TagList /> },
       { path: "series", element: <SeriesList /> },
+      
     ],
   },
   {
     path: "/",
     element: <UserLayout />,
-    children: [{ index: true, path: "ContentHub", element: <ContentHub /> }],
+    children: [{ index: true, path: "ContentHub", element: <ContentHub /> },
+      {path:"posts", element:<PostList/>},
+    ],
   },
   { path: "/login", element: <Login /> },
   { path: "/register", element: <Regiter /> },
+  {path:"posts", element:<PostList/>},
 ];
 
 export default routes;

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using ContentHub.Domain.Data.Entities;
+using Microsoft.AspNetCore.Identity;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -23,6 +24,7 @@ namespace ContentHub.Domain.Data.Identity
         [MaxLength(500)]
         public string? Avatar { get; set; }
         public DateTime? LastLoginDate { get; set; }
+        public ICollection<Post> Posts { get; set; } = new List<Post>();
         public string GetFullName()
         {
             return this.FirstName + " " + this.LastName;

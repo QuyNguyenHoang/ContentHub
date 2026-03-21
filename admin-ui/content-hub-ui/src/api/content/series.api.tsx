@@ -43,6 +43,7 @@ export const seriesApi = {
     pageNumber?: number;
     pageSize?: number;
     pageCount?: number;
+    filter?: string;
   }) =>
     axiosClient.get<PagedResult<SeriesResponse>>("/api/series/paging", {
       params,

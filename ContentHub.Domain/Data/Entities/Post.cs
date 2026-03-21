@@ -1,4 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using ContentHub.Domain.Data.Identity;
+using ContentHub.Domain.SeedWorks.Constant;
+using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -35,6 +37,8 @@ namespace ContentHub.Domain.Data.Entities
         [Required]
         public Guid CategoryId { get; set; }
         public PostCategory? Category { get; set; }
+        public Guid AuthorUserId {  get; set; }
+        public AppUser? Author { get; set; }
         public ICollection<PostActivityLog> ActivityLogs { get; set; } = new List<PostActivityLog>();
         public ICollection<PostTag> PostTags { get; set; } = new List<PostTag>();
         public ICollection<PostSeries> PostSeries { get; set; } = new List<PostSeries>();
