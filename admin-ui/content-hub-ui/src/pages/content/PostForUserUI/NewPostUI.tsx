@@ -25,6 +25,7 @@ import CIcon from "@coreui/icons-react";
 import "./style.css";
 
 export default function NewPostPage() {
+  const API_URL = import.meta.env.VITE_API_URL;
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState<string | null>(null);
 
@@ -324,7 +325,7 @@ export default function NewPostPage() {
                               .chain()
                               .focus()
                               .setImage({
-                                src: `https://localhost:7202${path}`,
+                                src: `${API_URL}/${path}`, 
                               })
                               .run();
                           } catch (error) {

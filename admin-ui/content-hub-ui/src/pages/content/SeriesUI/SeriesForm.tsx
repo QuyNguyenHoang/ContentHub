@@ -30,6 +30,7 @@ export default function SeriesCreateDrawer({
   series,
   setSeries,
 }: Props) {
+   const API_URL = import.meta.env.VITE_API_URL;
   const [loading, setLoading] = useState(false);
 
   const handleChange = (key: keyof SeriesRequest, value: any) => {
@@ -158,7 +159,7 @@ export default function SeriesCreateDrawer({
             {series.thumbnail && (
               <div className="mb-2">
                 <img
-                  src={`https://localhost:7202${series.thumbnail}`}
+                  src={`${API_URL}/${series.thumbnail}`}
                   alt="preview"
                   width="120"
                   className="rounded border"
