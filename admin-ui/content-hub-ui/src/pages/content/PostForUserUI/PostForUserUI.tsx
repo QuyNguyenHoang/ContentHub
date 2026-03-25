@@ -1,4 +1,3 @@
-import CIcon from "@coreui/icons-react";
 import type { PostResponse } from "../../../api/content/post.api";
 import DOMPurify from "dompurify";
 import { useState } from "react";
