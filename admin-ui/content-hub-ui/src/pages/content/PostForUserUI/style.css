@@ -1,0 +1,21 @@
+/* fix mọi trường hợp */
+.ProseMirror * {
+  box-shadow: none !important;
+}
+
+/* bỏ viền và outline */
+.ProseMirror,
+.ProseMirror p {
+  border: none !important;
+  outline: none !important;
+}
+
+/* làm đẹp */
+.ProseMirror {
+  font-size: 18px;
+  line-height: 1.8;
+}
+.btn.active {
+  background-color: #80b0f9; 
+  color: white;
+}

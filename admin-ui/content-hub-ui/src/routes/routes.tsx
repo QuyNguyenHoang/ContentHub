@@ -3,6 +3,7 @@ import DefaultLayout from "../components/layouts/adminLayout";
 import UserLayout from "../components/layouts/userLayout";
 import RolePermission from "../pages/system/role.permission";
 
+
 const Home = lazy(() => import("../pages/home/Home"));
 const ContentHub = lazy(() => import("../pages/home/ContentHub"));
 const Login = lazy(() => import("../pages/auth/login/LoginUI"));
@@ -16,6 +17,7 @@ const Regiter = lazy(() => import("../pages/auth/register/Register"));
 const TagList = lazy(() => import("../features/content/TagComponent"));
 const SeriesList = lazy(() => import("../features/content/SeriesComponent"));
 const PostList = lazy(() => import("../features/content/PostComponent"));
+const NewPost = lazy(() => import("../pages/content/PostForUserUI/NewPostUI"));
 const routes = [
   {
     path: "/admin",
@@ -32,19 +34,43 @@ const routes = [
       { path: "users/update/:id", element: <UserUpdate /> },
       { path: "tags", element: <TagList /> },
       { path: "series", element: <SeriesList /> },
-      
+    ],
+  },
+  {
+    element: <UserLayout />,
+    children: [
+      { index: true, path: "ContentHub", element: <ContentHub /> },
+      {
+        index: true,
+        element: <ContentHub />,
+      },
+      {
+        path: "home",
+        element: <ContentHub />,
+      },
+      { path: "posts", element: <PostList /> },
     ],
   },
   {
     path: "/",
-    element: <UserLayout />,
-    children: [{ index: true, path: "ContentHub", element: <ContentHub /> },
-      {path:"posts", element:<PostList/>},
+    children: [
+      {
+        index: true,
+        element: <ContentHub />,
+      },
+      {
+        path: "home",
+        element: <ContentHub />,
+      },
+      {
+        path: "/new",
+        element: <NewPost />,
+      },
     ],
   },
   { path: "/login", element: <Login /> },
   { path: "/register", element: <Regiter /> },
-  {path:"posts", element:<PostList/>},
+  { path: "posts", element: <PostList /> },
 ];
 
 export default routes;

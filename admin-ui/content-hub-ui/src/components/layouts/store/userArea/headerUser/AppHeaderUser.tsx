@@ -103,7 +103,6 @@ const AppHeaderUser = () => {
 </CContainer>
       </CHeader>
 
-      {/* ===== SEARCH OVERLAY ===== */}
       {showSearch && (
         <div
           ref={overlayRef}
@@ -111,7 +110,7 @@ const AppHeaderUser = () => {
           onClick={handleOverlayClick}
         >
           <div className="search-box shadow-lg">
-            <CForm className="d-flex align-items-center">
+            <CForm className="d-flex align-items-center py-2">
               <CFormInput
                 ref={inputRef}
                 type="search"
@@ -119,7 +118,7 @@ const AppHeaderUser = () => {
                 className=" border-0 shadow-none fs-5"
               />
 
-              <CButton color="primary" className="ms-3 px-4 rounded-pill">
+              <CButton color="primary" className=" btn btn-sm ms-3 px-4 rounded-2">
                 Tìm kiếm
               </CButton>
 

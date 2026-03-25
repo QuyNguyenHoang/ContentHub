@@ -16,6 +16,9 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using DotNetEnv;
+
+Env.Load();
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -26,16 +29,13 @@ var configuration = builder.Configuration;
 // =======================
 builder.Services.AddDbContext<ContentHubDbContext>(options =>
 {
-    var connectionString = configuration.GetConnectionString("DefaultConnection");
-
-    if (builder.Environment.IsDevelopment())
-    {
-        options.UseSqlServer(connectionString);
-    }
-    else
-    {
-        options.UseNpgsql(connectionString);
-    }
+    var dbUser = "postgres.jhpegibbuqpvapxrrkof";
+    var dbPassword = Environment.GetEnvironmentVariable("DB_PASSWORD");
+    var dbServer = "aws-1-ap-southeast-1.pooler.supabase.com";
+    var dbPort = "5432";
+    var dbName = "postgres";
+    var connectionString = $"User Id={dbUser};Password={dbPassword};Server={dbServer};Port={dbPort};Database={dbName}";
+    options.UseNpgsql(connectionString);
 });
 
 builder.Services.AddIdentity<AppUser, AppRole>()
