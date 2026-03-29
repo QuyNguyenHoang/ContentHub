@@ -31,7 +31,7 @@ interface RegisterFormData {
   email: string
   password: string
   confirmPassword: string
-  dob: string // luôn là string cho input
+  dob: string 
 }
 
 /* =========================
@@ -65,7 +65,7 @@ const RegisterPage = () => {
     email: "",
     password: "",
     confirmPassword: "",
-    dob: "", // luôn string
+    dob: "", 
   })
 
   const [error, setError] = useState<string | null>(null)

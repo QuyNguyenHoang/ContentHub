@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from "react";
-import { tagApi } from "../../api/content/content.api";
-import type { TagResponse } from "../../api/content/content.api";
+import { tagApi } from "../../api/content/tag.api";
+import type { TagResponse } from "../../api/content/tag.api";
 import TagTable from "../../pages/content/TagUI/TagUI";
 import TagCreateDrawer from "../../pages/content/TagUI/CreateTagUI";
 export default function TagList() {

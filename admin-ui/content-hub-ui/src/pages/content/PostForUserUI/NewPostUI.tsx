@@ -5,8 +5,11 @@ import Link from "@tiptap/extension-link";
 import Placeholder from "@tiptap/extension-placeholder";
 import Underline from "@tiptap/extension-underline";
 import TextAlign from "@tiptap/extension-text-align";
-import { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { postApi } from "../../../api/content/post.api";
+import { mediaApi } from "../../../api/extentions/media.api";
+import { DecodeToken } from "../../../api/extentions/decodeToken";
+import TagList  from "../PostForUserUI/PostTagUI"
 import {
   cilAlignCenter,
   cilAlignLeft,
@@ -15,6 +18,7 @@ import {
   cilCode,
   cilImage,
   cilItalic,
+  cilJustifyCenter,
   cilLink,
   cilList,
   cilListNumbered,
@@ -25,10 +29,23 @@ import CIcon from "@coreui/icons-react";
 import "./style.css";
 
 export default function NewPostPage() {
-  const API_URL = import.meta.env.VITE_API_URL;
+  //Auto save
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const savingRef = React.useRef(false);
+  const [AuthId, setAuthId] = useState<string | null>(null);
+  const [postId, setPostId] = useState<string | null>(null);
+  
+
+
+
+  const [loadingMedia, setLoadingMedia] = useState(false);
+  useEffect(() => {
+    const user = DecodeToken.accessToken();
+    setAuthId(user?.userId || null);
+  }, []);
+
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState<string | null>(null);
-
   const [form, setForm] = useState({
     name: "",
     description: "",
@@ -39,11 +56,59 @@ export default function NewPostPage() {
     status: 0,
     authorUserId: "",
   });
+  useEffect(() => {
+    if (AuthId) {
+      setForm((prev) => ({
+        ...prev,
+        authorUserId: AuthId,
+      }));
+    }
+  }, [AuthId]);
+  useEffect(() => {
+    return () => {
+      if (debounceRef.current) {
+        clearTimeout(debounceRef.current);
+        console.log("🧹 cleanup debounce");
+      }
+    };
+  }, []);
+  const postByUser = async (id: string) => {
+    try {
+      const res = await postApi.postByUser(id);
+      const data = res.data;
+      if (res) {
+        setForm((prev) => ({
+          ...prev,
+          name: data.name || "",
+          description: data.description || "",
+          content: data.content || "",
+          source: data.source || "",
+          tags: data.tags ? data.tags.split(",") : [],
+          categoryId: data.categoryId || "",
+          status: data.status ?? 0,
+        }));
+        setPostId(data.id || null);
+      }
+      console.log("Full response:", res);
+      console.log("Data:", res.data);
+    } catch (err) {
+      console.error("Error fetching posts:", err);
+    }
+  };
+
+  useEffect(() => {
+    if (AuthId) {
+      postByUser(AuthId);
+    }
+  }, [AuthId]);
 
   // Editor setup
   const editor = useEditor({
     extensions: [
-      StarterKit.configure({ underline: false }),
+      StarterKit.configure({
+        underline: false,
+        link: false,
+      }),
       Underline,
       Image,
       Link.configure({ openOnClick: false }),
@@ -51,11 +116,27 @@ export default function NewPostPage() {
       TextAlign.configure({ types: ["heading", "paragraph"] }),
     ],
     content: "",
-    onUpdate: ({ editor }) =>
-      setForm((prev) => ({ ...prev, content: editor.getHTML() })),
-  });
 
-  // Force toolbar re-render on selection/content change
+    onUpdate: ({ editor }) => {
+      const html = editor.getHTML();
+
+      setForm((prev) => {
+        const updated = { ...prev, content: html };
+
+        triggerAutoSave(updated);
+
+        return updated;
+      });
+    },
+  });
+  const [isContentLoaded, setIsContentLoaded] = useState(false);
+  useEffect(() => {
+    if (!editor || isContentLoaded || !form.content) return;
+
+    editor.commands.setContent(form.content);
+    setIsContentLoaded(true);
+  }, [editor, form.content, isContentLoaded]);
+
   const [, setToolbarUpdate] = useState(0);
   useEffect(() => {
     if (!editor) return;
@@ -81,39 +162,111 @@ export default function NewPostPage() {
       tags: e.target.value.split(",").map((t) => t.trim()),
     }));
   };
+  const lastSavedRef = useRef<string>("");
+  const pendingRef = useRef<typeof form | null>(null);
 
+  const saveDraft = async (data: typeof form) => {
+    const current = JSON.stringify(data);
+
+    // tránh gọi API trùng
+    if (lastSavedRef.current === current) return;
+
+    // nếu đang save → lưu pending
+    if (savingRef.current) {
+      pendingRef.current = data;
+      return;
+    }
+
+    savingRef.current = true;
+
+    try {
+      const payload = {
+        ...data,
+        name: data.name.trim(),
+        content: editor?.getHTML() || "",
+        tags: data.tags.join(","),
+        status: 0,
+        isPaid: false,
+        royaltyAmount: 0,
+      };
+
+      if (!postId) {
+        const res = await postApi.create(payload);
+        setPostId(res.data.id);
+        console.log("✅ Draft created");
+      } else {
+        await postApi.update(postId, payload);
+        console.log("🔄 Auto updated");
+      }
+
+      lastSavedRef.current = current;
+    } catch (err: any) {
+      console.error("❌ Auto save error:", err?.response?.data || err);
+      setErr(err?.response?.data?.message || "Auto save failed");
+    } finally {
+      savingRef.current = false;
+
+      // 🔥 nếu có data mới → save tiếp
+      if (pendingRef.current) {
+        const next = pendingRef.current;
+        pendingRef.current = null;
+        saveDraft(next);
+      }
+    }
+  };
+  const triggerAutoSave = (data: typeof form) => {
+    if (loading) return;
+    if (!data.name?.trim()) return;
+
+    if (debounceRef.current) {
+      clearTimeout(debounceRef.current);
+    }
+
+    debounceRef.current = setTimeout(() => {
+      saveDraft(data);
+    }, 2000);
+  };
+
+  // ==================
+  // Submit form
+  // ==================
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErr(null);
+
+    if (!form.name?.trim() || !form.categoryId || !form.authorUserId) {
+      setErr("Missing required fields");
+      return;
+    }
+
     try {
       setLoading(true);
-      await postApi.create({
-        name: form.name,
-        description: form.description,
-        content: form.content,
-        source: form.source,
+
+      const payload = {
+        ...form,
+        name: form.name.trim(),
+        content: editor?.getHTML() || "",
         tags: form.tags.join(","),
+        status: 0,
         isPaid: false,
         royaltyAmount: 0,
-        categoryId: form.categoryId,
-        status: form.status,
-        authorUserId: form.authorUserId,
-      });
-      alert("Create success");
-      setForm({
-        name: "",
-        description: "",
-        content: "",
-        source: "",
-        tags: [],
-        categoryId: "",
-        status: 0,
-        authorUserId: "",
-      });
-      editor?.commands.clearContent();
-    } catch (error) {
-      console.error(error);
-      setErr("Create failed");
+      };
+
+      if (!postId) {
+        // Lần submit đầu tiên tạo post
+        const res = await postApi.create(payload);
+        setPostId(res.data.id);
+        console.log("✅ Post created");
+      } else {
+        // Update post hiện tại
+        await postApi.update(postId, payload);
+        console.log("🔄 Post updated");
+      }
+
+      alert("✅ Post saved successfully");
+    } catch (err: any) {
+      console.error("Submit failed:", err.response?.data || err);
+      setErr(err.response?.data?.message || "Submit failed");
     } finally {
       setLoading(false);
     }
@@ -141,17 +294,31 @@ export default function NewPostPage() {
 
           <form onSubmit={handleSubmit}>
             {/* TITLE */}
-            <div className="mb-3">
-              <label className="form-label fw-semibold">Title</label>
+            <div className="mb-4">
+              <label className="form-labelsmall text-muted mb-2">Title</label>
+
               <input
                 name="name"
                 value={form.name}
                 onChange={handleChange}
-                className="form-control form-control-lg"
-                placeholder="Enter title..."
+                className="form-control form-control-lg border-0 shadow-sm"
+                maxLength={100}
+                placeholder="New post title here..."
                 required
+                style={{
+                  fontSize: "2rem",
+                  fontWeight: "bold",
+                }}
               />
             </div>
+
+                {/* TagUI */}
+                <TagList/>
+
+
+
+
+
 
             {/* DESCRIPTION */}
             <div className="mb-3">
@@ -169,9 +336,9 @@ export default function NewPostPage() {
             {/* EDITOR */}
             <div className="mb-4">
               <label className="form-label fw-semibold">Content</label>
-              <div className="border rounded-3 overflow-hidden shadow-sm">
+              <div className="border rounded-3 shadow-sm">
                 {/* Toolbar */}
-                <div className="border-bottom bg-white p-2 d-flex flex-wrap gap-2">
+                <div className="border-bottom bg-white p-2 d-flex flex-wrap gap-2 sticky-top">
                   {/* Text style */}
                   <div className="btn-group btn-group-sm">
                     <ToolbarButton
@@ -302,36 +469,40 @@ export default function NewPostPage() {
                     />
 
                     {/* Up image */}
-                    <label className="btn btn-light mb-0" title="Upload Image">
-                      <CIcon icon={cilImage} size="lg" />
+                    <label
+                      className={`btn btn-light mb-0 ${loadingMedia ? "disabled opacity-50" : ""}`}
+                      title="Upload Image"
+                      style={{ pointerEvents: loadingMedia ? "none" : "auto" }}
+                    >
+                      {loadingMedia ? (
+                        <span className="spinner-border spinner-border-sm text-success"></span>
+                      ) : (
+                        <CIcon icon={cilImage} size="lg" />
+                      )}
+
                       <input
                         type="file"
                         accept="image/*"
-                        style={{ display: "none", width:"24", height:"24"}}
+                        style={{ display: "none" }}
+                        disabled={loadingMedia}
                         onChange={async (e) => {
                           const file = e.target.files?.[0];
                           if (!file) return;
 
                           try {
-                            setLoading(true);
-                            const res = await postApi.uploadMedia(
-                              file,
-                              "editor-image",
-                            );
-                            const path = res.data.path;
+                            setLoadingMedia(true);
 
-                            // chèn ảnh vào editor
+                            const res = await mediaApi.uploadMedia(file);
+
                             editor
-                              .chain()
+                              ?.chain()
                               .focus()
-                              .setImage({
-                                src: `${API_URL}/${path}`, 
-                              })
+                              .setImage({ src: res.path })
                               .run();
                           } catch (error) {
                             console.error("Upload failed:", error);
                           } finally {
-                            setLoading(false);
+                            setLoadingMedia(false);
                             e.target.value = "";
                           }
                         }}
@@ -367,6 +538,15 @@ export default function NewPostPage() {
                       active={editor.isActive({ textAlign: "right" })}
                       icon={cilAlignRight}
                       title="Align Right"
+                    />
+                    <ToolbarButton
+                      onClick={() => {
+                        editor.chain().focus().setTextAlign("justify").run();
+                        setToolbarUpdate((u) => u + 1);
+                      }}
+                      active={editor.isActive({ textAlign: "justify" })}
+                      icon={cilJustifyCenter}
+                      title="Justify"
                     />
                   </div>
                 </div>
@@ -433,9 +613,7 @@ export default function NewPostPage() {
 
             {/* ACTION */}
             <div className="d-flex justify-content-between align-items-center mt-4">
-              <small className="text-muted">
-                Draft will not be saved automatically
-              </small>
+              <small className="text-muted">Draft is auto-saving...</small>
               <button
                 type="submit"
                 className="btn btn-primary px-4"

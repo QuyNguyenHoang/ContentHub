@@ -32,9 +32,18 @@ export interface CreatePostRequest {
 }
 
 export const postApi = {
-  getPost: (page: number, pageSize: number) =>
+  postByUser: (userId: string) =>
+    axiosClient.get("/admin/api/posts/post-by-user", {
+      params: { userId },
+    }),
+  getPost: (
+    keyword: string = "",
+    filter: string = "",
+    page: number,
+    pageSize: number,
+  ) =>
     axiosClient.get<PagedResponse<PostResponse[]>>("/admin/api/posts", {
-      params: { pageNumber: page, pageSize },
+      params: { keyword, filter, pageNumber: page, pageSize },
     }),
 
   getById: (id: string) =>
@@ -46,9 +55,8 @@ export const postApi = {
   update: (id: string, data: CreatePostRequest) =>
     axiosClient.put(`/admin/api/posts/${id}`, data),
 
-  delete: (id: string) =>
-    axiosClient.delete(`/admin/api/posts/${id}`),
-    uploadMedia: (file: File, type: string) => {
+  delete: (id: string) => axiosClient.delete(`/admin/api/posts/${id}`),
+  uploadMedia: (file: File, type: string) => {
     const formData = new FormData();
     formData.append("file", file);
 

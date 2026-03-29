@@ -1,5 +1,5 @@
 import CIcon from "@coreui/icons-react";
-import type { TagResponse } from "../../../api/content/content.api";
+import type { TagResponse } from "../../../api/content/tag.api";
 import {
   cilPencil,
   cilTrash,

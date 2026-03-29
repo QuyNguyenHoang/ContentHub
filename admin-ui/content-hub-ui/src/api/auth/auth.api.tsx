@@ -48,12 +48,10 @@ export const loginApi = async (
   try {
     const decoded: any = jwtDecode(data.token)
 
-    // roles là string
     if (typeof decoded.roles === "string") {
       return { roles: decoded.roles }
     }
 
-    // roles là array
     if (Array.isArray(decoded.roles) && decoded.roles.length > 0) {
       return { roles: decoded.roles[0] }
     }

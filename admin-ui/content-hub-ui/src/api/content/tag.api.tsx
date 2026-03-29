@@ -10,7 +10,10 @@ export interface TagResponse {
   name: string
   slug: string
 }
-
+export interface TagList{
+  id: string
+  name: string
+}
 export interface PagedResult<T> {
   results: T[]
   currentPage: number
@@ -35,7 +38,7 @@ export const tagApi = {
 
   // GET DROPDOWN
   getDropdown: () =>
-    axiosClient.get<TagResponse[]>('/api/tags/dropdown'),
+    axiosClient.get<TagList[]>('/api/tags/dropdown'),
 
   // CREATE
   create: (data: TagRequest) =>
