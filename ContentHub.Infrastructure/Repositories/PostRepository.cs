@@ -6,8 +6,6 @@ using ContentHub.Domain.Data.Entities;
 using ContentHub.Domain.SeedWorks;
 using ContentHub.Infrastructure.SeedWorks;
 using Microsoft.EntityFrameworkCore;
-using Npgsql.Internal;
-using NpgsqlTypes;
 
 namespace ContentHub.Infrastructure.Repositories
 {
@@ -32,6 +30,7 @@ namespace ContentHub.Infrastructure.Repositories
             pageNumber = pageNumber <= 0 ? 1 : pageNumber;
             pageSize = pageSize <= 0 ? 10 : pageSize;
 
+
             var query = _context.Posts.AsNoTracking();
 
             // Search
@@ -53,11 +52,37 @@ namespace ContentHub.Infrastructure.Repositories
             var totalCount = await query.CountAsync();
 
             // Data
-            var items = await _mapper.ProjectTo<PostDto>(query)
-                .OrderByDescending(p => p.DateCreated)
-                .Skip((pageNumber - 1) * pageSize)
-                .Take(pageSize)
-                .ToListAsync();
+            var items = await query
+                    .OrderByDescending(p => p.DateCreated)
+                    .Skip((pageNumber - 1) * pageSize)
+                    .Take(pageSize)
+                    .Select(p => new PostDto
+                    {
+                        Id = p.Id,
+                        Name = p.Name,
+                        Slug = p.Slug,
+                        Content = p.Content ?? "No content",
+                        Description = p.Description,
+                        DateCreated = p.DateCreated,
+                        CategoryName = p.Category != null ? p.Category.Name : "No Category",
+                        CategorySlug = p.Category != null && !string.IsNullOrEmpty(p.Category.Slug)
+                    ? p.Category.Slug
+                    : "No Slug",
+
+                        AuthorName = p.Author != null
+                            ? p.Author.GetFullName()
+                            : null,
+                        AuthorAvatar = p.Author != null ? p.Author.Avatar : "No Avatar",
+                        ListTag = p.PostTags
+                        .Where(pt => pt.Tag != null)
+                        .Select(pt => new TagDto
+                        {
+                            Name = pt.Tag != null ? pt.Tag.Name : "",
+                            Slug = pt.Tag != null ? pt.Tag.Slug : "",
+                        })
+                        .ToList()
+
+                    }).ToListAsync();
 
             return new PagedResult<PostDto>
             {
@@ -107,9 +132,30 @@ namespace ContentHub.Infrastructure.Repositories
             {
                 throw new InvalidOperationException("Name already exists");
             }
+            if (postRequest.Tags == null || postRequest.Tags.Length <= 0)
+            {
+                throw new InvalidOperationException("Tag does not null");
+            }
+
             var addNewPost = _mapper.Map<Post>(postRequest);
             await _repo.Add(addNewPost);
             await _repo.CompleteAsync();
+            var postId = addNewPost.Id;
+            var tagGuids = postRequest.Tags
+             .Split(',', StringSplitOptions.RemoveEmptyEntries)
+             .Select(id => Guid.Parse(id))
+             .ToList();
+            var postTags = tagGuids.Select(tagId => new PostTag
+            {
+                PostId = postId,
+                TagId = tagId
+            }).ToList();
+
+            await _context.PostTags.AddRangeAsync(postTags);
+
+
+
+            await _context.SaveChangesAsync();
             return _mapper.Map<PostDto>(addNewPost);
 
         }
@@ -147,6 +193,16 @@ namespace ContentHub.Infrastructure.Repositories
             var post = await _context.Posts.Where(p => p.AuthorUserId == userId).ToListAsync();
             return _mapper.Map<List<PostDto>>(post);
         }
+        //Get post by User (post lastest)
+        public async Task<PostDto> GetPostByUser(Guid userId)
+        {
+            var postByUser = await _context.Posts.Where(p => p.AuthorUserId == userId && p.Status == 0)
+                .OrderByDescending(p => p.DateCreated)
+                .FirstOrDefaultAsync();
+
+            return _mapper.Map<PostDto>(postByUser);
+        }
+
 
         //Get Post By User Paged (Areas User)
         public async Task<PagedResult<PostDto>> GetPostByUserPagedAsync(Guid userId, string? keyword, string? filter, int pageNumber = 1, int pageSize = 10)
@@ -234,7 +290,7 @@ namespace ContentHub.Infrastructure.Repositories
                 FromStatus = post.Status,
                 ToStatus = PostStatus.Rejected,
                 UserId = user.Id,
-                PostId= post.Id,
+                PostId = post.Id,
                 Note = ("This post InValid")
             };
             await _context.PostActivityLogs.AddAsync(postActivity);
@@ -298,9 +354,16 @@ namespace ContentHub.Infrastructure.Repositories
         public async Task<PostDto> UpdatePostAsync(Guid id, CreatePostRequest postRequest)
         {
             var updatePost = await _context.Posts.FindAsync(id);
+
             if (updatePost == null)
             {
                 throw new KeyNotFoundException("Post is not Existed");
+            }
+            if (updatePost.Name != postRequest.Name)
+            {
+                var nameExists = await IsNameExistsAsync(postRequest.Name);
+                if (nameExists)
+                    throw new InvalidOperationException("Name already exists");
             }
             _mapper.Map(postRequest, updatePost);
             await _context.SaveChangesAsync();
@@ -333,6 +396,7 @@ namespace ContentHub.Infrastructure.Repositories
 
 
         }
+
     }
 
 

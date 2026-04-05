@@ -18,9 +18,8 @@ namespace ContentHub.Application.Models.Contents
         public required string CategorySlug { set; get; }
 
         public required string CategoryName { set; get; }
-        public string? AuthorUserName { set; get; }
         public string? AuthorName { set; get; }
-
+        public string? AuthorAvatar {  set; get; }
         public PostStatus Status { set; get; }
         public bool IsPaid { get; set; }
         public DateTime? PaidDate { get; set; }
@@ -29,6 +28,8 @@ namespace ContentHub.Application.Models.Contents
             public AutoMapperProfiles()
             {
                 CreateMap<Post, PostInListDto>();
+     
+
             }
         }
     }

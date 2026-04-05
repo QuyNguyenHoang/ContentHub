@@ -16,6 +16,7 @@ namespace ContentHub.Application.IRepositories
         Task<PostDto> AddNewPostAsync(CreatePostRequest postRequest);
         Task<PostDto> GetPostById(Guid postId);
         Task<List<PostDto>> GetPostByUserId(Guid userId);
+        Task<PostDto> GetPostByUser(Guid userId);
         Task<PagedResult<PostDto>> GetPostByUserPagedAsync(Guid userId,
                      string? keyword,
             string? filter,
@@ -28,6 +29,7 @@ namespace ContentHub.Application.IRepositories
         Task SentToApprove(Guid id, Guid authorId);
         Task<PostDto> UpdatePostAsync(Guid id, CreatePostRequest postRequest);
         Task<int> DeletePostAsync(Guid[] ids);
+        
 
     }
 }

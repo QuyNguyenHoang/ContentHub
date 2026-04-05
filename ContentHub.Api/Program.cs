@@ -17,6 +17,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using DotNetEnv;
+using CloudinaryDotNet;
+
 
 Env.Load();
 
@@ -85,9 +87,10 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("ContentHubPolicy", policy =>
     {
-        policy.AllowAnyOrigin()
-              .AllowAnyHeader()
-              .AllowAnyMethod();
+        policy.WithOrigins("http://localhost:5173") 
+               .AllowAnyHeader()
+               .AllowAnyMethod()
+               .AllowCredentials();
     });
 });
 
@@ -102,7 +105,7 @@ builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<ITagRepository, TagRepository>();
 builder.Services.AddScoped<ISeriesRepository, SeriesRepository>();
 builder.Services.AddScoped<IPostRepository, PostRepository>();
-
+builder.Services.AddScoped<ICommentRepository,CommentRepository>();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -113,16 +116,40 @@ builder.Services.AddSwaggerGen();
 //var port = Environment.GetEnvironmentVariable("PORT") ?? "7202";
 //builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
 
-
+//SingIR
+builder.Services.AddSignalR();
 
 
 //Auto mapper
-builder.Services.AddAutoMapper(typeof(PostInListDto));
+builder.Services.AddAutoMapper(typeof(PostInListDto).Assembly);
+
+//CLoudinary
+builder.Services.AddSingleton(provider =>
+{
+    var cloudName = Environment.GetEnvironmentVariable("KEY_NAME");
+    var apiKey = Environment.GetEnvironmentVariable("API_KEY");
+    var apiSecret = Environment.GetEnvironmentVariable("API_SECRET");
+
+    if (string.IsNullOrEmpty(cloudName) ||
+        string.IsNullOrEmpty(apiKey) ||
+        string.IsNullOrEmpty(apiSecret))
+    {
+        throw new Exception("Cloudinary config missing!");
+    }
+
+    var account = new Account(cloudName, apiKey, apiSecret);
+
+    return new Cloudinary(account);
+});
 var app = builder.Build();
 
 // =======================
 // Middleware
 // =======================
+
+
+
+
 
 
 
@@ -140,6 +167,8 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+//Map SignalR
+app.MapHub<CommentHub>("/hubs/comments");
 try
 {
     app.MigrateDatabase();

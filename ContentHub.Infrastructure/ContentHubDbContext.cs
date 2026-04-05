@@ -26,6 +26,7 @@ namespace ContentHub.Infrastructure
         public DbSet<Tag> Tags { get; set; }
         public DbSet<Wallet> Wallets { get; set; }
         public DbSet<WalletTransaction> WalletTransactions { get; set; }
+        public DbSet<Comment> Comments { get; set; }
         protected override void OnModelCreating(ModelBuilder builder)
 
         {
@@ -43,7 +44,12 @@ namespace ContentHub.Infrastructure
 
             builder.Entity<IdentityUserToken<Guid>>().ToTable("AppUserTokens")
                .HasKey(x => new { x.UserId });
-           
+            builder.Entity<Post>()
+             .HasOne(p => p.Author)
+             .WithMany(u => u.Posts)
+             .HasForeignKey(p => p.AuthorUserId)
+             .OnDelete(DeleteBehavior.Restrict);
+          
             foreach (var entityType in builder.Model.GetEntityTypes())
             {
                 foreach (var property in entityType.GetProperties())

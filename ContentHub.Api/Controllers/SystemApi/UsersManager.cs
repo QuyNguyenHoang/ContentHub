@@ -3,7 +3,9 @@ using AutoMapper.QueryableExtensions;
 using ContentHub.Application.Models;
 using ContentHub.Application.Models.System;
 using ContentHub.Domain.Data.Identity;
+using ContentHub.Domain.SeedWorks.Constant;
 using ContentHub.Infrastructure;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -26,7 +28,9 @@ namespace ContentHub.Api.Controllers.System
             _userManager = userManager;
             _mapper = mapper;
         }
+        [Authorize(Permissions.Users.View)]
         [HttpGet("all")]
+        
         public async Task<ActionResult<PagedResult<UserDto>>> GetUsers(string? keyword, int pageNumber = 1, int pageSize = 10)
         {
             pageNumber = pageNumber < 1 ? 1 : pageNumber;

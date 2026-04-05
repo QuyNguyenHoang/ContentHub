@@ -26,6 +26,7 @@ namespace ContentHub.Api.Controllers.ContentApi
             [FromQuery] string? filter,
             [FromQuery] int pageNumber = 1,
             [FromQuery] int pageSize = 10)
+        
         {
             var result = await _postRepository.GetPostPagedAsync(keyword, filter, pageNumber, pageSize);
             return Ok(result);
@@ -93,6 +94,12 @@ namespace ContentHub.Api.Controllers.ContentApi
         {
             await _postRepository.SentToApprove(id, authorId);
             return Ok("Sent to approve");
+        }
+        [HttpGet("post-by-user")]
+        public async Task<ActionResult<PostDto>> GetPostByUser(Guid userId)
+        {
+            var result = await _postRepository.GetPostByUser(userId);
+            return Ok(result);
         }
     }
 }

@@ -11,13 +11,15 @@ namespace ContentHub.Application.Models.Contents
         public string? SeoKeywords { get; set; }
         public string? SeoDescription { get; set; }
         public DateTime? DateModified { get; set; }
-        public decimal RoyaltyAmount { get; set; } 
+        public decimal RoyaltyAmount { get; set; }
         public Guid CategoryId { get; set; }
+        public List<TagDto> ListTag { get; set; } = new();
         public class AutomapperProfiles : Profile
         {
             public AutomapperProfiles()
             {
                 CreateMap<Post, PostDto>();
+      
             }
         }
     }
