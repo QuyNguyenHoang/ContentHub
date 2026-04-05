@@ -3,14 +3,60 @@ import axiosClient from "../../config/axios";
 export interface PostResponse {
   id: string;
   name: string;
+  slug: string;
   content?: string;
   source?: string;
   tags?: string;
   description?: string;
   dateCreated: string;
   categoryName: string;
+  authorName: string;
+  authorAvatar?: string;
+  listTag?: Tag[];
 }
+export interface PostDetailResponse {
+  id: string;
+  name: string;
+  slug: string;
+  description: string;
 
+  content: string;
+  source: string;
+  tags: string;
+
+  seoKeywords?: string | null;
+  seoDescription?: string | null;
+
+  thumbnail?: string | null;
+
+  viewCount: number;
+  royaltyAmount: number;
+
+  status: number;
+  isPaid: boolean;
+
+  categoryId: string;
+  categorySlug?: string | null;
+  categoryName?: string | null;
+
+  listTag: Tag[];
+
+  authorName?: string | null;
+  authorAvatar?: string | null;
+
+  dateCreated: string;
+  dateModified?: string | null;
+  paidDate?: string | null;
+}
+export interface Tag {
+  id: string;
+  name: string;
+  slug: string;
+}
+export interface Series {
+  id: string;
+  name: string;
+}
 export interface PagedResponse<T> {
   results: T;
   totalCount?: number;
@@ -36,6 +82,7 @@ export const postApi = {
     axiosClient.get("/admin/api/posts/post-by-user", {
       params: { userId },
     }),
+  getSeriesDropdown: () => axiosClient.get<Series[]>("/api/series/dropdown"),
   getPost: (
     keyword: string = "",
     filter: string = "",
@@ -47,7 +94,7 @@ export const postApi = {
     }),
 
   getById: (id: string) =>
-    axiosClient.get<PostResponse>(`/admin/api/posts/${id}`),
+    axiosClient.get<PostDetailResponse>(`/admin/api/posts/${id}`),
 
   create: (data: CreatePostRequest) =>
     axiosClient.post("/admin/api/posts/new", data),

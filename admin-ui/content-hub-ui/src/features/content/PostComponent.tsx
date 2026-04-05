@@ -9,7 +9,7 @@ export default function PostPage() {
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
-
+ 
   const loadMoreRef = useRef<HTMLDivElement | null>(null);
   const hasFetched = useRef(false);
 
@@ -48,8 +48,9 @@ export default function PostPage() {
       setLoading(false);
     }
   }, [page, loading, hasMore]);
+  //Series List
+  
 
-  // 🔥 Load lần đầu (fix StrictMode)
   useEffect(() => {
     if (hasFetched.current) return;
     hasFetched.current = true;

@@ -18,6 +18,8 @@ const TagList = lazy(() => import("../features/content/TagComponent"));
 const SeriesList = lazy(() => import("../features/content/SeriesComponent"));
 const PostList = lazy(() => import("../features/content/PostComponent"));
 const NewPost = lazy(() => import("../pages/content/PostForUserUI/NewPostUI"));
+const PostDetail = lazy(()=>import("../features/content/PostDetailComponent"));
+const Comment= lazy(()=> import("../features/content/CommentBox"))
 const routes = [
   {
     path: "/admin",
@@ -49,6 +51,10 @@ const routes = [
         element: <ContentHub />,
       },
       { path: "posts", element: <PostList /> },
+      {
+        path: "posts/:slug",
+        element: <PostDetail />,
+      },
     ],
   },
   {
@@ -71,6 +77,7 @@ const routes = [
   { path: "/login", element: <Login /> },
   { path: "/register", element: <Regiter /> },
   { path: "posts", element: <PostList /> },
+  {path:"/comment", element:<Comment/>}
 ];
 
 export default routes;
