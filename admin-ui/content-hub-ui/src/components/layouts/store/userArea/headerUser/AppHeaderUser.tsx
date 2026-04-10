@@ -178,11 +178,11 @@ const AppHeaderUser = () => {
               </>
             ) : (
               <>
-                <CButton color="primary" variant="outline" size="sm">
+                <CButton color="primary" variant="outline" size="sm" onClick={()=>navigate("/login")}>
                   Đăng nhập
                 </CButton>
 
-                <CButton color="primary" size="sm">
+                <CButton color="primary" size="sm" onClick={()=>navigate("/register")}>
                   Đăng ký
                 </CButton>
               </>

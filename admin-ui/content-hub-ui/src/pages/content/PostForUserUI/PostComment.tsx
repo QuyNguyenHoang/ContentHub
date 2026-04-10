@@ -1,46 +1,117 @@
+import { useEffect, useRef, useState } from "react";
 import type { CommentResponse } from "../../../api/content/comment.api";
-
-interface Props {
-  commentResponse: CommentResponse[];
+import CommentItem from "../../../pages/content/PostForUserUI/CommentItem"
+interface Props { 
+  comments: CommentResponse[];
   onSend: () => void;
+  onReply: (parentId: string, content: string) => void;
 }
 
-export default function PostComment({ commentResponse }: Props) {
-  return (
-    <div>
-      <div className="mt-3">
-        <div className="input-group">
-          <input
-            type="text"
-            className="form-control"
-            placeholder="Write a comment..."
-           
-        />
-          <button className="btn btn-primary" >
-            Send
-          </button>
-        </div>
-      </div>
-      <div className="space-y-4">
-        {commentResponse.map((c) => (
-          <div
-            key={c.author + c.dateCreated} // key unique
-            className="flex items-start space-x-3 p-3 bg-gray-800 rounded-lg"
-          >
-            {/* Avatar giả, nếu có c.authorAvatar thì dùng */}
-            <div className="w-10 h-10 rounded-full bg-gray-600 flex items-center justify-center text-white font-bold">
-              {c.author?.[0] || "U"}
-            </div>
+export default function PostComment({ comments, onReply }: Props) {
+  const [repliesId, setRepliesId] = useState<string | null>(null);
+  const repliesBoxRef = useRef<HTMLDivElement>(null);
+  const [replyContent, setReplyContent] = useState("");
 
-            <div className="flex-1">
-              <div className="flex justify-between items-center">
-                <span className="text-white font-semibold">{c.author}</span>
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (
+        repliesBoxRef.current &&
+        !repliesBoxRef.current.contains(event.target as Node)
+      ) {
+        setRepliesId(null);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+  console.log("parentId =", repliesId);
+
+  return (
+    <div className="mt-3">
+      {comments.length === 0 ? (
+        <p className="text-center text-muted">No comments yet</p>
+      ) : (
+        comments.map((c) => (
+          <div key={c.id} className="card mb-3 shadow-sm border-0 rounded-3">
+            <div className="card-body d-flex gap-3">
+              {/* Avatar */}
+              <img
+                src={
+                  c.avatar ||
+                  "https://res.cloudinary.com/dg2ztzhrt/image/upload/v1775028937/penguin_qkob1d.jpg"
+                }
+                alt="avatar"
+                className="rounded-circle"
+                style={{ width: 40, height: 40, objectFit: "cover" }}
+              />
+
+              {/* Content */}
+              <div className="flex-grow-1">
+                {/* Header */}
+                <div className="d-flex justify-content-between align-items-center">
+                  <strong>{c.author || "Anonymous"}</strong>
+                  <small className="text-muted">
+                    {new Date(c.dateCreated).toLocaleString()}
+                  </small>
+                </div>
+
+                {/* Text */}
+                <p className="mb-1 mt-1">{c.content}</p>
+
+                {/* Actions */}
+                <div className="d-flex gap-3">
+                  <button className="btn btn-sm btn-link p-0 text-decoration-none">
+                    👍 Like
+                  </button>
+                  <button
+                    className="btn btn-sm btn-link p-0 text-decoration-none"
+                    onClick={() => {
+                      setRepliesId(c.id);
+                    }}
+                  >
+                    💬 Reply
+                  </button>
+                </div>
               </div>
-              <p className="text-gray-100 mt-1">{c.content}</p>
             </div>
+          
+            {/* Replies */}
+            {repliesId === c.id && (
+              <div className="form-floating p-5" ref={repliesBoxRef}>
+                <textarea
+                  onChange={(e) => setReplyContent(e.target.value)}
+                  name="repliesAreas"
+                  className="form-control "
+                  id="floatingTextarea"
+                  style={{ minHeight: 100 }}
+                ></textarea>
+                <div className="d-flex justify-content-end mt-2">
+                  <button
+                    className="btn btn-sm btn-outline-primary rounded-3 me-1"
+                    onClick={() => onReply(c.id, replyContent)}
+                  >
+                    Submid
+                  </button>
+                  <button
+                    className="btn btn-sm btn-outline-danger rounded-3"
+                    onClick={() => setRepliesId(null)}
+                  >
+                    Cancle
+                  </button>
+                </div>
+
+                <label className="floatingTextarea ps-5">
+                  Replies for {c.author}
+                </label>
+              </div>
+            )}
+          {comments.map((c) => (
+        <CommentItem key={c.id} comment={c} onReply={onReply} />
+      ))}
           </div>
-        ))}
-      </div>
+
+        ))
+      )}
     </div>
   );
 }

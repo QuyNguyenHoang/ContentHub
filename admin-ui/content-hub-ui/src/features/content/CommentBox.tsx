@@ -40,8 +40,8 @@ export default function RealtimeTest() {
 
     await axios.post(API_URL, {
       content,
-      postId,
-      authId: userId, // 🔥 nhớ đúng tên backend của bạn
+      postId : postId,
+      authId: userId, 
     });
 
     setContent("");
