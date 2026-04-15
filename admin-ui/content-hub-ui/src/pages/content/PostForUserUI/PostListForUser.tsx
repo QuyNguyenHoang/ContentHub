@@ -1,11 +1,22 @@
+import CIcon from "@coreui/icons-react";
 import type { PostResponse } from "../../../api/content/post.api";
 import { Link } from "react-router-dom";
+import { cilThumbUp } from "@coreui/icons";
+import { useState } from "react";
 
 interface Props {
   posts?: PostResponse[];
 }
 
 export function PostList({ posts = [] }: Props) {
+  const [likeMap, setLikeMap] = useState<Record<string, boolean>>({});
+  const handleLike = (postId: string) => {
+    setLikeMap((prev) => ({
+      ...prev,
+      [postId]: !prev[postId],
+    }));
+  };
+
   return (
     <div>
       {posts.map((post) => {
@@ -85,12 +96,25 @@ export function PostList({ posts = [] }: Props) {
               {/* Actions */}
               <div className="d-flex justify-content-between">
                 <div className="d-flex gap-3">
-                  <button className="btn btn-light btn-sm">👍 Like</button>
+                  <button
+                    className={`btn btn-sm ${likeMap[post.id] ? "text-primary fw-bold" : "text-black"}`}
+                    onClick={() => handleLike(post.id)}
+                    onKeyDown={(e) => {
+                      if (e.key.toLowerCase() === "a") {
+                        handleLike(post.id);
+                      }
+                    }}
+                  >
+                    <CIcon icon={cilThumbUp} />
+                    Like
+                  </button>
                   <Link
                     to={`/posts/${post.id}#comments`}
                     className="btn btn-light btn-sm text-decoration-none"
                   >
-                    💬 Comment
+                    {post.commentCount > 0
+                      ? `(${post.commentCount}) ${post.commentCount === 1 ? "Comment" : "Comments"}`
+                      : "No comments"}
                   </Link>
                 </div>
 

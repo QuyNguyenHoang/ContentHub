@@ -1,6 +1,6 @@
 import * as signalR from "@microsoft/signalr";
 import { DecodeToken } from "../../api/extentions/decodeToken";
-import { useCallback, useEffect, useRef, useState } from "react";
+import {  useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import PostComment from "../../pages/content/PostForUserUI/PostComment";
 import {
@@ -11,6 +11,8 @@ import CIcon from "@coreui/icons-react";
 import { cilCheck, cilSwapVertical } from "@coreui/icons";
 
 export default function Comment() {
+
+
   const [loading, setLoading] = useState(false);
   const [pageNumber, setPageNumber] = useState(1);
   const [filterBox, setFilter] = useState("all");
@@ -32,7 +34,7 @@ export default function Comment() {
   const { slug } = useParams();
   const postId = slug ? slug.slice(-36) : null;
 
-    useEffect(() => {
+  useEffect(() => {
     const userInf = DecodeToken.accessToken();
     const userId = userInf?.userId;
     if (!userId) {
@@ -40,14 +42,56 @@ export default function Comment() {
     }
     setAuthId(userId || null);
   }, [navigate]);
+
   const mergeComments = (
     prev: CommentResponse[],
     newComments: CommentResponse[],
-  ) => {
-    const all = [...prev, ...newComments];
-    return all.filter(
-      (item, index, self) => index === self.findIndex((p) => p.id === item.id),
-    );
+  ): CommentResponse[] => {
+    // 🔥 hàm insert vào tree
+    const insertReply = (
+      list: CommentResponse[],
+      comment: CommentResponse,
+    ): CommentResponse[] => {
+      if (!comment.parentId) {
+        return [comment, ...list];
+      }
+
+      return list.map((item) => {
+        if (item.id === comment.parentId) {
+          return {
+            ...item,
+            children: [...(item.children || []), comment],
+          };
+        }
+
+        if (item.children && item.children.length > 0) {
+          return {
+            ...item,
+            children: insertReply(item.children, comment),
+          };
+        }
+
+        return item;
+      });
+    };
+
+    let result = [...prev];
+
+    newComments.forEach((comment) => {
+      const exists = (list: CommentResponse[]): boolean => {
+        return list.some((item) => {
+          if (item.id === comment.id) return true;
+          if (item.children) return exists(item.children);
+          return false;
+        });
+      };
+
+      if (!exists(result)) {
+        result = insertReply(result, comment);
+      }
+    });
+
+    return result;
   };
 
   //click outside commentbox
@@ -118,28 +162,33 @@ export default function Comment() {
     };
   }, [connection]);
 
-const handleReply = async (parentId: string, content: string) => {
-  if (!content || !authId || !postId || !parentId) return;
+  const handleReply = async (
+    parentId: string,
+    content: string,
+    depth: number,
+  ) => {
+    if (!content || !authId || !postId || !parentId) return;
 
-  try {
-    await commentApi.createReply({
-      content,
-      authId,
-      postId,
-      depth:1,
-      parentId,
-    });
-  } catch (err) {
-    console.log(err);
-  }
-};
+    try {
+      await commentApi.createReply({
+        content,
+        authId,
+        postId,
+        depth,
+        parentId,
+      });
+      setTotalComments((prev) => prev + 1);
+    } catch (err) {
+      console.log(err);
+    }
+  };
   const handleSend = async () => {
     if (!content || !authId || !postId) return;
     try {
       await commentApi.createComment({ content, authId, postId });
       console.log(content);
       setContent("");
-      setTotalComments((prev)=>prev + 1);
+      setTotalComments((prev) => prev + 1);
     } catch (error) {
       console.log("Sending error", error);
     }
@@ -291,10 +340,10 @@ const handleReply = async (parentId: string, content: string) => {
             <textarea
               className="form-control"
               id="floatingComment"
-              placeholder="Leave a comment here" 
+              placeholder="Leave a comment here"
               value={content}
               onChange={(e) => setContent(e.target.value)}
-              style={{ minHeight: 100 }} 
+              style={{ minHeight: 100 }}
             ></textarea>
             <label htmlFor="floatingComment">Enter your comment</label>
           </div>
@@ -319,7 +368,11 @@ const handleReply = async (parentId: string, content: string) => {
       )}
 
       {/* List comment */}
-      <PostComment comments={comments} onSend={handleSend} onReply={handleReply}/>
+      <PostComment
+        comments={comments}
+        onSend={handleSend}
+        onReply={handleReply}
+      />
 
       {/* No more */}
       {hasMore && !loading && (

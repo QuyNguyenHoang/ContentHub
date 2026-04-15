@@ -1,9 +1,9 @@
 import axiosClient from "../../config/axios";
 
 export interface CommentRequest {
-  content: string;
-  authId: string;
-  postId: string;
+  content: string
+  authId: string
+  postId: string
 }
 export interface CommentReply{
    content: string;
@@ -14,11 +14,13 @@ export interface CommentReply{
 
 }
 export interface CommentResponse {
-  id:string
+  id:string;
   content: string;
   dateCreated: Date;
-  likeCount:number,
-  avatar?:string,
+  depth:number;
+  likeCount:number;
+  parentId:string;
+  avatar?:string;
   author: string;
   children?:CommentResponse[];
 }

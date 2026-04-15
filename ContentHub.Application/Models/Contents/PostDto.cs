@@ -10,6 +10,7 @@ namespace ContentHub.Application.Models.Contents
         public string? Tags { get; set; }
         public string? SeoKeywords { get; set; }
         public string? SeoDescription { get; set; }
+        public int CommentCount { get; set; }
         public DateTime? DateModified { get; set; }
         public decimal RoyaltyAmount { get; set; }
         public Guid CategoryId { get; set; }

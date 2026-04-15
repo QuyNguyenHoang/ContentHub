@@ -47,6 +47,16 @@ namespace ContentHub.Infrastructure.Repositories
             {
                 query = query.Where(p => p.Status == status);
             }
+            //Count comment
+            var commentCounts = await _context.Comments
+                .GroupBy(c => c.PostId)
+                .Select(g => new
+                {
+                    PostId = g.Key,
+                    Count = g.Count()
+                })
+                .ToDictionaryAsync(x => x.PostId, x => x.Count);
+
 
             // Count
             var totalCount = await query.CountAsync();
@@ -73,6 +83,7 @@ namespace ContentHub.Infrastructure.Repositories
                             ? p.Author.GetFullName()
                             : null,
                         AuthorAvatar = p.Author != null ? p.Author.Avatar : "No Avatar",
+                        CommentCount = commentCounts.ContainsKey(p.Id) ? commentCounts[p.Id] : 0,
                         ListTag = p.PostTags
                         .Where(pt => pt.Tag != null)
                         .Select(pt => new TagDto

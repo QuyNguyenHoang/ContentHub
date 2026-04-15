@@ -9,7 +9,7 @@ export default function PostPage() {
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
- 
+
   const loadMoreRef = useRef<HTMLDivElement | null>(null);
   const hasFetched = useRef(false);
 
@@ -17,7 +17,7 @@ export default function PostPage() {
   const keyword = "";
   const filter = "";
 
-  // 🔥 Fetch API chuẩn (không stale state)
+  //Fetch API chuẩn (không stale state)
   const fetchPosts = useCallback(async () => {
     if (loading || !hasMore) return;
 
@@ -32,7 +32,7 @@ export default function PostPage() {
         const merged = [...prev, ...newPosts];
         return merged.filter(
           (item, index, self) =>
-            index === self.findIndex((p) => p.id === item.id)
+            index === self.findIndex((p) => p.id === item.id),
         );
       });
 
@@ -49,7 +49,6 @@ export default function PostPage() {
     }
   }, [page, loading, hasMore]);
   //Series List
-  
 
   useEffect(() => {
     if (hasFetched.current) return;
@@ -58,7 +57,7 @@ export default function PostPage() {
     fetchPosts();
   }, [fetchPosts]);
 
-  // 🔥 Infinite scroll chuẩn
+  // Infinite scroll chuẩn
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
@@ -69,8 +68,8 @@ export default function PostPage() {
         }
       },
       {
-        rootMargin: "200px", // load sớm
-      }
+        rootMargin: "200px",
+      },
     );
 
     const el = loadMoreRef.current;
@@ -85,7 +84,6 @@ export default function PostPage() {
   return (
     <div className="container">
       <div className="row g-5">
-
         {/* LEFT CONTENT */}
         <div className="col-lg-9">
           <PostComposer />

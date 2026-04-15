@@ -4,7 +4,8 @@ namespace ContentHub.Application.Models.Contents.Comment
 {
     public class CommentRequestDto
     {
-        public string Content { get; set; }
+        public Guid Id { get; set; }
+        public string Content { get; set; } = string.Empty;
         public Guid PostId { get; set; }
         public Guid AuthId { get; set; }
         public CommentDepth Depth { get; set; }

@@ -8,6 +8,7 @@ namespace ContentHub.Application.Models.Contents.Comment
         public string? Content { get; set; }
         public DateTime? DateCreated { get; set; }
         public int LikeCount { get; set; }
+        public string? DisplayContent { get; set; }
         public CommentDepth Depth { get; set; }  
         public string? Avatar { get; set; }
         public string? Author {  get; set; }

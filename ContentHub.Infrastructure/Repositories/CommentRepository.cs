@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Identity.Client;
 using System.Globalization;
 using System.Linq;
+using System.Reflection.Metadata.Ecma335;
 
 namespace ContentHub.Infrastructure.Repositories
 {
@@ -23,8 +24,36 @@ namespace ContentHub.Infrastructure.Repositories
             _repo = repo;
 
         }
+        public async Task<bool> UpdateCommentAsync(CommentRequestDto commentRequest)
+        {
+
+            var comment = await _context.Comments.FindAsync(commentRequest.Id);
+
+            if (comment == null)
+            {
+                throw new KeyNotFoundException("Not found comment");
+            }
+            if (comment.UserId != commentRequest.AuthId)
+                throw new UnauthorizedAccessException("Forbidden");
+
+            comment.Content = commentRequest.Content;
 
 
+            await _repo.CompleteAsync();
+            return true;
+        }
+        public async Task DeleteCommentAsync(Guid commentId, Guid AuthId)
+        {
+            var comment = await _context.Comments.FindAsync(commentId);
+            if (comment == null)
+            {
+                throw new KeyNotFoundException($"Not found Comment with id = {commentId}");
+            }
+            if (comment.UserId != AuthId)
+                throw new UnauthorizedAccessException("Forbidden");
+            comment.IsDeleted = true;
+            await _repo.CompleteAsync();
+        }
 
         public async Task<PagedResult<CommentDto>> GetListCommentInPostAsync(Guid postId, string? filter, int pageNumber = 1, int pageSize = 10)
         {
@@ -71,9 +100,9 @@ namespace ContentHub.Infrastructure.Repositories
                 .Select(c => new CommentDto
                 {
                     Id = c.Id,
-                    Content = c.Content,
                     DateCreated = c.CreatedAt,
                     LikeCount = c.LikeCount,
+                    DisplayContent = c.IsDeleted ? "This comment has been deleted" : c.Content,
                     Depth = c.Depth,
                     Author = c.User != null ? c.User.GetFullName() : null,
                     Avatar = c.User != null ? c.User.Avatar : null
@@ -87,7 +116,7 @@ namespace ContentHub.Infrastructure.Repositories
             var replyDtos = replies.Select(x => new CommentDto
             {
                 Id = x.Id,
-                Content = x.Content,
+                DisplayContent = x.IsDeleted ? "This comment has been deleted" : x.Content,
                 DateCreated = x.CreatedAt,
                 LikeCount = x.LikeCount,
                 Depth = x.Depth,
@@ -105,9 +134,9 @@ namespace ContentHub.Infrastructure.Repositories
             var replyLv2Dtos = replieslv2.Select(x => new CommentDto
             {
                 Id = x.Id,
-                Content = x.Content,
                 DateCreated = x.CreatedAt,
                 LikeCount = x.LikeCount,
+                DisplayContent = x.IsDeleted ? "This comment has been deleted" : x.Content,
                 Depth = x.Depth,
                 ParentId = x.ParentId,
                 Author = x.User != null ? x.User.GetFullName() : null,
@@ -173,10 +202,11 @@ namespace ContentHub.Infrastructure.Repositories
                 Content = comment.Content,
                 DateCreated = comment.CreatedAt,
                 Author = user?.GetFullName() ?? "Guest",
-                Avatar = user?.Avatar
+                Avatar = user?.Avatar,
+                ParentId = comment.ParentId,
             };
         }
 
-
+     
     }
 }

@@ -12,6 +12,7 @@ export interface PostResponse {
   categoryName: string;
   authorName: string;
   authorAvatar?: string;
+  commentCount:number;
   listTag?: Tag[];
 }
 export interface PostDetailResponse {

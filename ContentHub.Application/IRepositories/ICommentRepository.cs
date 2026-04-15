@@ -7,6 +7,7 @@ namespace ContentHub.Application.IRepositories
     {
         public Task<CommentDto> NewCommentAsync(CommentRequestDto commentRequest);
         public Task<PagedResult<CommentDto>> GetListCommentInPostAsync(Guid postId, string? filter, int pageNumber = 1, int pageSize = 10);
-        
+        public Task<bool> UpdateCommentAsync( CommentRequestDto commentRequest); 
+        public Task DeleteCommentAsync(Guid commentId, Guid AuthId);
     }
 }
