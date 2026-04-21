@@ -2,8 +2,11 @@
 using ContentHub.Application.IRepositories;
 using ContentHub.Application.Models;
 using ContentHub.Application.Models.Contents.Comment;
+using ContentHub.Domain.SeedWorks.Constant;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
+using System.Security.Claims;
 
 namespace ContentHub.Api.Controllers.ContentApi
 {
@@ -22,6 +25,7 @@ namespace ContentHub.Api.Controllers.ContentApi
 
         }
         [HttpPost]
+        [Authorize(Policy = Permissions.Commment.Create)]
         public async Task<ActionResult<CommentDto>> NewComment(CommentRequestDto commentReq)
         {
             var result = await _commentRepo.NewCommentAsync(commentReq);
@@ -31,6 +35,7 @@ namespace ContentHub.Api.Controllers.ContentApi
             return Ok(result);
         }
         [HttpGet]
+        [Authorize(Policy = Permissions.Commment.View)]
         public async Task<ActionResult<PagedResult<CommentDto>>> ListCommnentPaged(Guid postId,
             string? filter,
             int pageNumber = 1,
@@ -39,5 +44,32 @@ namespace ContentHub.Api.Controllers.ContentApi
             var result = await _commentRepo.GetListCommentInPostAsync(postId, filter, pageNumber, pageSize);
             return Ok(result);
         }
+        [HttpDelete("{id}")]
+        [Authorize(Policy = Permissions.Commment.Delete)]
+        public async Task<ActionResult> DeleteComment(Guid id)
+        {
+            try
+            {
+                var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+                if (!Guid.TryParse(userIdString, out var userId))
+                {
+                    return Unauthorized();
+                }
+
+                await _commentRepo.DeleteCommentAsync(id, userId);
+
+                return Ok();
+            }
+            catch (KeyNotFoundException)
+            {
+                return NotFound();
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return Forbid();
+            }
+        }
+
     }
 }

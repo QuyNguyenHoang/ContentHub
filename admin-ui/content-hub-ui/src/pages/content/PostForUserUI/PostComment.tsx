@@ -7,9 +7,10 @@ interface Props {
   comments: CommentResponse[];
   onSend: () => void;
   onReply: (parentId: string, content: string, depth: number) => void;
+  onDelete: (id:string) => void;
 }
 
-export default function PostComment({ comments, onReply }: Props) {
+export default function PostComment({ comments, onReply, onDelete }: Props) {
   const [repliesId, setRepliesId] = useState<string | null>(null);
   const repliesBoxRef = useRef<HTMLDivElement>(null);
   const [replyContent, setReplyContent] = useState<Record<string, string>>({});
@@ -168,7 +169,7 @@ export default function PostComment({ comments, onReply }: Props) {
                     </a>
                   </li>
                   <li>
-                    <a className="dropdown-item" href="#">
+                    <button className="dropdown-item" onClick={()=> onDelete(child.id)}>
                       Delete
                       <CIcon
                         icon={cilTrash}
@@ -176,7 +177,7 @@ export default function PostComment({ comments, onReply }: Props) {
                         height={16}
                         className="ms-2"
                       />
-                    </a>
+                    </button>
                   </li>
                 </ul>
               )}

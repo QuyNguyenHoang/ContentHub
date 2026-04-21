@@ -102,7 +102,7 @@ namespace ContentHub.Infrastructure.Repositories
                     Id = c.Id,
                     DateCreated = c.CreatedAt,
                     LikeCount = c.LikeCount,
-                    DisplayContent = c.IsDeleted ? "This comment has been deleted" : c.Content,
+                    Content = c.IsDeleted ? "This comment has been deleted" : c.Content,
                     Depth = c.Depth,
                     Author = c.User != null ? c.User.GetFullName() : null,
                     Avatar = c.User != null ? c.User.Avatar : null
@@ -116,7 +116,7 @@ namespace ContentHub.Infrastructure.Repositories
             var replyDtos = replies.Select(x => new CommentDto
             {
                 Id = x.Id,
-                DisplayContent = x.IsDeleted ? "This comment has been deleted" : x.Content,
+                Content = x.IsDeleted ? "This comment has been deleted" : x.Content,
                 DateCreated = x.CreatedAt,
                 LikeCount = x.LikeCount,
                 Depth = x.Depth,
@@ -136,7 +136,7 @@ namespace ContentHub.Infrastructure.Repositories
                 Id = x.Id,
                 DateCreated = x.CreatedAt,
                 LikeCount = x.LikeCount,
-                DisplayContent = x.IsDeleted ? "This comment has been deleted" : x.Content,
+                Content = x.IsDeleted ? "This comment has been deleted" : x.Content,
                 Depth = x.Depth,
                 ParentId = x.ParentId,
                 Author = x.User != null ? x.User.GetFullName() : null,

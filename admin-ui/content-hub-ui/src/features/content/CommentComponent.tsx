@@ -34,6 +34,15 @@ export default function Comment() {
   const { slug } = useParams();
   const postId = slug ? slug.slice(-36) : null;
 
+  //Delete
+ const handleDelete = async (id: string) => {
+  try {
+    await commentApi.deleteComment(id);
+  } catch (error) {
+    console.error(error);
+  }
+};
+
   useEffect(() => {
     const userInf = DecodeToken.accessToken();
     const userId = userInf?.userId;
@@ -47,7 +56,7 @@ export default function Comment() {
     prev: CommentResponse[],
     newComments: CommentResponse[],
   ): CommentResponse[] => {
-    // 🔥 hàm insert vào tree
+    // hàm insert vào tree
     const insertReply = (
       list: CommentResponse[],
       comment: CommentResponse,
@@ -372,6 +381,7 @@ export default function Comment() {
         comments={comments}
         onSend={handleSend}
         onReply={handleReply}
+        onDelete={(id) => handleDelete(id)}
       />
 
       {/* No more */}

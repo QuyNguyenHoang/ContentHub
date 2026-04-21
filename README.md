@@ -1,48 +1,49 @@
-﻿# ContentHub 
+﻿# ContentHub
 
-This project is a RESTful API built with ASP.NET Core.
-It provides authentication, category management, and content management features.
+ContentHub is a scalable RESTful API built with ASP.NET Core for content management.
+The project demonstrates Clean Architecture, JWT authentication, and role-based access control in a real-world backend system.
 
 ---
 
 ## Architecture
 
-The project follows a layered architecture.
+The project follows Clean Architecture:
 
-Client
-→ Controllers (API Layer)
-→ Application Services
-→ Repository Layer (Domain)
-→ Infrastructure
+```
+API → Application → Domain → Infrastructure
+```
 
-Or Clean Architecture:
-
-API
-→ Application
-→ Domain
-→ Infrastructure
+This structure ensures separation of concerns, maintainability, and scalability.
 
 ---
 
 ## Tech Stack
 
-* ASP.NET Core Web API
+* ASP.NET Core Web API (.NET 8)
 * Entity Framework Core
 * PostgreSQL / SQL Server
 * Redis (optional)
 * JWT Authentication
 * Docker (optional)
-* Deploy with Railway/Vercel
+
+---
+
+## Key Highlights
+
+* Designed using Clean Architecture for maintainability and scalability
+* Implemented JWT authentication with refresh token
+* Built role-based authorization system
+* Applied pagination and filtering for large datasets
+* Centralized exception handling and logging
 
 ---
 
 ## Features
 
-* User authentication with JWT
+* JWT authentication
 * Role-based authorization
 * CRUD APIs
 * Pagination and filtering
-* Global exception handling
 * Input validation
 * Logging
 
@@ -51,67 +52,84 @@ API
 ## Project Structure
 
 ```
-
+src/
+ ├── ContentHub.Api
+ ├── ContentHub.Application
+ ├── ContentHub.Domain
+ └── ContentHub.Infrastructure
+```
 
 ---
 
 ## Prerequisites
 
-Install the following tools before running the project.
-
 * .NET SDK 8+
 * PostgreSQL or SQL Server
-* Visual Studio / VS Code
+* Visual Studio or VS Code
 * Docker (optional)
 
 ---
 
-## Environment Variables
+## Configuration
 
-Configure environment variables in `appsettings.json` or 'appsetting.product.json'
+Configure environment variables in:
 
-Example configuration:
+```
+appsettings.json
+```
+
+or
+
+```
+appsettings.Production.json
+```
+
+Example:
 
 ```
 ConnectionStrings:DefaultConnection=
 
 Jwt:Key=
-
 Jwt:Issuer=
-
 Jwt:Audience=
 ```
+
+For production, use environment variables or secret management instead of hardcoding sensitive data.
 
 ---
 
 ## Database Setup
 
-Add-Migration  [name]
-Update-Database [name]
+Run migrations:
+
+```
+Add-Migration InitialCreate
+Update-Database
+```
 
 ---
 
 ## Running the Application
 
-Clone the repository.
+Clone the repository:
 
 ```
 git clone https://github.com/QuyNguyenHoang/ContentHub.git
 ```
 
-Navigate to the project directory.
+Navigate to the project:
 
 ```
 cd ContentHub.Api
 ```
 
-Run the application.
+Run the application:
 
 ```
 dotnet run
 ```
 
-The API will run at:
+The API will be available at:
 
 ```
 https://localhost:7202
@@ -121,288 +139,19 @@ https://localhost:7202
 
 ## API Documentation
 
-Swagger UI is available at:
+Swagger UI:
 
 ```
 https://localhost:5001/swagger
 ```
 
-API 
+Full API details are available via Swagger.
 
-```
-*Authenticated*
-
-##Login
-
-POST /api/admin/auth/login
-
-Request
-
-```json
-{
-  "userName": "string",
-  "password": "string"
-}
-```
-Response
-```
-{
-  "token": "string",
-  "refreshToken": "string"
-}
-```
-##Register
-
-POST /api/admin/auth/register
-
-request
-
-```
-{
-  "firstName": "string",
-  "lastName": "string",
-  "email": "user@example.com",
-  "userName": "string",
-  "password": "string",
-  "confirmPassword": "string",
-  "dob": "2026-03-06T16:18:20.793Z"
-}
-```
-
-Role
-
-GET /api/role/{id}
-
-response
-
-```
-{
-  "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-  "name": "string",
-  "displayName": "string"
-}
-```
-
-PUT /api/role/{id}
-
-request
-
-```
-{
-  "name": "string",
-  "displayName": "string"
-}
-```
-DELETE /api/role/{id}
-
-
-GET /api/role/paging 
-
-reponse
-
-```
-{
-  "currentPage": 0,
-  "pageCount": 0,
-  "pageSize": 0,
-  "rowCount": 0,
-  "firstRowOnPage": 0,
-  "lastRowOnPage": 0,
-  "additionalData": "string",
-  "results": [
-    {
-      "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-      "name": "string",
-      "displayName": "string"
-    }
-  ]
-}
-```
-GET /api/role/all
-GET /api/roles/{roleId}/permissions
-
-response
-```
-{
-  "roleId": "string",
-  "roleClaims": [
-    {
-      "type": "string",
-      "value": "string",
-      "displayName": "string",
-      "selected": true
-    }
-  ]
-}
-```
-
-PUT /api/roles/permissions
-
-request
-``` 
-{
-  "roleId": "string",
-  "roleClaims": [
-    {
-      "type": "string",
-      "value": "string",
-      "displayName": "string",
-      "selected": true
-    }
-  ]
-}
-```
-### USER MANAGER
-
-GET /api/users/all
-
-request
-```
-{
-  "currentPage": 0,
-  "pageCount": 0,
-  "pageSize": 0,
-  "rowCount": 0,
-  "firstRowOnPage": 0,
-  "lastRowOnPage": 0,
-  "additionalData": "string",
-  "results": [
-    {
-      "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-      "firstName": "string",
-      "lastName": "string",
-      "fullName": "string",
-      "isActive": true,
-      "dateCreated": "2026-03-06T16:26:24.955Z",
-      "dob": "2026-03-06T16:26:24.955Z",
-      "avatar": "string",
-      "lastLoginDate": "2026-03-06T16:26:24.955Z",
-      "userName": "string",
-      "email": "string",
-      "emailConfirmed": true
-    }
-  ]
-}
-```
-
-GET /api/users/{id}
-
-response
-```
-{
-  "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-  "firstName": "string",
-  "lastName": "string",
-  "fullName": "string",
-  "isActive": true,
-  "dateCreated": "2026-03-06T16:27:25.427Z",
-  "dob": "2026-03-06T16:27:25.427Z",
-  "avatar": "string",
-  "lastLoginDate": "2026-03-06T16:27:25.427Z",
-  "userName": "string",
-  "email": "string",
-  "emailConfirmed": true
-}
-```
-PUT /api/users/{id}
-request
-```
-{
-  "firstName": "string",
-  "lastName": "string",
-  "dob": "2026-03-06T16:28:40.097Z",
-  "avatar": "string"
-}
-```
-
-### Categories
-
-POST /api/categories/create
-
-response
-```
-{
-  "name": "string",
-  "slug": "string",
-  "parentId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-  "isActive": true,
-  "sortOrder": 0
-}
-```
-PUT /api/categories/update/{id}
-
-request
-```
-{
-  "name": "string",
-  "slug": "string",
-  "parentId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-  "isActive": true,
-  "sortOrder": 0
-}
-```
-DELETE /api/categories/delete/{id}
-GET /api/categories
-
-response
-```
-{
-  "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-  "name": "string",
-  "slug": "string",
-  "parentId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-  "isActive": true,
-  "dateCreated": "2026-03-06T16:31:53.703Z",
-  "dateModified": "2026-03-06T16:31:53.703Z",
-  "sortOrder": 0
-}
-```
-GET /api/categories/list
-
-response 
-```
-[
-  {
-    "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-    "name": "string",
-    "slug": "string",
-    "children": [
-      "string"
-    ]
-  }
-]
-```
-GET /api/categories/all
-
-response
-```
-{
-  "currentPage": 0,
-  "pageCount": 0,
-  "pageSize": 0,
-  "rowCount": 0,
-  "firstRowOnPage": 0,
-  "lastRowOnPage": 0,
-  "additionalData": "string",
-  "results": [
-    {
-      "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-      "name": "string",
-      "slug": "string",
-      "parentId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-      "isActive": true,
-      "dateCreated": "2026-03-06T16:33:29.697Z",
-      "dateModified": "2026-03-06T16:33:29.697Z",
-      "sortOrder": 0
-    }
-  ]
-}
-```
 ---
 
 ## Testing
 
-Run unit tests.
+Run unit tests:
 
 ```
 dotnet test
@@ -412,39 +161,39 @@ dotnet test
 
 ## Docker
 
-Build Docker image.
+Build image:
 
 ```
-docker build -t project-api .
+docker build -t contenthub-api .
 ```
 
-Run container.
+Run container:
 
 ```
-docker run -p 5000:5000 project-api
+docker run -p 5000:80 contenthub-api
 ```
 
 ---
 
 ## Deployment
 
-Example deployment stack:
+Example production stack:
 
 * Linux Server
 * Nginx
 * Docker
 * PostgreSQL
 
-Publish the project.
+Publish:
 
 ```
 dotnet publish -c Release
 ```
 
-Run the published application.
+Run:
 
 ```
-dotnet Project.Api.dll
+dotnet ContentHub.Api.dll
 ```
 
 ---
@@ -456,11 +205,14 @@ dotnet Project.Api.dll
 * HTTPS enforcement
 * Rate limiting (optional)
 
+Do not commit sensitive information such as JWT keys or connection strings.
+Use environment variables or a secure secret management solution in production.
+
 ---
 
 ## Contributing
 
-Pull requests are welcome. For major changes, please open an issue first.
+Pull requests are welcome. Please open an issue for major changes.
 
 ---
 

@@ -90,6 +90,7 @@ namespace ContentHub.Api.Controllers.AdminApi
 
             user.RefreshToken = refreshToken;
             user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(30);
+            Console.WriteLine(user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(30));
             await _userManager.UpdateAsync(user);
 
             return Ok(new AuthenticatedResult

@@ -45,4 +45,6 @@ export const commentApi = {
     pageSize: number;
   }) =>
     axiosClient.get<PagedResult<CommentResponse>>("/api/comments", { params }),
+    deleteComment: (id: string) =>
+  axiosClient.delete(`/api/comments/${id}`)
 };

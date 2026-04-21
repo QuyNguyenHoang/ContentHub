@@ -75,5 +75,17 @@ namespace ContentHub.Domain.SeedWorks.Constant
             [Description("Trả nhuận bút")]
             public const string Pay = "Permissions.Royalty.Pay";
         }
+        public static class Commment
+        {
+            [Description("Thêm mới bình luận")]
+            public const string Create = "Permissions.Comment.Create";
+            [Description("Xóa  bình luận")]
+            public const string Delete = "Permissions.Comment.Delete";
+            [Description("Sửa bình luận")]
+            public const string Update = "Permissions.Comment.Update";
+            [Description("Xem  bình luận")]
+            public const string View = "Permissions.Comment.View";
+        }
+
     }
 }
