@@ -77,7 +77,7 @@ const routes = [
   { path: "/login", element: <Login /> },
   { path: "/register", element: <Regiter /> },
   { path: "posts", element: <PostList /> },
-  {path:"/comment", element:<Comment/>}
+  { path: "/comment", element: <Comment /> },
 ];
 
 export default routes;

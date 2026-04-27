@@ -1,5 +1,8 @@
 import { useParams } from "react-router-dom";
-import { postApi, type PostDetailResponse } from "../../../api/content/post.api";
+import {
+  postApi,
+  type PostDetailResponse,
+} from "../../../api/content/post.api";
 import { useEffect, useState } from "react";
 
 export function PostDetail() {
@@ -42,37 +45,44 @@ export function PostDetail() {
       {/* Post */}
       {post && (
         <>
-          {/* Title */}
-          <h2 className="fw-bold mb-3">{post.name}</h2>
+          <div className="row justify-content-center">
+            <div className="col-12 col-md-12 mx-auto">
+              {/* Title */}
+              <h2 className="fw-bold mb-3">{post.name}</h2>
 
-          {/* Tags */}
-          {post.listTag?.length > 0 && (
-            <div className="mb-4">
-              {post.listTag.map((tag) => (
-                <span key={tag.slug} className="badge bg-light text-dark me-2">
-                  #{tag.name}
-                </span>
-              ))}
+              {/* Tags */}
+              {post.listTag?.length > 0 && (
+                <div className="mb-4">
+                  {post.listTag.map((tag) => (
+                    <span
+                      key={tag.slug}
+                      className="badge bg-light text-dark me-2"
+                    >
+                      #{tag.name}
+                    </span>
+                  ))}
+                </div>
+              )}
+
+              {/* Content */}
+              <div
+                className="post-content"
+                dangerouslySetInnerHTML={{
+                  __html: post.content?.replace(
+                    /<img /g,
+                    '<img class="img-fluid rounded mx-auto d-block" ',
+                  ),
+                }}
+              ></div>
+
+              {/* Source */}
+              {post.source && (
+                <p className="mt-4 text-muted">
+                  <strong>Source:</strong> {post.source}
+                </p>
+              )}
             </div>
-          )}
-
-          {/* Content */}
-          <div
-            className="post-content"
-            dangerouslySetInnerHTML={{
-              __html: post.content?.replace(
-                /<img /g,
-                '<img class="img-fluid rounded mx-auto d-block" ',
-              ),
-            }}
-          ></div>
-
-          {/* Source */}
-          {post.source && (
-            <p className="mt-4 text-muted">
-              <strong>Source:</strong> {post.source}
-            </p>
-          )}
+          </div>
         </>
       )}
     </div>

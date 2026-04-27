@@ -122,15 +122,15 @@ export default function NewPostPage() {
 
   //Custom Image
   const CustomImage = Image.extend({
-  addAttributes() {
-    return {
-      ...this.parent?.(),
-      class: {
-        default: "img-fluid rounded-2 border mx-auto d-block",
-      },
-    };
-  },
-});
+    addAttributes() {
+      return {
+        ...this.parent?.(),
+        class: {
+          default: "img-fluid rounded-2 border mx-auto d-block",
+        },
+      };
+    },
+  });
   // Editor setup
   const editor = useEditor({
     extensions: [
@@ -160,14 +160,14 @@ export default function NewPostPage() {
     },
   });
 
- useEffect(() => {
-  if (!editor || !form.content) return;
+  useEffect(() => {
+    if (!editor || !form.content) return;
 
-  const currentHTML = editor.getHTML();
-  if (currentHTML !== form.content) {
-    editor.commands.setContent(form.content);
-  }
-}, [editor, form.content]);
+    const currentHTML = editor.getHTML();
+    if (currentHTML !== form.content) {
+      editor.commands.setContent(form.content);
+    }
+  }, [editor, form.content]);
 
   const [, setToolbarUpdate] = useState(0);
   useEffect(() => {
@@ -644,13 +644,12 @@ export default function NewPostPage() {
                                   .setImage({ src: res.path })
                                   .run();
                               }, 0);
-                                const html = editor.getHTML();
-  setForm(prev => {
-    const updated = { ...prev, content: html };
-    triggerAutoSave(updated);
-    return updated;
-  });
-                              
+                              const html = editor.getHTML();
+                              setForm((prev) => {
+                                const updated = { ...prev, content: html };
+                                triggerAutoSave(updated);
+                                return updated;
+                              });
                             } catch (error) {
                               console.error("Upload failed:", error);
                             } finally {
@@ -714,20 +713,6 @@ export default function NewPostPage() {
                 </div>
               </div>
 
-              <div className="row">
-                <div className="col-md-6 mb-3">
-                  <label className="form-label fw-semibold">Category</label>
-                  <input
-                    name="categoryId"
-                    value={form.categoryId}
-                    onChange={handleChange}
-                    className="form-control"
-                    placeholder="CategoryId"
-                    required
-                  />
-                </div>
-              </div>
-
               {/* ACTION */}
               <div className="d-flex justify-content-between align-items-center mt-4">
                 <small className="text-muted">Draft is auto-saving...</small>
@@ -745,7 +730,7 @@ export default function NewPostPage() {
                     className="btn btn-primary px-4"
                     disabled={loading}
                   >
-                    {loading ? "Publishing..." : "🚀 Publish"}
+                    {loading ? "Publishing..." : " Publish"}
                   </button>
                 </div>
               </div>

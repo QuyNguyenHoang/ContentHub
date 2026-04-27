@@ -9,13 +9,12 @@ const UserLayout = () => {
       <AppHeaderUser />
 
       {/* MAIN */}
-      <main className="flex-fill py-4 bg-light">
-        <div className="container">
-          <div className="row justify-content-center">
-            <div className="col-12 col-lg-12">
-              <div className="bg-white p-4 rounded shadow-sm">
-                <Outlet />
-              </div>
+      <main className="flex-fill bg-light py-3">
+        <div className="container-fluid">
+          <div className="row">
+            {/* CONTENT */}
+            <div className="col-12 ">
+              <Outlet />
             </div>
           </div>
         </div>

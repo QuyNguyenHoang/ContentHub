@@ -10,6 +10,7 @@ interface Props {
 
 export function PostList({ posts = [] }: Props) {
   const [likeMap, setLikeMap] = useState<Record<string, boolean>>({});
+
   const handleLike = (postId: string) => {
     setLikeMap((prev) => ({
       ...prev,
@@ -52,7 +53,6 @@ export function PostList({ posts = [] }: Props) {
                   width="32"
                   height="32"
                 />
-
                 {/* Info */}
                 <div className="d-flex flex-column">
                   <span className="fw-bold small">{post.authorName}</span>
@@ -61,7 +61,6 @@ export function PostList({ posts = [] }: Props) {
                   </span>
                 </div>
               </div>
-
               {/* Title */}
               <h2 className="fw-bold">
                 <Link

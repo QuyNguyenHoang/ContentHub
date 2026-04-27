@@ -15,7 +15,7 @@ export default function ContentHub() {
     <div className="bg-light min-vh-100 py-4">
       <CContainer>
         {/* HERO */}
-        <CCarousel controls indicators interval={4000} className="mb-5">
+        <CCarousel controls indicators interval={40000} className="mb-5">
           <CCarouselItem>
             <div className="p-5 text-center bg-white border rounded shadow-sm">
               <h2 className="fw-bold">📰 Content Hub</h2>
