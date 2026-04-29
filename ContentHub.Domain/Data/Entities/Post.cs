@@ -34,8 +34,8 @@ namespace ContentHub.Domain.Data.Entities
         public bool IsDeleted { get; set; }
         [Column(TypeName = "Decimal(18,2)")]
         public decimal RoyaltyAmount { get; set; }
-        [Required]
-        public Guid CategoryId { get; set; }
+        
+        public Guid? CategoryId { get; set; }
         public PostCategory? Category { get; set; }
         public Guid AuthorUserId {  get; set; }
         public AppUser? Author { get; set; }
