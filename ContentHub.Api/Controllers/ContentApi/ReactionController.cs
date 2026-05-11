@@ -29,10 +29,17 @@ namespace ContentHub.Api.Controllers.ContentApi
             return Ok(result);
         }
         [HttpGet("count_reaction_post")]
-        public async Task<ActionResult<Dictionary<ReactionType,int>>> CountReactionInPost(Guid id)
+        public async Task<ActionResult<Dictionary<ReactionType, int>>> CountReactionInPost(Guid id)
         {
             var result = await _repo.CountReactionInPostAsync(id);
             return Ok(result);
+        }
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteReaction(Guid id, Guid userId)
+        {
+            await _repo.DeleteReactionAsync(id, userId);
+
+            return NoContent();
         }
     }
 

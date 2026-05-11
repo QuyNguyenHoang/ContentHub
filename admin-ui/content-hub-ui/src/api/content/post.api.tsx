@@ -12,7 +12,7 @@ export interface PostResponse {
   categoryName: string;
   authorName: string;
   authorAvatar?: string;
-  commentCount:number;
+  commentCount: number;
   listTag?: Tag[];
 }
 export interface PostDetailResponse {
@@ -36,7 +36,6 @@ export interface PostDetailResponse {
   status: number;
   isPaid: boolean;
 
-  categoryId: string;
   categorySlug?: string | null;
   categoryName?: string | null;
 
@@ -73,7 +72,6 @@ export interface CreatePostRequest {
   tags?: string;
   isPaid: boolean;
   royaltyAmount: number;
-  categoryId: string;
   status: number;
   authorUserId: string;
 }
@@ -93,7 +91,16 @@ export const postApi = {
     axiosClient.get<PagedResponse<PostResponse[]>>("/admin/api/posts", {
       params: { keyword, filter, pageNumber: page, pageSize },
     }),
-
+  getPostByAdmin: (
+    keyword: string = "",
+    filter: string = "",
+    page: number,
+    pageSize: number,
+    isAdmin: boolean,
+  ) =>
+    axiosClient.get<PagedResponse<PostResponse[]>>("/admin/api/posts", {
+      params: { keyword, filter, page, pageSize, isAdmin},
+    }),
   getById: (id: string) =>
     axiosClient.get<PostDetailResponse>(`/admin/api/posts/${id}`),
 

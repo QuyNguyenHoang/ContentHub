@@ -12,7 +12,7 @@ namespace ContentHub.Application.IRepositories
         Task<bool> IsAuthorExisted(Guid authorId);
         Task<bool> IsCategoryExisted(Guid? categoryId);
         Task<bool> IsPostExisted(Guid id);
-        Task<PagedResult<PostDto>> GetPostPagedAsync(string? keyword, string? filter, int pageNumber = 1, int pageSize = 10);
+        Task<PagedResult<PostDto>> GetPostPagedAsync(string? keyword, string? filter, int pageNumber = 1, int pageSize = 10, bool isAdmin = false);
         Task<PostDto> AddNewPostAsync(CreatePostRequest postRequest);
         Task<PostDto> GetPostById(Guid postId);
         Task<List<PostDto>> GetPostByUserId(Guid userId);

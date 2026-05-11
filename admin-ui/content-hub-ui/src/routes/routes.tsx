@@ -20,6 +20,7 @@ const PostList = lazy(() => import("../features/content/PostComponent"));
 const NewPost = lazy(() => import("../pages/content/PostForUserUI/NewPostUI"));
 const PostDetail = lazy(()=>import("../features/content/PostDetailComponent"));
 const Comment= lazy(()=> import("../features/content/CommentBox"))
+const PostManagement = lazy(()=> import("../features/content/PostManagementComponent"))
 const routes = [
   {
     path: "/admin",
@@ -36,6 +37,7 @@ const routes = [
       { path: "users/update/:id", element: <UserUpdate /> },
       { path: "tags", element: <TagList /> },
       { path: "series", element: <SeriesList /> },
+      {path: "posts", element: <PostManagement/>}
     ],
   },
   {

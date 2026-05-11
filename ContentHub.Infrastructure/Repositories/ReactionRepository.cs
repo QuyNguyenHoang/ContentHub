@@ -69,7 +69,7 @@ namespace ContentHub.Infrastructure.Repositories
                 CreatedAt = reaction.CreatedAt
             };
         }
-        public async Task<Dictionary<ReactionType,int>> CountReactionInCommentAsync(Guid id)
+        public async Task<Dictionary<ReactionType, int>> CountReactionInCommentAsync(Guid id)
         {
             return await _context.Reactions
                 .Where(r => r.TargetType == ReactionTargetType.Comment && r.TargetId == id)
@@ -84,25 +84,32 @@ namespace ContentHub.Infrastructure.Repositories
         public async Task<Dictionary<ReactionType, int>> CountReactionInPostAsync(Guid id)
         {
             return await _context.Reactions
-                .Where(r=>r.TargetId == id && r.TargetType == ReactionTargetType.Post)
+                .Where(r => r.TargetId == id && r.TargetType == ReactionTargetType.Post)
                 .GroupBy(r => r.Type)
-                .Select(r=> new
+                .Select(r => new
                 {
                     Type = r.Key,
                     Count = r.Count()
                 })
-                .ToDictionaryAsync(r=>r.Type, r => r.Count);
+                .ToDictionaryAsync(r => r.Type, r => r.Count);
         }
         public async Task<ReactionType> GetMyReactionAsync(Guid userId, Guid targetId, ReactionTargetType type)
         {
-            return await _context.Reactions.Where(r=>r.UserId == userId && r.TargetId == targetId && r.TargetType == type)
-                .Select(r=>r.Type)
+            return await _context.Reactions.Where(r => r.UserId == userId && r.TargetId == targetId && r.TargetType == type)
+                .Select(r => r.Type)
                 .FirstOrDefaultAsync();
         }
 
-        public Task DeleteReactionAsync(Guid id, Guid userId)
+        public async Task DeleteReactionAsync(Guid id, Guid userId)
         {
-            throw new NotImplementedException();
+            var reaction = await _context.Reactions
+          .FirstOrDefaultAsync(r => r.UserId == userId && r.Id == id);
+
+            if (reaction != null)
+            {
+                _context.Reactions.Remove(reaction);
+                await _context.SaveChangesAsync();
+            }
         }
     }
 }

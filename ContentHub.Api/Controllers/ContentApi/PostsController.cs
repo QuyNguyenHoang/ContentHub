@@ -25,10 +25,11 @@ namespace ContentHub.Api.Controllers.ContentApi
             [FromQuery] string? keyword,
             [FromQuery] string? filter,
             [FromQuery] int pageNumber = 1,
-            [FromQuery] int pageSize = 10)
+            [FromQuery] int pageSize = 10,
+            bool isAdmin = false)
         
         {
-            var result = await _postRepository.GetPostPagedAsync(keyword, filter, pageNumber, pageSize);
+            var result = await _postRepository.GetPostPagedAsync(keyword, filter, pageNumber, pageSize, isAdmin);
             return Ok(result);
         }
 

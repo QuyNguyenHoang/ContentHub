@@ -23,8 +23,8 @@ namespace ContentHub.Application.Models.Contents
 
         public decimal RoyaltyAmount { get; set; }
 
-        [Required]
-        public Guid CategoryId { get; set; }
+
+
 
         // Optional: cho phép set status khi update
         public PostStatus? Status { get; set; }

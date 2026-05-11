@@ -70,7 +70,6 @@ export default function NewPostPage() {
     content: "",
     source: "",
     tags: [] as string[],
-    categoryId: "",
     status: 0,
     authorUserId: "",
   });
@@ -209,7 +208,6 @@ export default function NewPostPage() {
       const payload = {
         ...data,
         name: data.name.trim(),
-
         content: editor?.getHTML() || "",
         tags: data.tags.join(","),
         status: 0,
@@ -261,7 +259,7 @@ export default function NewPostPage() {
     e.preventDefault();
     setErr(null);
 
-    if (!form.name?.trim() || !form.categoryId || !form.authorUserId) {
+    if (!form.name?.trim()  || !form.authorUserId) {
       setErr("Missing required fields");
       return;
     }
@@ -272,7 +270,6 @@ export default function NewPostPage() {
       const payload = {
         ...form,
         name: form.name.trim(),
-
         content: editor?.getHTML() || "",
         tags: form.tags.join(","),
         status: 1,
@@ -299,12 +296,12 @@ export default function NewPostPage() {
         content: "",
         source: "",
         tags: [],
-        categoryId: "",
         status: 1,
         authorUserId: AuthId || "",
       });
       // reset editor
       editor?.commands.clearContent();
+      alert("Please watting for admin approve your post!!!")
       navigate("/posts");
       // reset auto save cache
       lastSavedRef.current = "";

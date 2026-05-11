@@ -23,7 +23,8 @@ namespace ContentHub.Infrastructure.Repositories
     string? keyword,
     string? filter,
     int pageNumber = 1,
-    int pageSize = 10)
+    int pageSize = 10,
+    bool isAdmin = false)
         {
             keyword = keyword?.Trim();
             filter = filter?.Trim();
@@ -32,6 +33,11 @@ namespace ContentHub.Infrastructure.Repositories
 
 
             var query = _context.Posts.AsNoTracking();
+
+            if (!isAdmin)
+            {
+                query = query.Where(p => p.Status == PostStatus.Published);
+            }
 
             // Search
             if (!string.IsNullOrWhiteSpace(keyword))
@@ -127,12 +133,12 @@ namespace ContentHub.Infrastructure.Repositories
             {
                 throw new InvalidOperationException("Author invalid!!!");
             }
-            var checkCategoryId = await IsCategoryExisted(postRequest.CategoryId);
-            Console.WriteLine($"CategoryID = {checkCategoryId}");
-            if (!checkCategoryId)
-            {
-                throw new InvalidOperationException("Post Category Invalid!!!");
-            }
+            //var checkCategoryId = await IsCategoryExisted(postRequest.CategoryId);
+            //Console.WriteLine($"CategoryID = {checkCategoryId}");
+            //if (!checkCategoryId)
+            //{
+            //    throw new InvalidOperationException("Post Category Invalid!!!");
+            //}
 
             if (string.IsNullOrWhiteSpace(postRequest.Name))
             {

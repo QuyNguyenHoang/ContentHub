@@ -20,7 +20,7 @@ export function PostComposer() {
         value={content}
         onChange={(e) => {
           const value = e.target.value;
-          setContent(value); // cập nhật content
+          setContent(value); 
           setCount(value.length);
         }}
         onFocus={() => setLoadForm(true)}
