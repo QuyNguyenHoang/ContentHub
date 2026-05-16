@@ -20,6 +20,7 @@ import {
 import { CNavGroup, CNavItem, CNavTitle } from "@coreui/react";
 
 const nav = [
+  //Dashboard
   {
     component: CNavItem,
     name: "Dashboard",
@@ -94,22 +95,10 @@ const nav = [
       },
       {
         component: CNavItem,
-        name: "Dropdowns",
-        to: "/buttons/dropdowns",
-      },
-      {
-        component: CNavItem,
-        name: (
-          <React.Fragment>
-            {"Loading Button"}
-            <CIcon icon={cilExternalLink} size="sm" className="ms-2" />
-          </React.Fragment>
-        ),
-        href: "https://coreui.io/react/docs/components/loading-button/",
-        badge: {
-          color: "danger",
-          text: "PRO",
-        },
+        name: "Posts Management",
+
+        to: "/admin/posts",
+        icon: <CIcon icon={cilDescription} customClassName="nav-icon" />,
       },
     ],
   },

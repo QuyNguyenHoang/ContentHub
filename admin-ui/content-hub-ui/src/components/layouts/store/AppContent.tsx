@@ -4,7 +4,7 @@ import { CContainer } from '@coreui/react'
 
 const AppContent: React.FC = () => {
   return (
-    <CContainer className="px-4" fluid>
+    <CContainer className="px-4 min-vh-100" fluid>
       <Outlet />
     </CContainer>
   )

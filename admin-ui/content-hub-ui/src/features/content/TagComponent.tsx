@@ -3,24 +3,18 @@ import { tagApi } from "../../api/content/tag.api";
 import type { TagResponse } from "../../api/content/tag.api";
 import TagTable from "../../pages/content/TagUI/TagUI";
 import TagCreateDrawer from "../../pages/content/TagUI/CreateTagUI";
+import Paging from "../../components/common/PagingComponent";
+import Toast from "../../components/common/Toast";
 export default function TagList() {
   const [tags, setTags] = useState<TagResponse[]>([]);
   const [loading, setLoading] = useState(false);
 
   const [pageNumber, setPageNumber] = useState(1);
-  const [pageSize] = useState(1);
+  const pageSize = 10;
   const [keyword, setKeyword] = useState("");
   const [pageCount, setPageCount] = useState(1);
-  // Pagination logic
-  const visiblePages = 5;
 
-  let startPage = Math.max(pageNumber - Math.floor(visiblePages / 2), 1);
-  let endPage = startPage + visiblePages - 1;
 
-  if (endPage > pageCount) {
-    endPage = pageCount;
-    startPage = Math.max(pageCount - visiblePages + 1, 1);
-  }
 
   const [visible, setVisible] = useState(false);
 
@@ -29,10 +23,16 @@ export default function TagList() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
   const [name, setName] = useState("");
-
-  const [alert, setAlert] = useState<string | null>(null);
+  const placeholder = "Search tag ...";
+  //toast
+  const [message, setMessage] = useState("");
+  const [showToast, setShowToast] = useState(false);
   const [alertColor, setAlertColor] = useState<"success" | "danger">("success");
-  const [progress, setProgress] = useState(100);
+  const showAlert = (message: string, color: "success" | "danger") => {
+    setMessage(message);
+    setAlertColor(color);
+    setShowToast(true);
+  };
 
   // ======================
   // Load Tag By Id (EDIT)
@@ -52,26 +52,6 @@ export default function TagList() {
   };
 
   // ======================
-  // Toast Alert
-  // ======================
-  const loadAlert = () => {
-    setProgress(100);
-
-    let value = 100;
-
-    const interval = setInterval(() => {
-      value -= 2;
-
-      setProgress(value);
-
-      if (value <= 0) {
-        clearInterval(interval);
-        setAlert(null);
-      }
-    }, 60);
-  };
-
-  // ======================
   // SAVE (Create + Update)
   // ======================
   const handleSave = async (name: string) => {
@@ -79,14 +59,12 @@ export default function TagList() {
       if (selectedId) {
         await tagApi.update(selectedId, { name });
 
-        setAlert("Tag updated successfully");
+        showAlert("Update tag successfully!", "success");
       } else {
         await tagApi.create({ name });
 
-        setAlert("Tag created successfully");
+        showAlert("Create tag successfully!", "success");
       }
-
-      setAlertColor("success");
 
       setVisible(false);
 
@@ -95,16 +73,9 @@ export default function TagList() {
       setName("");
 
       await loadTags();
-
-      loadAlert();
     } catch (error) {
       console.error("Save failed:", error);
-
-      setAlertColor("danger");
-
-      setAlert("Name or Slug already exist!!!");
-
-      loadAlert();
+      showAlert("Save failed!!!", "danger");
     }
   };
 
@@ -160,19 +131,11 @@ export default function TagList() {
 
       await loadTags();
 
-      setAlert("Delete is successfully!");
-
-      setAlertColor("success");
-
-      loadAlert();
+      showAlert("Delete tag successfully!", "success");
     } catch (error) {
       console.error("Delete failed:", error);
 
-      setAlert("Can not delete!!!");
-
-      setAlertColor("danger");
-
-      loadAlert();
+      showAlert("Delete tag failed!!!", "danger");
     }
   };
 
@@ -190,21 +153,12 @@ export default function TagList() {
 
       await loadTags();
 
-      setAlert("Delete is successfully!");
-
-      setAlertColor("success");
-
-      loadAlert();
+      showAlert("Delete tag successfully!", "success");
 
       setSelectedIds([]);
     } catch (error) {
       console.error("Delete failed:", error);
-
-      setAlert("Can not delete!!!");
-
-      setAlertColor("danger");
-
-      loadAlert();
+      showAlert("Delete tags failed!!!", "danger");
     }
   };
 
@@ -222,7 +176,7 @@ export default function TagList() {
             <input
               type="text"
               className="form-control"
-              placeholder="Search tag..."
+              placeholder={placeholder}
               value={keyword}
               onChange={(e) => {
                 setKeyword(e.target.value);
@@ -284,161 +238,19 @@ export default function TagList() {
           />
         </div>
         {/* PAGINATION */}
-
-        <div className="d-flex flex-column flex-md-row justify-content-center align-items-center mt-3 gap-2">
-          <ul className="pagination mb-0 flex-wrap justify-content-center">
-            {/* FIRST */}
-            <li className={`page-item ${pageNumber === 1 ? "disabled" : ""}`}>
-              <button className="page-link" onClick={() => setPageNumber(1)}>
-                «
-              </button>
-            </li>
-
-            {/* PREV */}
-            <li className={`page-item ${pageNumber === 1 ? "disabled" : ""}`}>
-              <button
-                className="page-link"
-                onClick={() => setPageNumber((prev) => Math.max(prev - 1, 1))}
-              >
-                ‹
-              </button>
-            </li>
-
-            {/* SHOW FIRST PAGE IF HIDDEN */}
-            {startPage > 1 && (
-              <>
-                <li className="page-item">
-                  <button
-                    className="page-link"
-                    onClick={() => setPageNumber(1)}
-                  >
-                    1
-                  </button>
-                </li>
-
-                {startPage > 2 && (
-                  <li className="page-item disabled">
-                    <span className="page-link">...</span>
-                  </li>
-                )}
-              </>
-            )}
-
-            {/* PAGE NUMBERS */}
-            {Array.from(
-              { length: endPage - startPage + 1 },
-              (_, i) => startPage + i,
-            ).map((page) => (
-              <li
-                key={page}
-                className={`page-item ${pageNumber === page ? "active" : ""}`}
-              >
-                <button
-                  className="page-link"
-                  onClick={() => setPageNumber(page)}
-                >
-                  {page}
-                </button>
-              </li>
-            ))}
-
-            {/* SHOW LAST PAGE IF HIDDEN */}
-            {endPage < pageCount && (
-              <>
-                {endPage < pageCount - 1 && (
-                  <li className="page-item disabled">
-                    <span className="page-link">...</span>
-                  </li>
-                )}
-
-                <li className="page-item">
-                  <button
-                    className="page-link"
-                    onClick={() => setPageNumber(pageCount)}
-                  >
-                    {pageCount}
-                  </button>
-                </li>
-              </>
-            )}
-
-            {/* NEXT */}
-            <li
-              className={`page-item ${pageNumber >= pageCount ? "disabled" : ""}`}
-            >
-              <button
-                className="page-link"
-                onClick={() =>
-                  setPageNumber((prev) => Math.min(prev + 1, pageCount))
-                }
-              >
-                ›
-              </button>
-            </li>
-
-            {/* LAST */}
-            <li
-              className={`page-item ${pageNumber >= pageCount ? "disabled" : ""}`}
-            >
-              <button
-                className="page-link"
-                onClick={() => setPageNumber(pageCount)}
-              >
-                »
-              </button>
-            </li>
-          </ul>
-
-          {/* PAGE SELECT */}
-          <div className="d-flex align-items-center gap-2 mt-2 mt-md-0">
-            <span className="small">Go to page</span>
-
-            <select
-              className="form-select form-select-sm"
-              style={{ width: "70px" }}
-              value={pageNumber}
-              onChange={(e) => setPageNumber(Number(e.target.value))}
-            >
-              {Array.from({ length: pageCount }, (_, i) => (
-                <option key={i} value={i + 1}>
-                  {i + 1}
-                </option>
-              ))}
-            </select>
-
-            <span className="small">of {pageCount}</span>
-          </div>
-        </div>
+        <Paging
+          currentPage={pageNumber}
+          totalPages={pageCount}
+          onPageChange={setPageNumber}
+        />
       </div>
       {/* TOAST */}
-      {alert && (
-        <div
-          className="toast show"
-          style={{
-            position: "fixed",
-            bottom: 20,
-            right: 20,
-            minWidth: 300,
-            zIndex: 9999,
-          }}
-        >
-          <div className={`toast-header text-white bg-${alertColor}`}>
-            <button
-              type="button"
-              className="btn-close btn-close-white ms-auto"
-              onClick={() => setAlert(null)}
-            />
-          </div>
-
-          <div className="toast-body">
-            {alert}
-
-            <div className="progress mt-2" style={{ height: 4 }}>
-              <div className="progress-bar" style={{ width: `${progress}%` }} />
-            </div>
-          </div>
-        </div>
-      )}
+      <Toast
+        message={message}
+        showToast={showToast}
+        alertColor={alertColor}
+        onClose={() => setShowToast(false)}
+      />
     </div>
   );
 }

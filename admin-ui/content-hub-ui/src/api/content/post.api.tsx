@@ -3,12 +3,16 @@ import axiosClient from "../../config/axios";
 export interface PostResponse {
   id: string;
   name: string;
+  status:string;
   slug: string;
+  isPaid:boolean;
+  isDeleted:boolean;
   content?: string;
   source?: string;
   tags?: string;
   description?: string;
   dateCreated: string;
+  dateModified?:string;
   categoryName: string;
   authorName: string;
   authorAvatar?: string;

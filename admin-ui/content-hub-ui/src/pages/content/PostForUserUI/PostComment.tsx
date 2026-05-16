@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import type { CommentResponse } from "../../../api/content/comment.api";
 import CIcon from "@coreui/icons-react";
 import { cilOptions, cilPencil, cilThumbUp, cilTrash } from "@coreui/icons";
-
+import useClickOutside from "../../../components/hooks/clickOutSide";
 interface Props {
   comments: CommentResponse[];
   onSend: () => void;
@@ -27,27 +27,11 @@ export default function PostComment({ comments, onReply, onDelete }: Props) {
       [commentId]: !prev[commentId],
     }));
   };
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      const target = event.target as Node;
 
-      const clickedInsideReply = repliesBoxRef.current?.contains(target);
-
-      const clickedInsideDropdown = (event.target as HTMLElement).closest(
-        ".dropdown",
-      );
-
-      if (!clickedInsideReply && !clickedInsideDropdown) {
-        setRepliesId(null);
-        setOpenOptionId(null);
-      }
-    }
-
-    document.addEventListener("mousedown", handleClickOutside);
-
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
+  useClickOutside(repliesBoxRef,()=>{
+    setRepliesId(null);
+    setOpenOptionId(null);
+  });
   const toggleReply = (id: string) => {
     setOpenReplies((prev) => ({
       ...prev,
