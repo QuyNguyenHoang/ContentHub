@@ -1,38 +1,40 @@
 import CIcon from "@coreui/icons-react";
 import type { PostResponse } from "../../../api/content/post.api";
 import {
-  cilFilter,
+  cilBan,
+  cilCheck,
+  cilHistory,
   cilOptions,
   cilPencil,
   cilShare,
   cilTrash,
 } from "@coreui/icons";
 import { useRef, useState } from "react";
-import useClickOutside from "../../../components/hooks/clickOutSide";
+import useClickOutside from "../../../components/hooks/ClickOutside";
+import PostApprovalHistory from "./PostApprovalHistory";
+import { POST_STATUS } from "../../../features/content/PostManagementComponent";
 
 interface Props {
   post: PostResponse[];
 
   handleToggleSelectPost: (id: string) => void;
   handleToggleSelectAllPost: () => void;
+  handleApprove: (postId: string) => void;
   selectPostIds: string[];
 }
-export const POST_STATUS = {
-  DRAFT: "Draft",
-  WAITING_FOR_APPROVAL: "Waiting For Approval",
-  REJECTED: "Rejected",
-  PUBLISHED: "Published",
-} as const;
-export const POST_STATUS_OPTIONS = Object.values(POST_STATUS);
+
 export default function PostTable({
   post = [],
   handleToggleSelectAllPost,
   handleToggleSelectPost,
+  handleApprove,
   selectPostIds,
 }: Props) {
   const [optionId, setOptionId] = useState<string | null>(null);
   const outSideRef = useRef<HTMLDivElement>(null);
-  const [postStatus, setPostStatus] = useState("");
+
+  //open post approval history
+  const [selectedPostId, setSelectedPostId] = useState<string | null>(null);
   const handleOption = (postId: string) => {
     setOptionId((prev) => (prev === postId ? null : postId));
   };
@@ -45,33 +47,6 @@ export default function PostTable({
   }
   return (
     <div className="card-body p-0">
-      {/* filter areas */}
-      <div className="d-flex justify-content-between align-items-center gap-2 pt-3">
-        {/* delete button */}
-
-        <div
-          className="input-group input-group-sm mb-2"
-          style={{ width: "170px" }}
-        >
-          <span className="input-group-text">
-            <CIcon icon={cilFilter} />
-          </span>
-
-          <select
-            className="form-select"
-            onChange={(e) => setPostStatus(e.target.value)}
-          >
-            <option value="all">All</option>
-
-            {POST_STATUS_OPTIONS.map((status) => (
-              <option key={status} value={status}>
-                {status}
-              </option>
-            ))}
-          </select>
-        </div>
-      </div>
-
       <div className="table-responsive overflow-visible">
         <table className="table table-sm table-hover align-middle mb-0 small">
           <thead className="table-light text-center">
@@ -86,8 +61,7 @@ export default function PostTable({
                 />
               </th>
               <th>Name</th>
-
-              <th>Status</th>
+              <th>Author User </th>
 
               <th>Tags</th>
 
@@ -95,7 +69,7 @@ export default function PostTable({
               <th>Date Modified</th>
               <th>Is Paid</th>
               <th>Is Deleted</th>
-              <th>Author User </th>
+              <th>Status</th>
               <th>Action</th>
             </tr>
           </thead>
@@ -112,7 +86,22 @@ export default function PostTable({
                     />
                   </td>
                   <td>{p.name}</td>
-                  <td>{p.status}</td>
+                  <td>
+                    <div className="d-flex-nowrap justify-content-between">
+                      <img
+                        src={
+                          p.authorAvatar ||
+                          "https://res.cloudinary.com/dg2ztzhrt/image/upload/v1775028937/penguin_qkob1d.jpg"
+                        }
+                        alt="Author avatar"
+                        width={24}
+                        height={24}
+                        className="rounded-circle me-2"
+                      />
+                      <span>{p.authorName}</span>
+                    </div>
+                  </td>
+
                   <td>
                     <div className="flex gap-2 flex-wrap">
                       {(p.listTag ?? []).map((tag) => (
@@ -145,20 +134,10 @@ export default function PostTable({
                       <span className="text-success">Active</span>
                     )}
                   </td>
-                  <td>
-                    <div className="d-flex-nowrap justify-content-between">
-                      <img
-                        src={
-                          p.authorAvatar ||
-                          "https://res.cloudinary.com/dg2ztzhrt/image/upload/v1775028937/penguin_qkob1d.jpg"
-                        }
-                        alt="Author avatar"
-                        width={24}
-                        height={24}
-                        className="rounded-circle me-2"
-                      />
-                      <span>{p.authorName}</span>
-                    </div>
+                  <td
+                    className={`fw-bold ${p.status !== POST_STATUS.PUBLISHED ? "text-danger" : "text-success"}`}
+                  >
+                    {p.status}
                   </td>
                   <td className="text-center">
                     <div className="dropdown position-relative">
@@ -209,6 +188,42 @@ export default function PostTable({
                           </li>
                         </ul>
                       )}
+                      {p.status !== POST_STATUS.PUBLISHED ? (
+                        <>
+                          <button
+                            className="btn btn-sm "
+                            onClick={() => handleApprove(p.id)}
+                          >
+                            <CIcon
+                              icon={cilCheck}
+                              size="sm"
+                              className="text-success"
+                              title="Approve this post"
+                            />
+                          </button>
+                          <button className="btn btn-sm">
+                            <CIcon
+                              icon={cilBan}
+                              size="sm"
+                              className="text-danger"
+                              title="Reject this post"
+                            />
+                          </button>
+                        </>
+                      ) : (
+                        <>
+                          <button
+                            className="btn btn-sm"
+                            onClick={() => setSelectedPostId(p.id)}
+                          >
+                            <CIcon
+                              icon={cilHistory}
+                              size="sm"
+                              title="Approve history"
+                            />
+                          </button>
+                        </>
+                      )}
                     </div>
                   </td>
                 </tr>
@@ -217,6 +232,12 @@ export default function PostTable({
           </tbody>
         </table>
       </div>
+
+      {/* Modal Post Approval History */}
+      <PostApprovalHistory
+        selectedPostId={selectedPostId}
+        setSelectedPostId={setSelectedPostId}
+      />
     </div>
   );
 }

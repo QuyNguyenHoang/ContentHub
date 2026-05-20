@@ -3,16 +3,16 @@ import axiosClient from "../../config/axios";
 export interface PostResponse {
   id: string;
   name: string;
-  status:string;
+  status: string;
   slug: string;
-  isPaid:boolean;
-  isDeleted:boolean;
+  isPaid: boolean;
+  isDeleted: boolean;
   content?: string;
   source?: string;
   tags?: string;
   description?: string;
   dateCreated: string;
-  dateModified?:string;
+  dateModified?: string;
   categoryName: string;
   authorName: string;
   authorAvatar?: string;
@@ -66,6 +66,7 @@ export interface PagedResponse<T> {
   totalCount?: number;
   pageNumber?: number;
   pageSize?: number;
+  pageCount: number;
 }
 
 export interface CreatePostRequest {
@@ -81,6 +82,11 @@ export interface CreatePostRequest {
 }
 
 export const postApi = {
+  // Approve post
+  approvePost: (postId: string) => {
+    axiosClient.post(`/admin/api/posts/${postId}/approve`);
+  },
+
   postByUser: (userId: string) =>
     axiosClient.get("/admin/api/posts/post-by-user", {
       params: { userId },
@@ -103,7 +109,7 @@ export const postApi = {
     isAdmin: boolean,
   ) =>
     axiosClient.get<PagedResponse<PostResponse[]>>("/admin/api/posts", {
-      params: { keyword, filter, page, pageSize, isAdmin},
+      params: { keyword, filter, page, pageSize, isAdmin },
     }),
   getById: (id: string) =>
     axiosClient.get<PostDetailResponse>(`/admin/api/posts/${id}`),

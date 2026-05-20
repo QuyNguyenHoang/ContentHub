@@ -1,8 +1,8 @@
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import type { CommentResponse } from "../../../api/content/comment.api";
 import CIcon from "@coreui/icons-react";
 import { cilOptions, cilPencil, cilThumbUp, cilTrash } from "@coreui/icons";
-import useClickOutside from "../../../components/hooks/clickOutSide";
+import useClickOutside from "../../../components/hooks/ClickOutside";
 interface Props {
   comments: CommentResponse[];
   onSend: () => void;

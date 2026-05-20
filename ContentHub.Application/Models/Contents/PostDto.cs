@@ -9,6 +9,7 @@ namespace ContentHub.Application.Models.Contents
         public string? Source { get; set; }
         public string? Tags { get; set; }
         public string? SeoKeywords { get; set; }
+        public bool IsDeleted { get; set; } 
         public string? SeoDescription { get; set; }
         public int CommentCount { get; set; }
         public DateTime? DateModified { get; set; }

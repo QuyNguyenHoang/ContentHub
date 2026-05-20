@@ -18,6 +18,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using DotNetEnv;
 using CloudinaryDotNet;
+using System.Text.Json.Serialization;
 
 
 Env.Load();
@@ -107,7 +108,11 @@ builder.Services.AddScoped<ISeriesRepository, SeriesRepository>();
 builder.Services.AddScoped<IPostRepository, PostRepository>();
 builder.Services.AddScoped<ICommentRepository,CommentRepository>();
 builder.Services.AddScoped<IReactionRepository, ReactionRepository>();
-builder.Services.AddControllers();
+builder.Services.AddScoped<IPostActivityLogRepository, PostActivityLogRepository>();
+builder.Services.AddControllers().AddJsonOptions(option =>
+{
+    option.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+});
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 

@@ -22,7 +22,7 @@ namespace ContentHub.Application.IRepositories
             string? filter,
             int pageNumber = 1,
             int pageSize = 10);
-        Task Approve(Guid id, Guid authorId);
+        Task Approve(Guid id, Guid adminId);
         Task ReturnBack(Guid id, Guid authorId);
         Task<List<string?>> GetReturnReason(Guid id);
         Task<bool> HasPublicInLast(Guid id);

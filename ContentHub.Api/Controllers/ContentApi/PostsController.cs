@@ -2,7 +2,10 @@
 using ContentHub.Application.IRepositories;
 using ContentHub.Application.Models;
 using ContentHub.Application.Models.Contents;
+using ContentHub.Domain.SeedWorks.Constant;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace ContentHub.Api.Controllers.ContentApi
 {
@@ -27,7 +30,7 @@ namespace ContentHub.Api.Controllers.ContentApi
             [FromQuery] int pageNumber = 1,
             [FromQuery] int pageSize = 10,
             bool isAdmin = false)
-        
+
         {
             var result = await _postRepository.GetPostPagedAsync(keyword, filter, pageNumber, pageSize, isAdmin);
             return Ok(result);
@@ -66,10 +69,17 @@ namespace ContentHub.Api.Controllers.ContentApi
         }
 
         // POST: admin/api/posts/{id}/approve
+        [Authorize(Policy = Permissions.Posts.Edit)]
         [HttpPost("{id}/approve")]
-        public async Task<ActionResult> Approve(Guid id, [FromQuery] Guid authorId)
+        public async Task<ActionResult> Approve(Guid id)
         {
-            await _postRepository.Approve(id, authorId);
+            var adminIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (!Guid.TryParse(adminIdString, out var adminId))
+            {
+                return Unauthorized();
+            }
+
+            await _postRepository.Approve(id, adminId);
             return Ok("Approved successfully");
         }
 

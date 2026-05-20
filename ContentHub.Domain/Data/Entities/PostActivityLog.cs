@@ -1,6 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using ContentHub.Domain.Data.Identity;
+using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using static ContentHub.Domain.SeedWorks.Constant.Permissions;
 
 namespace ContentHub.Domain.Data.Entities
 {
@@ -19,5 +21,6 @@ namespace ContentHub.Domain.Data.Entities
         [Required]
         public Guid PostId { get; set; }
         public Post? Post { get; set; }
+        public AppUser? User { get; set; }
     }
 }

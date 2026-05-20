@@ -5,13 +5,14 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using System.Reflection.Emit;
 
 
 namespace ContentHub.Infrastructure
 {
     public class ContentHubDbContext : IdentityDbContext<AppUser, AppRole, Guid>
     {
-        public ContentHubDbContext (DbContextOptions options) : base(options) { }
+        public ContentHubDbContext(DbContextOptions options) : base(options) { }
         public DbSet<Post> Posts { get; set; }
         public DbSet<PostActivityLog> PostActivityLogs { get; set; }
         public DbSet<PostCategory> PostCategories { get; set; }
@@ -50,7 +51,11 @@ namespace ContentHub.Infrastructure
              .WithMany(u => u.Posts)
              .HasForeignKey(p => p.AuthorUserId)
              .OnDelete(DeleteBehavior.Restrict);
-          
+            builder.Entity<PostActivityLog>()
+            .HasOne(x => x.User)
+            .WithMany()
+            .HasForeignKey(x => x.UserId)
+            .OnDelete(DeleteBehavior.Restrict);
             foreach (var entityType in builder.Model.GetEntityTypes())
             {
                 foreach (var property in entityType.GetProperties())

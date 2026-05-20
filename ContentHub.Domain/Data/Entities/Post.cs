@@ -46,7 +46,7 @@ namespace ContentHub.Domain.Data.Entities
     public enum PostStatus:byte
     {
         Draft = 0,
-        WaitingForApproval = 1,
+        Pending = 1,
         Rejected = 2,
         Published = 3,
     }

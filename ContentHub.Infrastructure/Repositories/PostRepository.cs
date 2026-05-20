@@ -76,10 +76,14 @@ namespace ContentHub.Infrastructure.Repositories
                     {
                         Id = p.Id,
                         Name = p.Name,
+                        Status = p.Status,
                         Slug = p.Slug,
+                        IsPaid = p.IsPaid,
+                        IsDeleted = p.IsDeleted,
                         Content = p.Content ?? "No content",
                         Description = p.Description,
                         DateCreated = p.DateCreated,
+                        DateModified = p.DateModified,
                         CategoryName = p.Category != null ? p.Category.Name : "No Category",
                         CategorySlug = p.Category != null && !string.IsNullOrEmpty(p.Category.Slug)
                     ? p.Category.Slug
@@ -258,31 +262,48 @@ namespace ContentHub.Infrastructure.Repositories
         }
 
         // Approve Post (User send Post [Draft --> Approve])
-        public async Task Approve(Guid id, Guid authorId)
+        public async Task Approve(Guid postId, Guid adminId)
         {
-            var post = await _context.Posts.FindAsync(id);
+            using var transaction = await _context.Database.BeginTransactionAsync();
+
+            var post = await _context.Posts.FindAsync(postId);
+
             if (post == null)
             {
-                throw new KeyNotFoundException("Not found Post");
+                throw new KeyNotFoundException("Post not found");
             }
-            var user = await _context.Users.FindAsync(authorId);
-            if (user == null)
+
+            if (post.Status != PostStatus.Pending)
             {
-                throw new KeyNotFoundException("Not found User");
+                throw new InvalidOperationException("Only pending posts can be approved");
             }
-            var postActivity = new PostActivityLog
+
+            var admin = await _context.Users.FindAsync(adminId);
+
+            if (admin == null)
+            {
+                throw new KeyNotFoundException("Admin not found");
+            }
+
+            var activityLog = new PostActivityLog
             {
                 Id = Guid.NewGuid(),
                 FromStatus = post.Status,
                 ToStatus = PostStatus.Published,
-                UserId = user.Id,
-                PostId = id,
-                Note = ($"{user.FirstName} {user.LastName} Approve Post")
+                UserId = admin.Id,
+                PostId = post.Id,
+                Note = $"Post approved by {admin.FirstName} {admin.LastName}",
+
             };
-            await _context.PostActivityLogs.AddAsync(postActivity);
+
             post.Status = PostStatus.Published;
-            _context.Posts.Update(post);
+
+
+            _context.PostActivityLogs.Add(activityLog);
+
             await _context.SaveChangesAsync();
+
+            await transaction.CommitAsync();
         }
 
 
@@ -357,12 +378,12 @@ namespace ContentHub.Infrastructure.Repositories
             {
                 Id = Guid.NewGuid(),
                 FromStatus = PostStatus.Draft,
-                ToStatus = PostStatus.WaitingForApproval,
+                ToStatus = PostStatus.Pending,
                 Note = ($"{user.UserName} waiting for Approve")
 
             };
             _context.PostActivityLogs.Add(postAvtivity);
-            post.Status = PostStatus.WaitingForApproval;
+            post.Status = PostStatus.Pending;
             await _context.SaveChangesAsync();
         }
 
