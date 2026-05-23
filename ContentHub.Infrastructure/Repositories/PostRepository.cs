@@ -5,7 +5,13 @@ using ContentHub.Application.Models.Contents;
 using ContentHub.Domain.Data.Entities;
 using ContentHub.Domain.SeedWorks;
 using ContentHub.Infrastructure.SeedWorks;
+using ContentHub.Infrastructure.Service;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using System.IO.MemoryMappedFiles;
+using System.Transactions;
+using static ContentHub.Domain.SeedWorks.Constant.Permissions;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace ContentHub.Infrastructure.Repositories
 {
@@ -13,10 +19,18 @@ namespace ContentHub.Infrastructure.Repositories
     {
         private readonly IMapper _mapper;
         private readonly IRepository<Post, Guid> _repo;
-        public PostRepository(ContentHubDbContext context, IMapper mapper, IRepository<Post, Guid> repo) : base(context)
+        private readonly ContentHub.Infrastructure.Service.IEmailSender _emailSender;
+        private readonly ILogger<PostRepository> _logger;
+        public PostRepository(ContentHubDbContext context, IMapper mapper,
+            IRepository<Post, Guid> repo,
+            IEmailSender emailSender,
+            ILogger<PostRepository> logger
+            ) : base(context)
         {
             _mapper = mapper;
             _repo = repo;
+            _emailSender = emailSender;
+            _logger = logger;
         }
 
         public async Task<PagedResult<PostDto>> GetPostPagedAsync(
@@ -28,11 +42,11 @@ namespace ContentHub.Infrastructure.Repositories
         {
             keyword = keyword?.Trim();
             filter = filter?.Trim();
-            pageNumber = pageNumber <= 0 ? 1 : pageNumber;
+            pageNumber = pageNumber < 1 ? 1 : pageNumber;
             pageSize = pageSize <= 0 ? 10 : pageSize;
 
 
-            var query = _context.Posts.AsNoTracking();
+            var query = _context.Posts.Where(p => !p.IsDeleted).AsNoTracking();
 
             if (!isAdmin)
             {
@@ -101,7 +115,8 @@ namespace ContentHub.Infrastructure.Repositories
                             Name = pt.Tag != null ? pt.Tag.Name : "",
                             Slug = pt.Tag != null ? pt.Tag.Slug : "",
                         })
-                        .ToList()
+                        .ToList(),
+
 
                     }).ToListAsync();
 
@@ -112,6 +127,84 @@ namespace ContentHub.Infrastructure.Repositories
                 PageSize = pageSize,
                 CurrentPage = pageNumber
             };
+        }
+        //List post deleted
+        public async Task<PagedResult<PostDto>> GetListPostDeletedAsync(string? filter,
+            string? keyword,
+            int pageNumber = 1,
+            int pageSize = 10)
+        {
+            filter = filter?.Trim().ToLower();
+            keyword = keyword?.Trim();
+            pageNumber = pageNumber < 1 ? 1 : pageNumber;
+            pageSize = pageSize <= 0 ? 10 : pageSize;
+            var query = _context.Posts.Where(p => p.IsDeleted).AsNoTracking();
+            if (!string.IsNullOrWhiteSpace(filter))
+            {
+                if (filter == "date")
+                {
+                    query = query.OrderBy(p => p.DateModified);
+                }
+                else if(filter == "newest")
+                {
+                    query = query.OrderByDescending(p => p.DateModified);
+                }
+               
+            }
+            else
+            {
+                query = query.OrderByDescending(p => p.DateModified);
+            };
+            if (!string.IsNullOrWhiteSpace(keyword))
+            {
+                query =  query.Where(p=>p.Name.Contains(keyword) || 
+                (p.Author != null && p.Author.GetFullName().Contains(keyword))||
+                (p.Tags != null && p.Tags.Contains(keyword)));
+            }
+            var totalCount = await query.CountAsync();
+            //Data
+            var items = await query
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .Select(p => new PostDto
+                {
+                    Id = p.Id,
+                    Name = p.Name,
+                    Status = p.Status,
+                    Slug = p.Slug,
+                    IsPaid = p.IsPaid,
+                    IsDeleted = p.IsDeleted,
+                    Content = p.Content ?? "No content",
+                    Description = p.Description,
+                    DateCreated = p.DateCreated,
+                    DateModified = p.DateModified,
+                    CategoryName = p.Category != null ? p.Category.Name : "No Category",
+                    CategorySlug = p.Category != null && !string.IsNullOrEmpty(p.Category.Slug)
+                    ? p.Category.Slug
+                    : "No Slug",
+
+                    AuthorName = p.Author != null
+                            ? p.Author.GetFullName()
+                            : null,
+                    AuthorAvatar = p.Author != null ? p.Author.Avatar : "No Avatar",
+                    ListTag = p.PostTags
+                        .Where(pt => pt.Tag != null)
+                        .Select(pt => new TagDto
+                        {
+                            Name = pt.Tag != null ? pt.Tag.Name : "",
+                            Slug = pt.Tag != null ? pt.Tag.Slug : "",
+                        })
+                        .ToList(),
+                })
+
+                .ToListAsync();
+            return new PagedResult<PostDto> {
+                Results = items,
+                RowCount = totalCount,
+                PageSize = pageSize,
+                CurrentPage = pageNumber
+            };
+
         }
         //check AuthorUser
         public Task<bool> IsAuthorExisted(Guid authorId)
@@ -223,7 +316,11 @@ namespace ContentHub.Infrastructure.Repositories
 
             return _mapper.Map<PostDto>(postByUser);
         }
-
+        //Total posts
+        public async Task<int> GetTotalPostsAsync()
+        {
+            return await _context.Posts.Where(p=>!p.IsDeleted).CountAsync();
+        }
 
         //Get Post By User Paged (Areas User)
         public async Task<PagedResult<PostDto>> GetPostByUserPagedAsync(Guid userId, string? keyword, string? filter, int pageNumber = 1, int pageSize = 10)
@@ -266,12 +363,20 @@ namespace ContentHub.Infrastructure.Repositories
         {
             using var transaction = await _context.Database.BeginTransactionAsync();
 
-            var post = await _context.Posts.FindAsync(postId);
+            var post = await _context.Posts
+                .Include(p => p.Author)
+                .FirstOrDefaultAsync(p => p.Id == postId);
 
             if (post == null)
             {
                 throw new KeyNotFoundException("Post not found");
             }
+            if (post?.Author == null)
+            {
+                throw new KeyNotFoundException("Post author not found");
+            }
+
+            var userEmail = post.Author.Email;
 
             if (post.Status != PostStatus.Pending)
             {
@@ -304,38 +409,132 @@ namespace ContentHub.Infrastructure.Repositories
             await _context.SaveChangesAsync();
 
             await transaction.CommitAsync();
+            try
+            {
+                if (userEmail != null)
+                {
+                    await _emailSender.SendEmailAsync(
+                    userEmail,
+                    "Your post has been approved",
+                    $@"
+                <div style='font-family: Arial, sans-serif; line-height: 1.6;'>
+                    <h2 style='color: #16a34a;'>
+                        Your post has been approved
+                    </h2>
+
+                    <p>Hello {post.Author.FirstName},</p>
+
+                    <p>
+                        Your post 
+                        <strong>{post.Name}</strong> 
+                        has been reviewed and approved by our administrator.
+                    </p>
+
+                    <p>
+                        Your content is now publicly available on ContentHub.
+                    </p>
+
+                    <hr />
+
+                    <p style='font-size: 14px; color: gray;'>
+                        Thank you for contributing to ContentHub.
+                    </p>
+                </div>
+                "
+
+            );
+                }
+            }
+            catch (Exception)
+            {
+            }
+
+
         }
 
-
-
-
         //Return back for User (Post invalid)
-        public async Task ReturnBack(Guid id, Guid authorId)
+        public async Task ReturnBack(Guid postId, Guid adminId)
         {
-            var post = await _context.Posts.FindAsync(id);
+
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            var post = await _context.Posts
+                   .Include(p => p.Author)
+                   .FirstOrDefaultAsync(p => p.Id == postId);
+
             if (post == null)
             {
                 throw new KeyNotFoundException("Not found Post");
             }
-            var user = await _context.Users.FindAsync(authorId);
-            if (user == null)
+            if (post.Author == null)
             {
-                throw new KeyNotFoundException("Not found User");
+                throw new KeyNotFoundException("Not found");
             }
-            var postActivity = new PostActivityLog
+            var userEmail = post.Author.Email;
+            try
             {
-                Id = Guid.NewGuid(),
-                FromStatus = post.Status,
-                ToStatus = PostStatus.Rejected,
-                UserId = user.Id,
-                PostId = post.Id,
-                Note = ("This post InValid")
-            };
-            await _context.PostActivityLogs.AddAsync(postActivity);
-            post.Status = PostStatus.Rejected;
-            _context.Posts.Update(post);
-            await _context.SaveChangesAsync();
 
+                var adminApprove = await _context.Users
+                        .FirstOrDefaultAsync(u => u.Id == adminId);
+                if (adminApprove == null)
+                {
+                    throw new KeyNotFoundException("Not found User");
+                }
+                var postActivity = new PostActivityLog
+                {
+                    Id = Guid.NewGuid(),
+                    FromStatus = post.Status,
+                    ToStatus = PostStatus.Rejected,
+                    UserId = adminApprove.Id,
+                    PostId = post.Id,
+                    Note = ("This post is InValid")
+                };
+                _context.PostActivityLogs.Add(postActivity);
+                post.Status = PostStatus.Rejected;
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+            }
+            catch
+            {
+                await transaction.RollbackAsync();
+                throw;
+            }
+            try
+            {
+                if (userEmail != null)
+                {
+                    await _emailSender.SendEmailAsync(
+                        userEmail,
+                        "Your post has been Rejected!!!",
+                       $@"
+                <div style='font-family: Arial, sans-serif; line-height: 1.6;'>
+                    <h2 style='color: #16a34a;'>
+                        Your post was Rejected
+                    </h2>
+
+                    <p>Hello {post.Author.FirstName},</p>
+
+                    <p>
+                        Your post 
+                        <strong>{post.Name}</strong> 
+                        has been reviewed and Rejected by our administrator. Because your post is Invalid!!! 
+                    </p>
+
+                   
+
+                    <p style='font-size: 14px; color: gray;'>
+                        Thank you for contributing to ContentHub.
+                    </p>
+                </div>
+                "
+                        );
+                }
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+                _logger.LogError(ex, ex.Message);
+                throw;
+            }
 
         }
 
@@ -417,16 +616,16 @@ namespace ContentHub.Infrastructure.Repositories
                 throw new ArgumentException("Ids cannot be empty");
             }
             var postList = await _context.Posts
-                .Where(p => ids.Contains(p.Id) && p.Status == PostStatus.Draft)
+                .Where(p => ids.Contains(p.Id))
                 .ToListAsync();
             if (!postList.Any())
             {
-                throw new KeyNotFoundException("Can not found Post");
+                throw new KeyNotFoundException("Posts not found!!!");
             }
             int deleteCount = 0;
             foreach (var post in postList)
             {
-                _context.Remove(post);
+                post.IsDeleted = true;
                 deleteCount++;
             }
             await _context.SaveChangesAsync();
@@ -435,6 +634,19 @@ namespace ContentHub.Infrastructure.Repositories
 
         }
 
+        //Restore deleted post
+        public async Task<int> RestoreDeletedPostAsync(Guid[] ids)
+        {
+            if(ids == null || ids.Length == 0)
+            {
+                throw new ArgumentException("Post ids cannot be empty.");
+            }
+            int restoreCount = await _context.Posts.Where(p=> ids.Contains(p.Id) && p.IsDeleted)
+                .ExecuteUpdateAsync(p => p.SetProperty(x=>x.IsDeleted, false));
+            
+            await _context.SaveChangesAsync();
+            return restoreCount;
+        }
     }
 
 

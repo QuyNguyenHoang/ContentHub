@@ -20,6 +20,7 @@ interface Props {
   handleToggleSelectPost: (id: string) => void;
   handleToggleSelectAllPost: () => void;
   handleApprove: (postId: string) => void;
+  handleReject:(postId:string) => void;
   selectPostIds: string[];
 }
 
@@ -28,6 +29,7 @@ export default function PostTable({
   handleToggleSelectAllPost,
   handleToggleSelectPost,
   handleApprove,
+  handleReject,
   selectPostIds,
 }: Props) {
   const [optionId, setOptionId] = useState<string | null>(null);
@@ -188,7 +190,7 @@ export default function PostTable({
                           </li>
                         </ul>
                       )}
-                      {p.status !== POST_STATUS.PUBLISHED ? (
+                      {p.status !== POST_STATUS.PUBLISHED && p.status !== POST_STATUS.REJECTED ? (
                         <>
                           <button
                             className="btn btn-sm "
@@ -201,7 +203,9 @@ export default function PostTable({
                               title="Approve this post"
                             />
                           </button>
-                          <button className="btn btn-sm">
+                          <button className="btn btn-sm"
+                          onClick={()=>handleReject(p.id)}
+                          >
                             <CIcon
                               icon={cilBan}
                               size="sm"

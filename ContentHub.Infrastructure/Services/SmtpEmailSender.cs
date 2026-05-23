@@ -1,7 +1,8 @@
-﻿using System.Net;
+﻿using Microsoft.Extensions.Configuration;
+using System.Net;
 using System.Net.Mail;
 
-namespace ContentHub.Api.Services
+namespace  ContentHub.Infrastructure.Service
 {
     public class SmtpEmailSender : IEmailSender
     {
@@ -18,7 +19,7 @@ namespace ContentHub.Api.Services
             var port = _configuration["EmailSettings:Port"];
             var fromEmail = _configuration["EmailSettings:FromEmail"];
             var password = _configuration["EmailSettings:Password"];
-            var displayName = _configuration["EmailSettings:DisplayName"];
+
             if (string.IsNullOrEmpty(smtpServer))
                 throw new InvalidOperationException("SMTP Server is not configured");
 
@@ -32,7 +33,7 @@ namespace ContentHub.Api.Services
 
             var mail = new MailMessage
             {
-                From = new MailAddress(fromEmail!, displayName ),
+                From = new MailAddress(fromEmail!),
                 Subject = subject,
                 Body = htmlMessage,
                 IsBodyHtml = true

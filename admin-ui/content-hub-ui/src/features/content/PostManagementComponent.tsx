@@ -6,6 +6,8 @@ import Paging from "../../components/common/PagingComponent";
 import CIcon from "@coreui/icons-react";
 import { cilFilter, cilTrash } from "@coreui/icons";
 import Toast from "../../components/common/Toast";
+import { useNavigate } from "react-router-dom";
+import DeletedPost from "../../pages/content/PostUI/DeletedPost";
 
 export const POST_STATUS = {
   DRAFT: "Draft",
@@ -15,13 +17,16 @@ export const POST_STATUS = {
 } as const;
 export const POST_STATUS_OPTIONS = Object.values(POST_STATUS);
 export default function PostManagement() {
+  const navigate = useNavigate();
   const [post, setPost] = useState<PostResponse[]>([]);
   const [loading, setLoading] = useState(false);
   const [keyword, setKeyword] = useState("");
-  const [page, setPage] = useState(1);
+  const [pageNumber, setPageNumber] = useState(1);
   const [pageCount, setPageCount] = useState(1);
   const pageSize = 2;
-  const [filter, setFilter] = useState("All");
+  const [filter, setFilter] = useState("");
+  //state modal deleted post
+  const [showDeletedPost, setshowDeletedPost] = useState(false);
   //Toast
   const [alertColor, setAlertColor] = useState<"success" | "danger">("success");
   const [message, setMessage] = useState("");
@@ -30,6 +35,25 @@ export default function PostManagement() {
     setMessage(message);
     setAlertColor(color);
     setShowToast(true);
+  };
+  //Total posts
+  const [totalPosts, setTotalPosts] = useState(0);
+  const handleTotalPosts = async () => {
+    try {
+      const res = await postApi.totalPosts();
+
+      setTotalPosts(res.data);
+    } catch (error) {
+      console.log(error, "Get total post failed");
+    }
+  };
+  useEffect(() => {
+    handleTotalPosts();
+  }, []);
+  //filter
+  const handleFilterChange = (value: string) => {
+    setFilter(value === "All" ? "" : value);
+    setPageNumber(1);
   };
   // Approve
   const handleApprove = async (postId: string) => {
@@ -50,9 +74,47 @@ export default function PostManagement() {
       setLoading(false);
     }
   };
+  //Reject Post
+  const handleReaject = async (postId: string) => {
+    try {
+      setLoading(true);
+      await postApi.rejectPost(postId);
+      setPost((prev) =>
+        prev.map((p) =>
+          p.id === postId ? { ...p, status: POST_STATUS.REJECTED } : p,
+        ),
+      );
+      showAlert("Rejected Post is successfull", "success");
+    } catch (error) {
+      console.log("Call api was failed");
+      showAlert("Rejected Post is failed!!!", "success");
+    } finally {
+      setLoading(false);
+    }
+  };
   //Delete Post
   const [selectPostIds, setSelectPostIds] = useState<string[]>([]);
   const countPost = selectPostIds.length;
+  //Delele post method
+  const handleDeletePosts = async (ids: string[]) => {
+    if (countPost <= 0) return;
+    const confirmDelete = window.confirm(
+      `Are you sure you want to delete ${countPost} items post`,
+    );
+    if (confirmDelete) {
+      try {
+        setLoading(true);
+        await postApi.deletePosts(ids);
+        showAlert(`Successfully deleted ${ids.length} posts!`, "success");
+        await loadPosts();
+        setSelectPostIds([]);
+      } catch (error) {
+        console.log(error, `Can not delete post with id = ${ids}`);
+      } finally {
+        setLoading(false);
+      }
+    }
+  };
   //Select row
   const handleToggleSelectPost = (id: string) => {
     setSelectPostIds((prev) =>
@@ -67,6 +129,10 @@ export default function PostManagement() {
       setSelectPostIds(post.map((x) => x.id));
     }
   };
+  // Reset page
+  useEffect(() => {
+    setPageNumber(1);
+  }, [filter]);
 
   const loadPosts = useCallback(async () => {
     try {
@@ -74,66 +140,94 @@ export default function PostManagement() {
       const res = await postApi.getPostByAdmin(
         keyword,
         filter,
-        page,
+        pageNumber,
         pageSize,
         true,
       );
-      const data = res.data.results || [];
+      const data = res.data;
       console.log("fetch data successful!");
-      setPageCount(res.data.pageCount);
-      setPost(data);
+      console.log("pageNumber", pageNumber);
+      setPageCount(data.pageCount);
+      setPost(data.results);
+      console.log(data.results.map((x) => x.id));
     } catch (erorr) {
       console.log("Fetch post faild", erorr);
     } finally {
       setLoading(false);
+      setSelectPostIds([]);
     }
-  }, [keyword, page, pageSize, filter]);
+  }, [keyword, filter, pageNumber, pageSize]);
   useEffect(() => {
     loadPosts();
-  }, [keyword, filter, page, pageSize]);
+  }, [loadPosts]);
   return (
     <div className="container d-flex flex-column min-vh-100">
       <h3 className="text-center fw-bold p-2">Posts Management</h3>
       <SearchBox
         placeholder="Search post ..."
         keyword={keyword}
-        loadData={loadPosts}
         onChangeKeyword={(value) => {
           setKeyword(value);
-          setPage(1);
+          setPageNumber(1);
         }}
+        loadData={loadPosts}
       />
+      <div>
+          <button className="btn btn-sm" onClick={()=>setshowDeletedPost(true)}>
+              <CIcon icon={cilTrash} size= "sm" title="Recycle Bin"/>
+          </button>
+      </div>
       {/* filter areas */}
       <div className="d-flex justify-content-between align-items-center gap-2 pt-3">
-        {/* delete button */}
-        {countPost > 0 && (
+        <div className="d-flex justify-content-between align-items-center gap-2">
           <div>
-            <button className="btn btn-sm btn-outline-danger">
-              <CIcon icon={cilTrash} size="sm" />
-              Delete ({countPost}) Post{countPost === 1 ? "" : "s"}
+            <h4 className="fw-bold ">Total Post ({totalPosts})</h4>
+          </div>
+          {/* delete button */}
+          {countPost > 0 && (
+            <div>
+              <button
+                className="btn btn-sm btn-outline-danger"
+                onClick={() => handleDeletePosts(selectPostIds)}
+              >
+                <CIcon icon={cilTrash} size="sm" />
+                Delete ({countPost}) Post{countPost === 1 ? "" : "s"}
+              </button>
+            </div>
+          )}
+        </div>
+        <div className="d-flex justify-content-between">
+          <div
+            className="input-group input-group-sm mb-2 ms-auto"
+            style={{ width: "170px" }}
+          >
+            <span className="input-group-text">
+              <CIcon icon={cilFilter} />
+            </span>
+
+            <select
+              value="All"
+              className="form-select auto"
+              onChange={(e) => handleFilterChange(e.target.value)}
+            >
+              <option>All</option>
+
+              {POST_STATUS_OPTIONS.map((status) => (
+                <option key={status} value={status}>
+                  {status}
+                </option>
+              ))}
+            </select>
+          </div>
+          {/* New button */}
+          <div className="ms-2">
+            <button
+              className="btn btn-outline-success btn-sm rounded-2 fw-bold"
+              onClick={() => navigate("/new")}
+            >
+              + New Post
             </button>
           </div>
-        )}
-        <div
-          className="input-group input-group-sm mb-2 ms-auto"
-          style={{ width: "170px" }}
-        >
-          <span className="input-group-text">
-            <CIcon icon={cilFilter} />
-          </span>
-
-          <select
-            className="form-select auto"
-            onChange={(e) => setFilter(e.target.value)}
-          >
-            <option value="all">All</option>
-
-            {POST_STATUS_OPTIONS.map((status) => (
-              <option key={status} value={status}>
-                {status}
-              </option>
-            ))}
-          </select>
         </div>
       </div>
       {/* Content */}
@@ -151,6 +245,7 @@ export default function PostManagement() {
                 handleToggleSelectPost={handleToggleSelectPost}
                 handleToggleSelectAllPost={handleToggleSelectAllPost}
                 handleApprove={handleApprove}
+                handleReject={handleReaject}
               />
             </div>
           </div>
@@ -160,9 +255,9 @@ export default function PostManagement() {
       {/* Paging */}
       <div className="mb-4">
         <Paging
-          currentPage={page}
+          currentPage={pageNumber}
           totalPages={pageCount}
-          onPageChange={setPage}
+          onPageChange={setPageNumber}
         />
       </div>
       {/* Toast */}
@@ -172,6 +267,13 @@ export default function PostManagement() {
           message={message}
           alertColor={alertColor}
           onClose={() => setShowToast(false)}
+        />
+      </div>
+      {/* Deleted post list */}
+      <div>
+        <DeletedPost
+          showDeletedPost={showDeletedPost}
+          setshowDeletedPost={setshowDeletedPost}
         />
       </div>
     </div>

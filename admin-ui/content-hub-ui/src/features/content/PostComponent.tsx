@@ -16,7 +16,7 @@ export default function PostPage() {
   const pageSize = 5;
   const keyword = "";
   const filter = "";
-
+  const isAdmin = true;
   //Fetch API chuẩn (không stale state)
   const fetchPosts = useCallback(async () => {
     if (loading || !hasMore) return;
@@ -24,7 +24,7 @@ export default function PostPage() {
     setLoading(true);
 
     try {
-      const res = await postApi.getPost(keyword, filter, page, pageSize);
+      const res = await postApi.getPost(keyword, filter, page, pageSize, isAdmin);
       const newPosts = res.data.results || [];
 
       // merge + remove duplicate

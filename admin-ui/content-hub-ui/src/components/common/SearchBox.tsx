@@ -27,6 +27,7 @@ export default function SearchBox({
 
       <div className="col-6 col-md-auto">
         <button
+        type="button"
           className="btn btn-primary w-100"
           onClick={loadData}
         >

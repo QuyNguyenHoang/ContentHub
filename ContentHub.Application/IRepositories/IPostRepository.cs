@@ -23,13 +23,18 @@ namespace ContentHub.Application.IRepositories
             int pageNumber = 1,
             int pageSize = 10);
         Task Approve(Guid id, Guid adminId);
-        Task ReturnBack(Guid id, Guid authorId);
+        Task ReturnBack(Guid id, Guid adminId);
         Task<List<string?>> GetReturnReason(Guid id);
         Task<bool> HasPublicInLast(Guid id);
         Task SentToApprove(Guid id, Guid authorId);
         Task<PostDto> UpdatePostAsync(Guid id, CreatePostRequest postRequest);
         Task<int> DeletePostAsync(Guid[] ids);
-        
+        //Total posts
+        Task<int> GetTotalPostsAsync();
+        //List post deleted
+        Task<PagedResult<PostDto>> GetListPostDeletedAsync(string? filter, string? keyword, int pageNumber = 1,int pageSize = 10);
+        //Restore deleted post
+        Task<int> RestoreDeletedPostAsync(Guid[] ids);
 
     }
 }

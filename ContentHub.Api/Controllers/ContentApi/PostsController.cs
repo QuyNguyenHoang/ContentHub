@@ -78,16 +78,21 @@ namespace ContentHub.Api.Controllers.ContentApi
             {
                 return Unauthorized();
             }
-
+            
             await _postRepository.Approve(id, adminId);
             return Ok("Approved successfully");
         }
 
         // POST: admin/api/posts/{id}/reject
         [HttpPost("{id}/reject")]
-        public async Task<ActionResult> Reject(Guid id, [FromQuery] Guid authorId)
+        public async Task<ActionResult> Reject(Guid id)
         {
-            await _postRepository.ReturnBack(id, authorId);
+            var adminIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if(!Guid.TryParse(adminIdString, out var adminId))
+            {
+                return Unauthorized();
+            }
+            await _postRepository.ReturnBack(id, adminId);
             return Ok("Rejected successfully");
         }
 
@@ -110,6 +115,38 @@ namespace ContentHub.Api.Controllers.ContentApi
         public async Task<ActionResult<PostDto>> GetPostByUser(Guid userId)
         {
             var result = await _postRepository.GetPostByUser(userId);
+            return Ok(result);
+        }
+        //Get total posts
+        [HttpGet("total-posts")]
+        public async Task<ActionResult<int>> GetTotalPosts()
+        {
+            var result = await _postRepository.GetTotalPostsAsync();
+            return Ok(result);
+        }
+        //List post deleted
+        [HttpGet("list-posts-deleted")]
+        public async Task<ActionResult<PagedResult<PostDto>>> GetListPostDeleted(string? keyword,
+            string? filter,
+            int pageNumber = 1,
+            int pageSize = 10)
+        {
+            var result = await _postRepository.GetListPostDeletedAsync(keyword, filter, pageNumber, pageSize);
+            if (result == null)
+            {
+                return NotFound();
+            }
+            return Ok(result);
+        }
+        //Restore deleted post
+        [HttpPatch("restore-deleted-post")]
+        public async Task<ActionResult<int>> RestoreDeletedPost(Guid[] ids)
+        {
+            var result = await _postRepository.RestoreDeletedPostAsync(ids);
+            if (result == 0)
+            {
+                return NotFound("No deleted posts were restored.");
+            }
             return Ok(result);
         }
     }
