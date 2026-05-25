@@ -62,9 +62,9 @@ namespace ContentHub.Api.Controllers.ContentApi
 
         // DELETE: admin/api/posts
         [HttpDelete]
-        public async Task<ActionResult> Delete([FromBody] Guid[] ids)
+        public async Task<ActionResult> Delete([FromBody] Guid[] ids, [FromQuery] bool isSoftDelete)
         {
-            var deletedCount = await _postRepository.DeletePostAsync(ids);
+            var deletedCount = await _postRepository.DeletePostAsync(ids, isSoftDelete);
             return Ok(new { deletedCount });
         }
 
@@ -126,10 +126,10 @@ namespace ContentHub.Api.Controllers.ContentApi
         }
         //List post deleted
         [HttpGet("list-posts-deleted")]
-        public async Task<ActionResult<PagedResult<PostDto>>> GetListPostDeleted(string? keyword,
-            string? filter,
-            int pageNumber = 1,
-            int pageSize = 10)
+        public async Task<ActionResult<PagedResult<PostDto>>> GetListPostDeleted([FromQuery] string? keyword,
+            [FromQuery] string? filter,
+            [FromQuery] int pageNumber = 1,
+           [FromQuery] int pageSize = 10)
         {
             var result = await _postRepository.GetListPostDeletedAsync(keyword, filter, pageNumber, pageSize);
             if (result == null)
@@ -140,7 +140,7 @@ namespace ContentHub.Api.Controllers.ContentApi
         }
         //Restore deleted post
         [HttpPatch("restore-deleted-post")]
-        public async Task<ActionResult<int>> RestoreDeletedPost(Guid[] ids)
+        public async Task<ActionResult<int>> RestoreDeletedPost([FromBody] Guid[] ids)
         {
             var result = await _postRepository.RestoreDeletedPostAsync(ids);
             if (result == 0)

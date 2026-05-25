@@ -129,8 +129,8 @@ namespace ContentHub.Infrastructure.Repositories
             };
         }
         //List post deleted
-        public async Task<PagedResult<PostDto>> GetListPostDeletedAsync(string? filter,
-            string? keyword,
+        public async Task<PagedResult<PostDto>> GetListPostDeletedAsync(string? keyword,
+            string? filter,
             int pageNumber = 1,
             int pageSize = 10)
         {
@@ -145,11 +145,11 @@ namespace ContentHub.Infrastructure.Repositories
                 {
                     query = query.OrderBy(p => p.DateModified);
                 }
-                else if(filter == "newest")
+                else if (filter == "newest")
                 {
                     query = query.OrderByDescending(p => p.DateModified);
                 }
-               
+
             }
             else
             {
@@ -157,9 +157,11 @@ namespace ContentHub.Infrastructure.Repositories
             };
             if (!string.IsNullOrWhiteSpace(keyword))
             {
-                query =  query.Where(p=>p.Name.Contains(keyword) || 
-                (p.Author != null && p.Author.GetFullName().Contains(keyword))||
-                (p.Tags != null && p.Tags.Contains(keyword)));
+                query = query.Where(p => p.Name.Contains(keyword) ||
+                (p.Author != null && (p.Author.FirstName + "" + p.Author.LastName).Contains(keyword)) ||
+                (p.PostTags.Any(pt =>
+            pt.Tag != null &&
+            pt.Tag.Name.Contains(keyword))));
             }
             var totalCount = await query.CountAsync();
             //Data
@@ -198,7 +200,8 @@ namespace ContentHub.Infrastructure.Repositories
                 })
 
                 .ToListAsync();
-            return new PagedResult<PostDto> {
+            return new PagedResult<PostDto>
+            {
                 Results = items,
                 RowCount = totalCount,
                 PageSize = pageSize,
@@ -319,7 +322,7 @@ namespace ContentHub.Infrastructure.Repositories
         //Total posts
         public async Task<int> GetTotalPostsAsync()
         {
-            return await _context.Posts.Where(p=>!p.IsDeleted).CountAsync();
+            return await _context.Posts.Where(p => !p.IsDeleted).CountAsync();
         }
 
         //Get Post By User Paged (Areas User)
@@ -609,7 +612,7 @@ namespace ContentHub.Infrastructure.Repositories
         }
 
         //Delete Post (User Areas or Admin)
-        public async Task<int> DeletePostAsync(Guid[] ids)
+        public async Task<int> DeletePostAsync(Guid[] ids, bool isSoftDelete)
         {
             if (ids == null || ids.Length == 0)
             {
@@ -625,7 +628,15 @@ namespace ContentHub.Infrastructure.Repositories
             int deleteCount = 0;
             foreach (var post in postList)
             {
-                post.IsDeleted = true;
+                if (isSoftDelete)
+                {
+                    _context.Remove(post);
+                }
+                else
+                {
+                    post.IsDeleted = true;
+                }
+
                 deleteCount++;
             }
             await _context.SaveChangesAsync();
@@ -637,13 +648,13 @@ namespace ContentHub.Infrastructure.Repositories
         //Restore deleted post
         public async Task<int> RestoreDeletedPostAsync(Guid[] ids)
         {
-            if(ids == null || ids.Length == 0)
+            if (ids == null || ids.Length == 0)
             {
                 throw new ArgumentException("Post ids cannot be empty.");
             }
-            int restoreCount = await _context.Posts.Where(p=> ids.Contains(p.Id) && p.IsDeleted)
-                .ExecuteUpdateAsync(p => p.SetProperty(x=>x.IsDeleted, false));
-            
+            int restoreCount = await _context.Posts.Where(p => ids.Contains(p.Id) && p.IsDeleted)
+                .ExecuteUpdateAsync(p => p.SetProperty(x => x.IsDeleted, false));
+
             await _context.SaveChangesAsync();
             return restoreCount;
         }

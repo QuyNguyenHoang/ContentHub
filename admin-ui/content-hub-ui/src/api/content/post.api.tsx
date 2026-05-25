@@ -96,7 +96,7 @@ export const postApi = {
   },
   //Restore deleted post
   restoreDeletedPost: (ids: string[]) => {
-    axiosClient.patch("/admin/api/posts/restore-deleted-post", { data: ids });
+    axiosClient.patch("/admin/api/posts/restore-deleted-post", ids);
   },
   //Total posts
   totalPosts: () => {
@@ -146,9 +146,11 @@ export const postApi = {
     axiosClient.put(`/admin/api/posts/${id}`, data),
 
   delete: (id: string) => axiosClient.delete(`/admin/api/posts/${id}`),
-  deletePosts: (ids: string[]) =>
+  //Delete permanently
+  deletePosts: (ids: string[], isSoftDelete: boolean) =>
     axiosClient.delete("/admin/api/posts", {
       data: ids,
+      params:{isSoftDelete}
     }),
   uploadMedia: (file: File, type: string) => {
     const formData = new FormData();

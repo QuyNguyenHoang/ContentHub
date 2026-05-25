@@ -2,11 +2,13 @@ import DeletedPostComponent from "../../../features/content/DeletedPostComponent
 
 interface Props {
   showDeletedPost: boolean;
-  setshowDeletedPost: (value: boolean) => void;
+  setShowDeletedPost: (value: boolean) => void;
+  loadPosts:()=> void;
 }
 export default function DeletedPost({
   showDeletedPost,
-  setshowDeletedPost,
+  setShowDeletedPost,
+  loadPosts,
 }: Props) {
     if(!showDeletedPost) return;
   return (
@@ -26,11 +28,13 @@ export default function DeletedPost({
               type="button"
               className="btn btn-close"
               aria-label="Close"
-              onClick={() => setshowDeletedPost(false)}
+              onClick={() => setShowDeletedPost(false)}
             ></button>
           </div>
           <div className="modal-body">
-            <DeletedPostComponent />
+            <DeletedPostComponent 
+            loadPosts = {loadPosts}
+            />
           </div>
           <div className="modal-footer"></div>
         </div>

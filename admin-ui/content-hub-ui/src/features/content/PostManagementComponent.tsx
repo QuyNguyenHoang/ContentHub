@@ -23,10 +23,10 @@ export default function PostManagement() {
   const [keyword, setKeyword] = useState("");
   const [pageNumber, setPageNumber] = useState(1);
   const [pageCount, setPageCount] = useState(1);
-  const pageSize = 2;
+  const pageSize = 10;
   const [filter, setFilter] = useState("");
   //state modal deleted post
-  const [showDeletedPost, setshowDeletedPost] = useState(false);
+  const [showDeletedPost, setShowDeletedPost] = useState(false);
   //Toast
   const [alertColor, setAlertColor] = useState<"success" | "danger">("success");
   const [message, setMessage] = useState("");
@@ -49,7 +49,7 @@ export default function PostManagement() {
   };
   useEffect(() => {
     handleTotalPosts();
-  }, []);
+  }, [handleTotalPosts]);
   //filter
   const handleFilterChange = (value: string) => {
     setFilter(value === "All" ? "" : value);
@@ -75,7 +75,7 @@ export default function PostManagement() {
     }
   };
   //Reject Post
-  const handleReaject = async (postId: string) => {
+  const handleReject = async (postId: string) => {
     try {
       setLoading(true);
       await postApi.rejectPost(postId);
@@ -104,9 +104,14 @@ export default function PostManagement() {
     if (confirmDelete) {
       try {
         setLoading(true);
-        await postApi.deletePosts(ids);
+        await postApi.deletePosts(ids, false);
         showAlert(`Successfully deleted ${ids.length} posts!`, "success");
-        await loadPosts();
+        if (post.length === ids.length && pageNumber > 1) {
+          setPageNumber((prev) => prev - 1);
+        } else {
+          await loadPosts();
+        }
+
         setSelectPostIds([]);
       } catch (error) {
         console.log(error, `Can not delete post with id = ${ids}`);
@@ -115,6 +120,7 @@ export default function PostManagement() {
       }
     }
   };
+
   //Select row
   const handleToggleSelectPost = (id: string) => {
     setSelectPostIds((prev) =>
@@ -172,10 +178,11 @@ export default function PostManagement() {
         }}
         loadData={loadPosts}
       />
-      <div>
-          <button className="btn btn-sm" onClick={()=>setshowDeletedPost(true)}>
-              <CIcon icon={cilTrash} size= "sm" title="Recycle Bin"/>
-          </button>
+      {/* Recycle Bin Areas  */}
+      <div className="d-flex justify-content-end align-items-center" >
+        <button className="btn btn-sm" onClick={() => setShowDeletedPost(true)}>
+          <CIcon icon={cilTrash} size="sm" title="Recycle Bin" />
+        </button>
       </div>
       {/* filter areas */}
       <div className="d-flex justify-content-between align-items-center gap-2 pt-3">
@@ -245,7 +252,7 @@ export default function PostManagement() {
                 handleToggleSelectPost={handleToggleSelectPost}
                 handleToggleSelectAllPost={handleToggleSelectAllPost}
                 handleApprove={handleApprove}
-                handleReject={handleReaject}
+                handleReject={handleReject}
               />
             </div>
           </div>
@@ -273,7 +280,8 @@ export default function PostManagement() {
       <div>
         <DeletedPost
           showDeletedPost={showDeletedPost}
-          setshowDeletedPost={setshowDeletedPost}
+          setShowDeletedPost={setShowDeletedPost}
+          loadPosts = {loadPosts}
         />
       </div>
     </div>

@@ -20,7 +20,7 @@ interface Props {
   handleToggleSelectPost: (id: string) => void;
   handleToggleSelectAllPost: () => void;
   handleApprove: (postId: string) => void;
-  handleReject:(postId:string) => void;
+  handleReject: (postId: string) => void;
   selectPostIds: string[];
 }
 
@@ -105,13 +105,17 @@ export default function PostTable({
                   </td>
 
                   <td>
-                    <div className="flex gap-2 flex-wrap">
+                    <div className="flex gap-2 flex-wrap" style={{
+                      maxWidth:"200px",
+                      whiteSpace:"nomal",
+                      wordBreak: "break-word",
+                    }}>
                       {(p.listTag ?? []).map((tag) => (
                         <span
                           key={tag.id}
-                          className="px-2 py-1 bg-gray-200 rounded"
+                          className="badge bg-light text-dark border border-secondary-subtle  px-2 py-1  rounded-pill fw-normal"
                         >
-                          {tag.name}
+                          #{tag.name}
                         </span>
                       ))}
                     </div>
@@ -190,7 +194,8 @@ export default function PostTable({
                           </li>
                         </ul>
                       )}
-                      {p.status !== POST_STATUS.PUBLISHED && p.status !== POST_STATUS.REJECTED ? (
+                      {p.status !== POST_STATUS.PUBLISHED &&
+                      p.status !== POST_STATUS.REJECTED ? (
                         <>
                           <button
                             className="btn btn-sm "
@@ -203,8 +208,9 @@ export default function PostTable({
                               title="Approve this post"
                             />
                           </button>
-                          <button className="btn btn-sm"
-                          onClick={()=>handleReject(p.id)}
+                          <button
+                            className="btn btn-sm"
+                            onClick={() => handleReject(p.id)}
                           >
                             <CIcon
                               icon={cilBan}
