@@ -296,12 +296,44 @@ namespace ContentHub.Infrastructure.Repositories
         // Get post with post Id
         public async Task<PostDto> GetPostById(Guid postId)
         {
-            var post = await _context.Posts.FindAsync(postId);
+            var post = await _context.Posts
+                .Where(p=>p.Id == postId)
+                .Select(p => new PostDto
+                {
+                    Id = p.Id,
+                    Name = p.Name,
+                    Status = p.Status,
+                    Slug = p.Slug,
+                    IsPaid = p.IsPaid,
+                    IsDeleted = p.IsDeleted,
+                    Content = p.Content ?? "No content",
+                    Description = p.Description,
+                    DateCreated = p.DateCreated,
+                    DateModified = p.DateModified,
+                    CategoryName = p.Category != null ? p.Category.Name : "No Category",
+                    CategorySlug = p.Category != null && !string.IsNullOrEmpty(p.Category.Slug)
+                    ? p.Category.Slug
+                    : "No Slug",
+
+                    AuthorName = p.Author != null
+                            ? p.Author.GetFullName()
+                            : null,
+                    AuthorAvatar = p.Author != null ? p.Author.Avatar : "No Avatar",
+                    ListTag = p.PostTags
+                        .Where(pt => pt.Tag != null)
+                        .Select(pt => new TagDto
+                        {
+                            Name = pt.Tag != null ? pt.Tag.Name : "",
+                            Slug = pt.Tag != null ? pt.Tag.Slug : "",
+                        })
+                        .ToList(),
+                }).FirstOrDefaultAsync();
             if (post == null)
             {
                 throw new KeyNotFoundException("Không tìm thấy post");
             }
-            return _mapper.Map<PostDto>(post);
+            return post;
+
         }
 
         //Get Post with userId (Areas User)

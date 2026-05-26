@@ -22,6 +22,7 @@ interface Props {
   handleApprove: (postId: string) => void;
   handleReject: (postId: string) => void;
   selectPostIds: string[];
+  setShowPostDetail:(id:string | null) => void;
 }
 
 export default function PostTable({
@@ -31,6 +32,7 @@ export default function PostTable({
   handleApprove,
   handleReject,
   selectPostIds,
+  setShowPostDetail
 }: Props) {
   const [optionId, setOptionId] = useState<string | null>(null);
   const outSideRef = useRef<HTMLDivElement>(null);
@@ -79,7 +81,12 @@ export default function PostTable({
             {post.map((p) => {
               const isChecked = selectPostIds.includes(p.id);
               return (
-                <tr key={p.id} className="align-middle text-center">
+                <tr
+                  key={p.id}
+                  className="align-middle text-center"
+                  onDoubleClick={() => setShowPostDetail(p.id)}
+                  style={{cursor:"pointer"}}
+                >
                   <td>
                     <input
                       type="checkbox"
@@ -105,14 +112,17 @@ export default function PostTable({
                   </td>
 
                   <td>
-                    <div className="flex gap-2 flex-wrap" style={{
-                      maxWidth:"200px",
-                      whiteSpace:"nomal",
-                      wordBreak: "break-word",
-                    }}>
+                    <div
+                      className="flex gap-2 flex-wrap"
+                      style={{
+                        maxWidth: "200px",
+                        whiteSpace: "nomal",
+                        wordBreak: "break-word",
+                      }}
+                    >
                       {(p.listTag ?? []).map((tag) => (
                         <span
-                          key={tag.id}
+                          key={`${tag.id}-${tag.name}`}
                           className="badge bg-light text-dark border border-secondary-subtle  px-2 py-1  rounded-pill fw-normal"
                         >
                           #{tag.name}

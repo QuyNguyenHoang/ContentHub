@@ -1,5 +1,9 @@
 import { useCallback, useEffect, useState } from "react";
-import { postApi, type PostResponse } from "./../../api/content/post.api";
+import {
+  postApi,
+  type PostDetailResponse,
+  type PostResponse,
+} from "./../../api/content/post.api";
 import PostTable from "../../pages/content/PostUI/PostTable";
 import SearchBox from "../../components/common/SearchBox";
 import Paging from "../../components/common/PagingComponent";
@@ -8,6 +12,7 @@ import { cilFilter, cilTrash } from "@coreui/icons";
 import Toast from "../../components/common/Toast";
 import { useNavigate } from "react-router-dom";
 import DeletedPost from "../../pages/content/PostUI/DeletedPost";
+import PostDetail from "../../pages/content/PostUI/PostDetail";
 
 export const POST_STATUS = {
   DRAFT: "Draft",
@@ -25,6 +30,9 @@ export default function PostManagement() {
   const [pageCount, setPageCount] = useState(1);
   const pageSize = 10;
   const [filter, setFilter] = useState("");
+  //state modal detail post
+  const [showPostDetail, setShowPostDetail] = useState<string | null>(null);
+  const [postDetail, setPostDetail] = useState<PostDetailResponse | null>(null);
   //state modal deleted post
   const [showDeletedPost, setShowDeletedPost] = useState(false);
   //Toast
@@ -36,6 +44,31 @@ export default function PostManagement() {
     setAlertColor(color);
     setShowToast(true);
   };
+  //Load post detail
+  const loadPostById = async () => {
+    try {
+      setLoading(true);
+      if (showPostDetail) {
+        const res = await postApi.getById(showPostDetail);
+        setPostDetail(res.data);
+      }
+    } catch (error) {
+      console.log(error, "load post detail faild!!!");
+    } finally {
+      setLoading(false);
+    }
+  };
+  useEffect(() => {
+    if (showPostDetail) {
+      document.body.style.overflow = "hidden";
+      loadPostById();
+    } else {
+      document.body.style.overflow = "auto";
+    }
+    return () => {
+      document.body.style.overflow = "auto";
+    };
+  }, [showPostDetail]);
   //Total posts
   const [totalPosts, setTotalPosts] = useState(0);
   const handleTotalPosts = async () => {
@@ -50,6 +83,7 @@ export default function PostManagement() {
   useEffect(() => {
     handleTotalPosts();
   }, [handleTotalPosts]);
+
   //filter
   const handleFilterChange = (value: string) => {
     setFilter(value === "All" ? "" : value);
@@ -59,13 +93,13 @@ export default function PostManagement() {
   const handleApprove = async (postId: string) => {
     try {
       setLoading(true);
-
       await postApi.approvePost(postId);
       setPost((prev) =>
         prev.map((p) =>
           p.id === postId ? { ...p, status: POST_STATUS.PUBLISHED } : p,
         ),
       );
+      setShowPostDetail(null);
       showAlert("Approve post is successfully!", "success");
     } catch (error) {
       console.log("Approve faild", error);
@@ -84,6 +118,7 @@ export default function PostManagement() {
           p.id === postId ? { ...p, status: POST_STATUS.REJECTED } : p,
         ),
       );
+      setShowPostDetail(null);
       showAlert("Rejected Post is successfull", "success");
     } catch (error) {
       console.log("Call api was failed");
@@ -179,7 +214,7 @@ export default function PostManagement() {
         loadData={loadPosts}
       />
       {/* Recycle Bin Areas  */}
-      <div className="d-flex justify-content-end align-items-center" >
+      <div className="d-flex justify-content-end align-items-center">
         <button className="btn btn-sm" onClick={() => setShowDeletedPost(true)}>
           <CIcon icon={cilTrash} size="sm" title="Recycle Bin" />
         </button>
@@ -213,11 +248,14 @@ export default function PostManagement() {
             </span>
 
             <select
-              value="All"
+              value={filter}
               className="form-select auto"
-              onChange={(e) => handleFilterChange(e.target.value)}
+              onChange={(e) => {
+                setFilter(e.target.value);
+                handleFilterChange(e.target.value);
+              }}
             >
-              <option>All</option>
+              <option value="All">All</option>
 
               {POST_STATUS_OPTIONS.map((status) => (
                 <option key={status} value={status}>
@@ -253,6 +291,7 @@ export default function PostManagement() {
                 handleToggleSelectAllPost={handleToggleSelectAllPost}
                 handleApprove={handleApprove}
                 handleReject={handleReject}
+                setShowPostDetail={setShowPostDetail}
               />
             </div>
           </div>
@@ -281,7 +320,17 @@ export default function PostManagement() {
         <DeletedPost
           showDeletedPost={showDeletedPost}
           setShowDeletedPost={setShowDeletedPost}
-          loadPosts = {loadPosts}
+          loadPosts={loadPosts}
+        />
+      </div>
+      {/* Post Detail */}
+      <div>
+        <PostDetail
+          postDetail={postDetail}
+          showPostDetail={showPostDetail}
+          setShowPostDetail={setShowPostDetail}
+          handleApprove={handleApprove}
+          handleReject={handleReject}
         />
       </div>
     </div>

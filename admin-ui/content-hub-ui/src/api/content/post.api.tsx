@@ -37,7 +37,7 @@ export interface PostDetailResponse {
   viewCount: number;
   royaltyAmount: number;
 
-  status: number;
+  status: string | null;
   isPaid: boolean;
 
   categorySlug?: string | null;
@@ -45,12 +45,14 @@ export interface PostDetailResponse {
 
   listTag: Tag[];
 
-  authorName?: string | null;
+  authorName: string;
   authorAvatar?: string | null;
 
   dateCreated: string;
   dateModified?: string | null;
   paidDate?: string | null;
+  isDeleted:boolean;
+  commentCount:number;
 }
 export interface Tag {
   id: string;
