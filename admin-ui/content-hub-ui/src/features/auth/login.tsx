@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   CButton,
   CForm,
@@ -7,46 +7,48 @@ import {
   CInputGroup,
   CInputGroupText,
   CAlert,
-} from '@coreui/react'
-import CIcon from '@coreui/icons-react'
-import { cilUser, cilLockLocked } from '@coreui/icons'
-import { loginApi } from '../../api/auth/auth.api'
+} from "@coreui/react";
+import CIcon from "@coreui/icons-react";
+import { cilUser, cilLockLocked } from "@coreui/icons";
+import { loginApi } from "../../api/auth/auth.api";
+import { BsEye, BsEyeSlash } from "react-icons/bs";
 
 const LoginForm = () => {
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
-  const [username, setUsername] = useState('')
-  const [password, setPassword] = useState('')
-  const [error, setError] = useState<string | null>(null)
-  const [loading, setLoading] = useState(false)
-
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  //icon eye
+  const [showPassword, setShowPassword] = useState(false);
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setError(null)
-    setLoading(true)
+    e.preventDefault();
+    setError(null);
+    setLoading(true);
 
     try {
       const res = await loginApi({
         username,
         password,
-      })
+      });
 
       // login OK → redirect
-      if (res.roles === 'admin') {
-        navigate('/admin', { replace: true })
+      if (res.roles === "admin") {
+        navigate("/admin", { replace: true });
       } else {
-        navigate('/', { replace: true })
+        navigate("/", { replace: true });
       }
     } catch (err: any) {
       setError(
         err.response?.data ??
-        err.response?.data?.message ??
-        'Sai tài khoản hoặc mật khẩu'
-      )
+          err.response?.data?.message ??
+          "Sai tài khoản hoặc mật khẩu",
+      );
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   return (
     <CForm onSubmit={handleSubmit}>
@@ -59,7 +61,7 @@ const LoginForm = () => {
         <CFormInput
           placeholder="Username"
           value={username}
-          onChange={e => setUsername(e.target.value)}
+          onChange={(e) => setUsername(e.target.value)}
           required
           disabled={loading}
         />
@@ -70,13 +72,21 @@ const LoginForm = () => {
           <CIcon icon={cilLockLocked} />
         </CInputGroupText>
         <CFormInput
-          type="password"
+          type={showPassword ? "text" : "password"}
           placeholder="Password"
           value={password}
-          onChange={e => setPassword(e.target.value)}
+          onChange={(e) => setPassword(e.target.value)}
           required
           disabled={loading}
         />
+        <button
+         style={{ zIndex: 10 }}
+        type="button"
+          className="btn btn-sm position-absolute top-50 end-0 translate-middle-y border-0 bg-transparent"
+          onClick={() => setShowPassword(!showPassword)}
+        >
+          {showPassword ? < BsEye/> : <BsEyeSlash />}
+        </button>
       </CInputGroup>
 
       <CButton
@@ -85,13 +95,11 @@ const LoginForm = () => {
         className="w-100 d-flex align-items-center justify-content-center"
         disabled={loading}
       >
-        {loading && (
-          <span className="spinner-grow spinner-grow-sm me-2" />
-        )}
-        {loading ? 'Logging in...' : 'Login'}
+        {loading && <span className="spinner-grow spinner-grow-sm me-2" />}
+        {loading ? "Logging in..." : "Login"}
       </CButton>
     </CForm>
-  )
-}
+  );
+};
 
-export default LoginForm
+export default LoginForm;

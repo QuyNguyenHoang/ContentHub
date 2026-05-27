@@ -5,8 +5,8 @@ interface Props {
 }
 export default function PostActivityLogTable({ postActivityLog }: Props) {
   return (
-    <div>
-      <table className="table table-responsive table-hover table-sm align-middle text-center small">
+    <div className="table-responsive">
+      <table className="table  table-hover table-sm align-middle text-center small" style={{minWidth:"800px"}}>
         <thead>
           <tr>
             <th>User Approve</th>
@@ -31,8 +31,8 @@ export default function PostActivityLogTable({ postActivityLog }: Props) {
                 >
                   {p.toStatus}
                 </td>
-                <td>{new Date(p.dateCreated).toLocaleString("vi-VN")}</td>
-                <td>{p.note}</td>
+                <td className="text-nowrap">{new Date(p.dateCreated).toLocaleString("vi-VN")}</td>
+                <td style={{ minWidth: "200px" }}>{p.note}</td>
               </tr>
             );
           })}

@@ -44,7 +44,6 @@ export default function SeriesTable({
   let processedSeries = [...series];
 
   // SORT
-  // SORT
   if (sortType === "sortOrder") {
     processedSeries.sort((a, b) => a.sortOrder - b.sortOrder);
   }

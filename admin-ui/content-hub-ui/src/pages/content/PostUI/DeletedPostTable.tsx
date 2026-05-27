@@ -18,8 +18,12 @@ export default function DeletedPostTable({
 }: Props) {
   return (
     <div className="card-body p-0">
-      <div className="table-responsive overflow-visible">
-        <table className="table table-sm table-hover align-middle mb-0 small">
+      <div className="table-responsive" style={{
+      width: "100%",
+      overflowX: "auto",
+      WebkitOverflowScrolling: "touch",
+    }}>
+        <table className="table table-sm table-hover align-middle mb-0 small" style={{minWidth: "1000px",}}>
           <thead className="table-light text-center">
             <tr className="text-sm">
               <th>
@@ -33,7 +37,7 @@ export default function DeletedPostTable({
                   onChange={handleToggleSelected}
                 />
               </th>
-              <th>Name</th>
+              <th >Name</th>
               <th>Author User </th>
 
               <th>Tags</th>
@@ -62,7 +66,7 @@ export default function DeletedPostTable({
                   </td>
                   <td>{p.name}</td>
                   <td>
-                    <div className="d-flex-nowrap justify-content-between">
+                    <div className="d-flex flex-nowrap justify-content-between">
                       <img
                         src={
                           p.authorAvatar ||
@@ -77,11 +81,11 @@ export default function DeletedPostTable({
                     </div>
                   </td>
                   <td>
-                    <div className="flex gap-2 flex-wrap">
+                    <div className="d-flex gap-2 flex-wrap">
                       {(p.listTag ?? []).map((tag) => (
                         <span
                           key={tag.id}
-                          className="px-2 py-1 bg-gray-200 rounded"
+                          className="px-2 py-1 bg-light rounded"
                         >
                           {tag.name}
                         </span>

@@ -14,6 +14,7 @@ export interface UserDto {
     userName: string
     email: string
     emailConfirmed: boolean
+    totalPost:number
 }
 export interface UserRequest {
     firstName: string

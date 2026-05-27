@@ -7,14 +7,14 @@ namespace ContentHub.Application.Models.System
     {
         public Guid Id { get; set; }
 
-        public string FirstName { get; set; }
-        public string LastName { get; set; }
+        public string FirstName { get; set; } = string.Empty;
+        public string LastName { get; set; } = string.Empty;
 
         public string FullName => $"{FirstName} {LastName}";
 
         public bool IsActive { get; set; }
 
-        public DateTime DateCreated { get; set; }
+        public DateTime? DateCreated { get; set; }
 
         public DateTime? Dob { get; set; }   // nullable
 
@@ -22,11 +22,12 @@ namespace ContentHub.Application.Models.System
 
         public DateTime? LastLoginDate { get; set; }
 
-        public string UserName { get; set; }
+        public  string UserName { get; set; }
 
-        public string Email { get; set; }
+        public string Email { get; set; } = string.Empty ;
 
         public bool EmailConfirmed { get; set; }
+        public int TotalPost {  get; set; }
         public class AutoMapperProfiles : Profile
         {
             public AutoMapperProfiles()

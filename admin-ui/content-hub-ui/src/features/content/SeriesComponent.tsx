@@ -221,7 +221,7 @@ export default function SeriesList() {
       }
     }
   };
-  console.log(selectedIds);
+
   return (
     <div className="container mt-4">
       <div className="card min-vh-100 d-flex flex-column p-3">

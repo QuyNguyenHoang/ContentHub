@@ -3,7 +3,6 @@ import DefaultLayout from "../components/layouts/adminLayout";
 import UserLayout from "../components/layouts/userLayout";
 import RolePermission from "../pages/system/role.permission";
 
-
 const Home = lazy(() => import("../pages/home/Home"));
 const ContentHub = lazy(() => import("../pages/home/ContentHub"));
 const Login = lazy(() => import("../pages/auth/login/LoginUI"));
@@ -18,9 +17,13 @@ const TagList = lazy(() => import("../features/content/TagComponent"));
 const SeriesList = lazy(() => import("../features/content/SeriesComponent"));
 const PostList = lazy(() => import("../features/content/PostComponent"));
 const NewPost = lazy(() => import("../pages/content/PostForUserUI/NewPostUI"));
-const PostDetail = lazy(()=>import("../features/content/PostDetailComponent"));
-const Comment= lazy(()=> import("../features/content/CommentBox"))
-const PostManagement = lazy(()=> import("../features/content/PostManagementComponent"))
+const PostDetail = lazy(
+  () => import("../features/content/PostDetailComponent"),
+);
+const Comment = lazy(() => import("../features/content/CommentBox"));
+const PostManagement = lazy(
+  () => import("../features/content/PostManagementComponent"),
+);
 const routes = [
   {
     path: "/admin",
@@ -35,9 +38,9 @@ const routes = [
       { path: "roles/:id/permissions", element: <RolePermission /> },
       { path: "users", element: <UserList /> },
       { path: "users/update/:id", element: <UserUpdate /> },
-      { path: "tags", element: <TagList /> },
-      { path: "series", element: <SeriesList /> },
-      {path: "posts", element: <PostManagement/>}
+      { path: "tags",name:"Tags", element: <TagList /> },
+      { path: "series", name:"Series", element: <SeriesList /> },
+      { path: "posts", name: "Posts", element: <PostManagement /> },
     ],
   },
   {

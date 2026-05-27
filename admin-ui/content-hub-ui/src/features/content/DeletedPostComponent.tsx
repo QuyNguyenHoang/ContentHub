@@ -93,7 +93,7 @@ export default function DeletedPosts({ loadPosts }: Props) {
       }
     }
   };
-  console.log(selectedIds);
+
   const handleRestore = async (ids: string[]) => {
     try {
       setLoading(true);
@@ -113,6 +113,7 @@ export default function DeletedPosts({ loadPosts }: Props) {
   return (
     <div className="container">
       {/* Search */}
+      <div className="mt-2">
       <SearchBox
         placeholder="Search for deleted post..."
         keyword={keyword}
@@ -122,21 +123,22 @@ export default function DeletedPosts({ loadPosts }: Props) {
         }}
         loadData={loadDeletedPosts}
       />
+      </div>
       {/* Filter */}
 
-      <div className="d-flex justify-content-between">
-        <div>
+      <div className="d-flex flex-column flex-lg-row  align-items-start align-items-lg-center">
+        <div className="w-100">
           {selectedIds.length > 0 && (
-            <div>
+            <div className="d-flex justify-content-between align-items-center gap-2 mb-2">
               <button
-                className="btn btn-sm btn-outline-success me-2"
+                className="btn btn-sm btn-outline-success me-2 text-nowrap w-100"
                 onClick={() => handleRestore(selectedIds)}
               >
                 Restore ({selectedIds.length})
                 {`item${selectedIds.length > 1 ? "s" : ""}`}
               </button>
               <button
-                className="btn btn-sm btn-outline-danger"
+                className="btn btn-sm btn-outline-danger text-nowrap w-100"
                 title="Delete Permanently"
                 onClick={() => handleDeletePermanently(selectedIds)}
               >
@@ -146,19 +148,25 @@ export default function DeletedPosts({ loadPosts }: Props) {
             </div>
           )}
         </div>
-        <div
-          className="input-group input-group-sm mb-2 ms-auto"
-          style={{ width: "170px" }}
-        >
-          <span className="input-group-text">
-            <CIcon icon={cilFilter} />
-          </span>
+        <div className="d-flex justify-content-between align-items-center w-100 ">
+          <div
+            className="input-group input-group-sm mb-2 ms-auto"
+            style={{ maxWidth: "170px" }}
+          >
+            <span className="input-group-text">
+              <CIcon icon={cilFilter} />
+            </span>
 
-          <select value={filter} className="form-select auto" onChange={(e) => setFilter(e.target.value)}>
-            <option>All</option>
-            <option value="date">Date</option>
-            <option value="newest">Newest</option>
-          </select>
+            <select
+              value={filter}
+              className="form-select auto"
+              onChange={(e) => setFilter(e.target.value)}
+            >
+              <option>All</option>
+              <option value="date">Date</option>
+              <option value="newest">Newest</option>
+            </select>
+          </div>
         </div>
       </div>
 

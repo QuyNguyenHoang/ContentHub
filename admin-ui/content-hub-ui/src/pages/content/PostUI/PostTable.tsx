@@ -51,8 +51,8 @@ export default function PostTable({
   }
   return (
     <div className="card-body p-0">
-      <div className="table-responsive overflow-visible">
-        <table className="table table-sm table-hover align-middle mb-0 small">
+      <div className="table-responsive">
+        <table className="table table-sm table-hover align-middle mb-0 small "style={{ minWidth: "1200px" }}>
           <thead className="table-light text-center">
             <tr className="text-sm">
               <th>
@@ -96,7 +96,7 @@ export default function PostTable({
                   </td>
                   <td>{p.name}</td>
                   <td>
-                    <div className="d-flex-nowrap justify-content-between">
+                    <div className="d-flex flex-nowrap justify-content-between">
                       <img
                         src={
                           p.authorAvatar ||

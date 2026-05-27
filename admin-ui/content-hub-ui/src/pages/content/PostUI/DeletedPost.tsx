@@ -18,7 +18,7 @@ export default function DeletedPost({
       style={{ backgroundColor: "rgba(0,0,0,0.5)" }}
     >
       <div
-        className="modal-xl modal-dialog modal-dialog-centered"
+        className=" modal-dialog  modal-xl modal-dialog-centered "
         onClick={(e) => e.stopPropagation()}
       >
         <div className="modal-content">
@@ -31,10 +31,11 @@ export default function DeletedPost({
               onClick={() => setShowDeletedPost(false)}
             ></button>
           </div>
-          <div className="modal-body">
-            <DeletedPostComponent 
-            loadPosts = {loadPosts}
-            />
+          <div
+            className="modal-body p-0 "
+           
+          >
+            <DeletedPostComponent loadPosts={loadPosts} />
           </div>
           <div className="modal-footer"></div>
         </div>

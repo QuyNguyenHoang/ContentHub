@@ -24,7 +24,7 @@ const LoginPage = () => {
                     Sign in to ContentHub
                   </p>
 
-                  {/* 👇 FORM LOGIC */}
+                  {/* FORM LOGIC */}
                   <LoginForm />
                 </CCardBody>
               </CCard>

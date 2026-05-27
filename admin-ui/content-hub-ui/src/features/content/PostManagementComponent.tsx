@@ -186,11 +186,11 @@ export default function PostManagement() {
         true,
       );
       const data = res.data;
-      console.log("fetch data successful!");
-      console.log("pageNumber", pageNumber);
+      
+
       setPageCount(data.pageCount);
       setPost(data.results);
-      console.log(data.results.map((x) => x.id));
+
     } catch (erorr) {
       console.log("Fetch post faild", erorr);
     } finally {
@@ -220,14 +220,14 @@ export default function PostManagement() {
         </button>
       </div>
       {/* filter areas */}
-      <div className="d-flex justify-content-between align-items-center gap-2 pt-3">
-        <div className="d-flex justify-content-between align-items-center gap-2">
+      <div className="d-flex flex-column flex-lg-row justify-content-between align-items-start align-items-lg-center gap-3 pt-3">
+        <div className="d-flex justify-content-between align-items-center gap-2 w-100">
           <div>
             <h4 className="fw-bold ">Total Post ({totalPosts})</h4>
           </div>
           {/* delete button */}
           {countPost > 0 && (
-            <div>
+            <div className="">
               <button
                 className="btn btn-sm btn-outline-danger"
                 onClick={() => handleDeletePosts(selectPostIds)}
@@ -238,10 +238,11 @@ export default function PostManagement() {
             </div>
           )}
         </div>
-        <div className="d-flex justify-content-between">
+
+        <div className="d-flex justify-content-between align-items-center gap-2 w-100">
           <div
-            className="input-group input-group-sm mb-2 ms-auto"
-            style={{ width: "170px" }}
+            className="input-group input-group-sm  mb-2"
+           
           >
             <span className="input-group-text">
               <CIcon icon={cilFilter} />
@@ -265,15 +266,16 @@ export default function PostManagement() {
             </select>
           </div>
           {/* New button */}
-          <div className="ms-2">
+          <div className="mb-2">
             <button
-              className="btn btn-outline-success btn-sm rounded-2 fw-bold"
+              className="btn btn-sm btn-outline-success rounded-2 fw-bold text-nowrap"
               onClick={() => navigate("/new")}
             >
               + New Post
             </button>
           </div>
         </div>
+
       </div>
       {/* Content */}
       <div className="flex-grow-1">
@@ -282,18 +284,16 @@ export default function PostManagement() {
             <div className="spinner-border text-primary small"></div>
           </div>
         ) : (
-          <div className="d-flex">
-            <div className="flex-grow-1">
-              <PostTable
-                post={post}
-                selectPostIds={selectPostIds}
-                handleToggleSelectPost={handleToggleSelectPost}
-                handleToggleSelectAllPost={handleToggleSelectAllPost}
-                handleApprove={handleApprove}
-                handleReject={handleReject}
-                setShowPostDetail={setShowPostDetail}
-              />
-            </div>
+          <div>
+            <PostTable
+              post={post}
+              selectPostIds={selectPostIds}
+              handleToggleSelectPost={handleToggleSelectPost}
+              handleToggleSelectAllPost={handleToggleSelectAllPost}
+              handleApprove={handleApprove}
+              handleReject={handleReject}
+              setShowPostDetail={setShowPostDetail}
+            />
           </div>
         )}
       </div>

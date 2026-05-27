@@ -1,69 +1,100 @@
-import { useMemo } from 'react'
+import { useEffect, useMemo, useState } from "react";
 
 import {
-  CAvatar,
   CButton,
   CButtonGroup,
   CCard,
   CCardBody,
   CCardFooter,
-  CCardHeader,
   CCol,
   CProgress,
   CRow,
-  CTable,
-  CTableBody,
-  CTableDataCell,
-  CTableHead,
-  CTableHeaderCell,
-  CTableRow,
-} from '@coreui/react'
+} from "@coreui/react";
 
-import CIcon from '@coreui/icons-react'
+import CIcon from "@coreui/icons-react";
 import {
   cibCcMastercard,
   cibCcVisa,
   cilCloudDownload,
-  cilPeople,
   cifBr,
   cifUs,
-} from '@coreui/icons'
+} from "@coreui/icons";
 
-import MainChart from './MainChart'
+import MainChart from "./MainChart";
+import type { UserDto } from "../../api/system/user.api";
+import analyticApi from "../../api/content/analytic.api";
 
 const Dashboard = () => {
+  //get user
+  const [topUser,setTopUser] = useState<UserDto[]>([]);
+  const [loading, setLoading] = useState(false);
+  const loadTopUser = async() =>{
+    try{
+        setLoading(true);
+        const res = await analyticApi.getTopUserByPost();
+        const data = res.data
+        setTopUser(data);
+
+    }
+    catch(error){
+      console.log(error,"Load top user faild!!!")
+    }
+    finally{
+      setLoading(false);
+    }
+  }
+  useEffect(()=>
+  {
+    loadTopUser();
+
+  },[])
   // ===== Progress cards =====
   const progressExample = useMemo(
     () => [
-      { title: 'Visits', value: '29.703 Users', percent: 40, color: 'success' },
-      { title: 'Unique', value: '24.093 Users', percent: 20, color: 'info' },
-      { title: 'Pageviews', value: '78.706 Views', percent: 60, color: 'warning' },
-      { title: 'New Users', value: '22.123 Users', percent: 80, color: 'danger' },
-      { title: 'Bounce Rate', value: 'Average Rate', percent: 40.15, color: 'primary' },
+      { title: "Visits", value: "29.703 Users", percent: 40, color: "success" },
+      { title: "Unique", value: "24.093 Users", percent: 20, color: "info" },
+      {
+        title: "Pageviews",
+        value: "78.706 Views",
+        percent: 60,
+        color: "warning",
+      },
+      {
+        title: "New Users",
+        value: "22.123 Users",
+        percent: 80,
+        color: "danger",
+      },
+      {
+        title: "Bounce Rate",
+        value: "Average Rate",
+        percent: 40.15,
+        color: "primary",
+      },
     ],
     [],
-  )
+  );
 
   // ===== Table data =====
   const tableExample = useMemo(
     () => [
       {
-        user: { name: 'John Doe', registered: 'Jan 1, 2025' },
+        user: { name: "John Doe", registered: "Jan 1, 2025" },
         country: { flag: cifUs },
         usage: { value: 50 },
         payment: { icon: cibCcVisa },
-        activity: '10 sec ago',
+        activity: "10 sec ago",
       },
       {
-        user: { name: 'Maria Silva', registered: 'Dec 12, 2024' },
+        user: { name: "Maria Silva", registered: "Dec 12, 2024" },
         country: { flag: cifBr },
         usage: { value: 72 },
         payment: { icon: cibCcMastercard },
-        activity: '1 hour ago',
+        activity: "1 hour ago",
       },
     ],
     [],
-  )
+  );
 
   return (
     <>
@@ -84,11 +115,11 @@ const Dashboard = () => {
               </CButton>
 
               <CButtonGroup className="float-end me-3">
-                {['Day', 'Month', 'Year'].map((value) => (
+                {["Day", "Month", "Year"].map((value) => (
                   <CButton
                     key={value}
                     color="outline-secondary"
-                    active={value === 'Month'}
+                    active={value === "Month"}
                   >
                     {value}
                   </CButton>
@@ -105,7 +136,11 @@ const Dashboard = () => {
             {progressExample.map((item, index) => (
               <CCol
                 key={index}
-                className={index + 1 === progressExample.length ? 'd-none d-xl-block' : ''}
+                className={
+                  index + 1 === progressExample.length
+                    ? "d-none d-xl-block"
+                    : ""
+                }
               >
                 <div className="text-body-secondary">{item.title}</div>
                 <div className="fw-semibold">
@@ -119,66 +154,36 @@ const Dashboard = () => {
       </CCard>
 
       {/* ===== Users Table ===== */}
-      <CRow>
-        <CCol>
-          <CCard>
-            <CCardHeader>Users</CCardHeader>
-            <CCardBody>
-              <CTable hover responsive>
-                <CTableHead>
-                  <CTableRow>
-                    <CTableHeaderCell className="text-center">
-                      <CIcon icon={cilPeople} />
-                    </CTableHeaderCell>
-                    <CTableHeaderCell>User</CTableHeaderCell>
-                    <CTableHeaderCell className="text-center">
-                      Country
-                    </CTableHeaderCell>
-                    <CTableHeaderCell>Usage</CTableHeaderCell>
-                    <CTableHeaderCell className="text-center">
-                      Payment
-                    </CTableHeaderCell>
-                    <CTableHeaderCell>Activity</CTableHeaderCell>
-                  </CTableRow>
-                </CTableHead>
-
-                <CTableBody>
-                  {tableExample.map((item, index) => (
-                    <CTableRow key={index}>
-                      <CTableDataCell className="text-center">
-                        <CAvatar size="md" />
-                      </CTableDataCell>
-
-                      <CTableDataCell>
-                        <div>{item.user.name}</div>
-                        <div className="small text-body-secondary">
-                          Registered: {item.user.registered}
-                        </div>
-                      </CTableDataCell>
-
-                      <CTableDataCell className="text-center">
-                        <CIcon size="xl" icon={item.country.flag} />
-                      </CTableDataCell>
-
-                      <CTableDataCell>
-                        <CProgress thin value={item.usage.value} />
-                      </CTableDataCell>
-
-                      <CTableDataCell className="text-center">
-                        <CIcon size="xl" icon={item.payment.icon} />
-                      </CTableDataCell>
-
-                      <CTableDataCell>{item.activity}</CTableDataCell>
-                    </CTableRow>
-                  ))}
-                </CTableBody>
-              </CTable>
-            </CCardBody>
-          </CCard>
-        </CCol>
-      </CRow>
+      <div className="card p-0">
+        <h5 className="text-black text-center p-2">Top Users</h5>
+        <div className="table-responsive">
+          <table className="table  table-hover table-sm align-middle small">
+            <thead className="align-items-center text-nowrap">
+              <tr>
+                <th style={{ maxWidth: "100px" }}>User</th>
+                <th>Date Created</th>
+                <th>Email</th>
+                <th>Total posts</th>
+                <th>Activity</th>
+              </tr>
+            </thead>
+            <tbody>
+              {topUser.map((u) => {
+                return (
+                  <tr className="text-black" key={u.id}>
+                    
+                    <td style={{ maxWidth: "100px" }}>{u.userName}</td>
+                    <td style={{ maxWidth: "100px" }}>{u.avatar}</td>
+                    <td style={{ maxWidth: "100px" }}>{u.totalPost}</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      </div>
     </>
-  )
-}
+  );
+};
 
-export default Dashboard
+export default Dashboard;
