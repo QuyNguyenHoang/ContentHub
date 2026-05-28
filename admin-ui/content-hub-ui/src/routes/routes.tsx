@@ -7,7 +7,7 @@ const Home = lazy(() => import("../pages/home/Home"));
 const ContentHub = lazy(() => import("../pages/home/ContentHub"));
 const Login = lazy(() => import("../pages/auth/login/LoginUI"));
 const ApiTest = lazy(() => import("../features/test/ApiTest"));
-const Dashboard = lazy(() => import("../pages/dashboard/DashBoard"));
+const Dashboard = lazy(() => import("../features/dashboard/DashBoardComponent"));
 const RoleList = lazy(() => import("../features/system/Role"));
 const RoleForm = lazy(() => import("../pages/system/role.form"));
 const UserList = lazy(() => import("../features/system/User"));

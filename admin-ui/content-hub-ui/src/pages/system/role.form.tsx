@@ -35,7 +35,7 @@ const RoleForm = () => {
       await roleApi.create({ name, displayName })
     }
 
-    navigate('/roles')
+    navigate('/admin/roles')
   }
 
   return (

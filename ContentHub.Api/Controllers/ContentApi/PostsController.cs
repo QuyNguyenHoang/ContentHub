@@ -23,6 +23,7 @@ namespace ContentHub.Api.Controllers.ContentApi
         }
 
         // GET: admin/api/posts
+        [Authorize(Policy = Permissions.Posts.View)]    
         [HttpGet]
         public async Task<ActionResult<PagedResult<PostDto>>> GetPostPaged(
             [FromQuery] string? keyword,
@@ -70,6 +71,7 @@ namespace ContentHub.Api.Controllers.ContentApi
 
         // POST: admin/api/posts/{id}/approve
         [Authorize(Policy = Permissions.Posts.Edit)]
+        [Authorize(Policy = Permissions.Posts.Approve)]
         [HttpPost("{id}/approve")]
         public async Task<ActionResult> Approve(Guid id)
         {
@@ -84,6 +86,8 @@ namespace ContentHub.Api.Controllers.ContentApi
         }
 
         // POST: admin/api/posts/{id}/reject
+        [Authorize(Policy = Permissions.Posts.Edit)]
+        [Authorize(Policy = Permissions.Posts.Reject)]
         [HttpPost("{id}/reject")]
         public async Task<ActionResult> Reject(Guid id)
         {
@@ -125,6 +129,7 @@ namespace ContentHub.Api.Controllers.ContentApi
             return Ok(result);
         }
         //List post deleted
+        [Authorize(Policy = Permissions.Posts.Delete)]
         [HttpGet("list-posts-deleted")]
         public async Task<ActionResult<PagedResult<PostDto>>> GetListPostDeleted([FromQuery] string? keyword,
             [FromQuery] string? filter,

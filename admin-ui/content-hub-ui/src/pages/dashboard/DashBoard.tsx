@@ -21,33 +21,10 @@ import {
 } from "@coreui/icons";
 
 import MainChart from "./MainChart";
-import type { UserDto } from "../../api/system/user.api";
-import analyticApi from "../../api/content/analytic.api";
+
+import TopUser from "./TopUser";
 
 const Dashboard = () => {
-  //get user
-  const [topUser,setTopUser] = useState<UserDto[]>([]);
-  const [loading, setLoading] = useState(false);
-  const loadTopUser = async() =>{
-    try{
-        setLoading(true);
-        const res = await analyticApi.getTopUserByPost();
-        const data = res.data
-        setTopUser(data);
-
-    }
-    catch(error){
-      console.log(error,"Load top user faild!!!")
-    }
-    finally{
-      setLoading(false);
-    }
-  }
-  useEffect(()=>
-  {
-    loadTopUser();
-
-  },[])
   // ===== Progress cards =====
   const progressExample = useMemo(
     () => [
@@ -152,36 +129,6 @@ const Dashboard = () => {
           </CRow>
         </CCardFooter>
       </CCard>
-
-      {/* ===== Users Table ===== */}
-      <div className="card p-0">
-        <h5 className="text-black text-center p-2">Top Users</h5>
-        <div className="table-responsive">
-          <table className="table  table-hover table-sm align-middle small">
-            <thead className="align-items-center text-nowrap">
-              <tr>
-                <th style={{ maxWidth: "100px" }}>User</th>
-                <th>Date Created</th>
-                <th>Email</th>
-                <th>Total posts</th>
-                <th>Activity</th>
-              </tr>
-            </thead>
-            <tbody>
-              {topUser.map((u) => {
-                return (
-                  <tr className="text-black" key={u.id}>
-                    
-                    <td style={{ maxWidth: "100px" }}>{u.userName}</td>
-                    <td style={{ maxWidth: "100px" }}>{u.avatar}</td>
-                    <td style={{ maxWidth: "100px" }}>{u.totalPost}</td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-      </div>
     </>
   );
 };

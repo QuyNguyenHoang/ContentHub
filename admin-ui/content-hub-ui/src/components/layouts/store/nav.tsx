@@ -47,7 +47,7 @@ const nav = [
       {
         component: CNavItem,
         name: "Create Role",
-        to: "/roles/create",
+        to: "/admin/roles/create",
         icon: <CIcon icon={cilPlus} customClassName="nav-icon" />,
       },
       {

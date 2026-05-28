@@ -54,6 +54,8 @@ namespace ContentHub.Domain.SeedWorks.Constant
             public const string Delete = "Permissions.Posts.Delete";
             [Description("Duyệt bài viết")]
             public const string Approve = "Permissions.Posts.Approve";
+            [Description("Từ chối bài viết")]
+            public const string Reject = "Permissions.Posts.Reject";
         }
 
         public static class Series

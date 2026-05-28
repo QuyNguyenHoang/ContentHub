@@ -143,7 +143,7 @@ const RoleList = () => {
             <CButton
               size="sm"
               color="success"
-              onClick={() => navigate('/roles/create')}
+              onClick={() => navigate('/admin/roles/create')}
             >
               Thêm
             </CButton>
@@ -226,7 +226,7 @@ const RoleList = () => {
                       color="info"
                       size="sm"
                       onClick={() =>
-                        navigate(`/roles/${r.id}/permissions`)
+                        navigate(`/admin/roles/${r.id}/permissions`)
                       }
                     >
                       Phân quyền

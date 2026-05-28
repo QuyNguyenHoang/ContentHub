@@ -1,4 +1,5 @@
 ﻿using ContentHub.Application.IRepositories;
+using ContentHub.Application.Models.AnalyticDto;
 using ContentHub.Application.Models.System;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -20,5 +21,13 @@ namespace ContentHub.Api.Controllers.AnalyticApi
             var result = await _analyticRepository.TopUserByPostAsync();
             return Ok(result);
         }
+        //total post
+        [HttpGet("total-posts-count")]
+        public async Task<ActionResult<TotalPostCountResponseDto>> GetTotalPosts(TimeRange timeRange)
+        {
+            var result = await _analyticRepository.GetTotalPostAsync(timeRange);
+            return Ok(result);
+        }
+
     }
 }
