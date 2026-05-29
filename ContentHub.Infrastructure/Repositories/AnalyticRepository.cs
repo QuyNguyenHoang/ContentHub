@@ -89,5 +89,47 @@ namespace ContentHub.Infrastructure.Repositories
                 Growth = Math.Round(growth, 2)
             };
         }
+        //Total user
+        public async Task<TotalUserCountResponseDto> GetTotalUserAsync(TimeRange timeRange)
+        {
+            var (from, to) = _dateRangeResolver.Resolve(timeRange);
+
+            // CURRENT PERIOD
+            var query = _context.Users
+                .Where(u =>
+                    u.IsActive == true &&
+                    (!from.HasValue || u.DateCreated >= from) &&
+                    (!to.HasValue || u.DateCreated <= to));
+
+            var totalUser = await query.CountAsync();
+
+            // PREVIOUS PERIOD
+            var duration = (to ?? DateTime.UtcNow) - (from ?? DateTime.UtcNow.AddDays(-7));
+
+            var previousFrom = from.HasValue
+                ? from.Value.Add(-duration)
+                : DateTime.UtcNow.AddDays(-14);
+
+            var previousTo = from ?? DateTime.UtcNow;
+
+            var previousUser = await _context.Users
+                .Where(u =>
+                    u.IsActive == true &&
+                    u.DateCreated >= previousFrom &&
+                    u.DateCreated <= previousTo)
+                .CountAsync();
+
+            // GROWTH %
+            double growth = previousUser == 0
+                ? 100
+                : (double)(totalUser - previousUser) / previousUser * 100;
+
+            return new TotalUserCountResponseDto
+            {
+                TotalUser = totalUser,
+                PreviousTotalUser = previousUser,
+                Growth = Math.Round(growth, 2)
+            };
+        }
     }
 }

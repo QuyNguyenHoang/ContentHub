@@ -7,5 +7,6 @@ namespace ContentHub.Application.IRepositories
     {
         Task<List<UserDto>> TopUserByPostAsync();
         Task<TotalPostCountResponseDto> GetTotalPostAsync(TimeRange timeRange);
+        Task<TotalUserCountResponseDto> GetTotalUserAsync(TimeRange timeRange);
     }
 }

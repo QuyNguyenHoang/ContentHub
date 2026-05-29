@@ -1,4 +1,4 @@
-import { useState, type Dispatch, type SetStateAction } from "react";
+import { type Dispatch, type SetStateAction } from "react";
 import {
   BsArrowDown,
   BsArrowUp,
@@ -9,13 +9,18 @@ import {
   BsPostcard,
 } from "react-icons/bs";
 import { TimeRange } from "../../api/content/analytic.api";
+import { useNavigate } from "react-router-dom";
 
 interface Props {
   setTotalPostFilter: Dispatch<SetStateAction<TimeRange>>;
+  setTotalUserFilter: Dispatch<SetStateAction<TimeRange>>;
   totalPost: number;
-  growth:number;
-  previousTotalPost:number;
-  totalPostFilter : TimeRange;
+  growth: number;
+  totalUser: number;
+  growthUser: number;
+
+  totalUserFilter: TimeRange;
+  totalPostFilter: TimeRange;
 }
 export const TIME_OPTIONS = [
   { label: "All time", value: TimeRange.All },
@@ -33,14 +38,19 @@ export default function HeaderKpiCard({
   totalPost,
   growth,
   totalPostFilter,
-  previousTotalPost,
+  totalUser,
+  setTotalUserFilter,
+  growthUser,
+  totalUserFilter,
 }: Props) {
   const growthRate = 12;
+  const navigate = useNavigate();
   return (
     <div>
       <div className="row m-0 pb-2">
         <div className="col-12 col-md-6 col-lg-3">
-          <div className="card rounded-3 shadow-lg d-flex flex-column p-3">
+          <div className="card rounded-3 shadow-lg d-flex flex-column p-3" style={{cursor:"pointer"}} 
+          onDoubleClick={()=>navigate("/admin/posts")}>
             <div className="d-flex justify-content-center align-items-center gap-2">
               <BsPostcard color="#06a2fc" width={32} height={32} />
               <h5 className="text-muted">Total Posts</h5>
@@ -54,7 +64,9 @@ export default function HeaderKpiCard({
                 <select
                   className="form-select-sm"
                   value={totalPostFilter}
-                  onChange={(e) => setTotalPostFilter(e.target.value as TimeRange)}
+                  onChange={(e) =>
+                    setTotalPostFilter(e.target.value as TimeRange)
+                  }
                 >
                   {TIME_OPTIONS.map((opt) => (
                     <option key={opt.value} value={opt.value}>
@@ -88,7 +100,7 @@ export default function HeaderKpiCard({
                 <span className="input-group-text">
                   <BsCalendar />
                 </span>
-                <select className="form-select-sm" >
+                <select className="form-select-sm">
                   {TIME_OPTIONS.map((opt) => (
                     <option key={opt.value} value={opt.value}>
                       {opt.label}
@@ -121,7 +133,7 @@ export default function HeaderKpiCard({
                 <span className="input-group-text">
                   <BsCalendar />
                 </span>
-                <select className="form-select-sm" >
+                <select className="form-select-sm">
                   {TIME_OPTIONS.map((opt) => (
                     <option key={opt.value} value={opt.value}>
                       {opt.label}
@@ -143,18 +155,22 @@ export default function HeaderKpiCard({
           </div>
         </div>
         <div className="col-12 col-md-6 col-lg-3">
-          <div className="card rounded-3 shadow-lg d-flex flex-column p-3">
+          <div className="card rounded-3 shadow-lg d-flex flex-column p-3"style={{cursor:"pointer"}}>
             <div className="d-flex justify-content-center align-items-center gap-2">
               <BsPerson color="#06a2fc" width={32} height={32} />
               <h5 className="text-muted">Total User Active</h5>
             </div>
-            <h4 className="fw-bold text-center">12</h4>
+            <h4 className="fw-bold text-center">{totalUser}</h4>
             <div className="d-flex justify-content-center align-items-center gap-2">
               <div className="input-group" style={{ maxWidth: "200px" }}>
                 <span className="input-group-text">
                   <BsCalendar />
                 </span>
-                <select className="form-select-sm" >
+                <select
+                  className="form-select-sm"
+                  value={totalUserFilter}
+                  onChange={(e) => setTotalUserFilter(e.target.value as TimeRange)}
+                >
                   {TIME_OPTIONS.map((opt) => (
                     <option key={opt.value} value={opt.value}>
                       {opt.label}
@@ -164,12 +180,12 @@ export default function HeaderKpiCard({
               </div>
               <div className="pe-4">
                 <span
-                  className={`d-flex align-items-center fw-bold text-white rounded-2 ps-2 pe-2${
-                    growthRate > 12 ? " bg-success" : " bg-danger"
+                  className={`d-flex align-items-center fw-bold small text-white rounded-2 ps-2 pe-2${
+                    growthUser > 0 ? " bg-success" : " bg-danger"
                   }`}
                 >
-                  {growthRate > 12 ? <BsArrowUp /> : <BsArrowDown />}
-                  {growthRate}%
+                  {growthUser > 0 ? <BsArrowUp /> : <BsArrowDown />}
+                  {growthUser}%
                 </span>
               </div>
             </div>

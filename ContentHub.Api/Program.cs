@@ -19,6 +19,8 @@ using System.Text;
 using DotNetEnv;
 using CloudinaryDotNet;
 using System.Text.Json.Serialization;
+using ContentHub.Infrastructure.Repositories.System;
+using ContentHub.Application.IRepositories.System;
 
 
 Env.Load();
@@ -98,6 +100,7 @@ builder.Services.AddCors(options =>
 // =======================
 // Services
 // =======================
+builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<ContentHub.Api.Services.IEmailSender, SmtpEmailSender>();
 builder.Services.AddScoped(typeof(IRepository<,>), typeof(RepositoryBase<,>));

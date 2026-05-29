@@ -28,6 +28,12 @@ namespace ContentHub.Api.Controllers.AnalyticApi
             var result = await _analyticRepository.GetTotalPostAsync(timeRange);
             return Ok(result);
         }
-
+        //total user
+        [HttpGet("total-users-count")]
+        public async Task<ActionResult<TotalPostCountResponseDto>> GetTotalUsers(TimeRange timeRange)
+        {
+            var result = await _analyticRepository.GetTotalUserAsync(timeRange);
+            return Ok(result);
+        }
     }
 }

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 
 import {
   CButton,
@@ -12,17 +12,9 @@ import {
 } from "@coreui/react";
 
 import CIcon from "@coreui/icons-react";
-import {
-  cibCcMastercard,
-  cibCcVisa,
-  cilCloudDownload,
-  cifBr,
-  cifUs,
-} from "@coreui/icons";
+import { cilCloudDownload } from "@coreui/icons";
 
 import MainChart from "./MainChart";
-
-import TopUser from "./TopUser";
 
 const Dashboard = () => {
   // ===== Progress cards =====
@@ -47,27 +39,6 @@ const Dashboard = () => {
         value: "Average Rate",
         percent: 40.15,
         color: "primary",
-      },
-    ],
-    [],
-  );
-
-  // ===== Table data =====
-  const tableExample = useMemo(
-    () => [
-      {
-        user: { name: "John Doe", registered: "Jan 1, 2025" },
-        country: { flag: cifUs },
-        usage: { value: 50 },
-        payment: { icon: cibCcVisa },
-        activity: "10 sec ago",
-      },
-      {
-        user: { name: "Maria Silva", registered: "Dec 12, 2024" },
-        country: { flag: cifBr },
-        usage: { value: 72 },
-        payment: { icon: cibCcMastercard },
-        activity: "1 hour ago",
       },
     ],
     [],

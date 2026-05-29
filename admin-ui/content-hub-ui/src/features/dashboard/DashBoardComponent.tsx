@@ -12,7 +12,6 @@ export default function DashBoardComponent() {
   //Total posts
 
   const [totalPostFilter,setTotalPostFilter] = useState<TimeRange>(TimeRange.All);
-  const [previousTotalPost, setPreviousTotalPost] = useState(0);
   const [growth, setGrowth] = useState(0);
   const [totalPost, setTotalPost] = useState(0);
   const loadTotalPostCount = async () => {
@@ -21,7 +20,6 @@ export default function DashBoardComponent() {
       const res = await analyticApi.getTotalPosts(totalPostFilter);
       const data = res.data
       setTotalPost(data.totalPost);
-      setPreviousTotalPost(data.previousTotalPost);
       setGrowth(data.growth);
       console.log(totalPost);
     } catch (error) {
@@ -35,6 +33,29 @@ export default function DashBoardComponent() {
   useEffect(()=>{
     loadTotalPostCount();
   },[totalPostFilter])
+  //total user
+  const [totalUser, setTotalUser] = useState(0);
+    const [growthUser, setGrowthUser] = useState(0);
+  const [totalUserFilter,setTotalUserFilter] = useState<TimeRange>(TimeRange.All);
+    const loadTotalUserCount = async () => {
+    try {
+      setLoading(true);
+      const res = await analyticApi.getTotalUsers(totalUserFilter);
+      const data = res.data
+      setTotalUser(data.totalUser);
+      setGrowthUser(data.growth);
+      console.log(totalUser);
+    } catch (error) {
+      console.error("Load total user failed:", error);
+      return 0;
+    }
+    finally{
+      setLoading(false);
+    }
+  };
+  useEffect(()=>{
+    loadTotalUserCount();
+  },[totalUserFilter])
   const [loading, setLoading] = useState(false);
   const loadTopUser = async () => {
     try {
@@ -56,12 +77,16 @@ export default function DashBoardComponent() {
   return (
     <>
       {/* Kpi Card */}
-      <HeaderKpiCard 
-      totalPost = {totalPost}
-      growth = {growth}
-      previousTotalPost =  {previousTotalPost}
-      totalPostFilter = {totalPostFilter}
-      setTotalPostFilter = {setTotalPostFilter}
+      <HeaderKpiCard
+        totalPost={totalPost}
+        growth={growth}
+        totalPostFilter={totalPostFilter}
+        setTotalPostFilter={setTotalPostFilter}
+        //Total user
+        totalUser={totalUser}
+        growthUser={growthUser}
+        totalUserFilter={totalUserFilter}
+        setTotalUserFilter={setTotalUserFilter}
       />
       {/* Main chart */}
       <DashBoard />

@@ -21,7 +21,11 @@ export type TotalPostResponse = {
   previousTotalPost: number;
   growth: number;
 };
-
+export type TotalUserResponse = {
+  totalUser: number;
+  previousTotalUser: number;
+  growth: number;
+};
 const analyticApi = {
   getTopUserByPost: () => {
     return axiosClient.get<UserDto[]>(
@@ -32,6 +36,14 @@ const analyticApi = {
   getTotalPosts: (timeRange: TimeRange) => {
     return axiosClient.get<TotalPostResponse>(
       "/api/admin/analytic/users/total-posts-count",
+      {
+        params: { timeRange },
+      },
+    );
+  },
+  getTotalUsers: (timeRange: TimeRange) => {
+    return axiosClient.get<TotalUserResponse>(
+      "/api/admin/analytic/users/total-users-count",
       {
         params: { timeRange },
       },

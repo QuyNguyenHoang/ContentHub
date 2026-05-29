@@ -64,7 +64,7 @@ const UserList = () => {
     try {
       setLoading(true)
 
-      const res = await userApi.getPaging({
+      const res = await userApi.getUserPaging({
         keyword,
         pageNumber: page,
         pageSize,
