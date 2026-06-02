@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using AutoMapper.QueryableExtensions;
+using ContentHub.Application.IRepositories.System;
 using ContentHub.Application.Models;
 using ContentHub.Application.Models.System;
 using ContentHub.Domain.Data.Identity;
@@ -14,19 +15,36 @@ namespace ContentHub.Api.Controllers.System
 {
     [Route("api/users")]
     [ApiController]
-    public class UsersManager : ControllerBase
+    public class UserController : ControllerBase
     {
         private readonly ContentHubDbContext _context;
         private readonly UserManager<AppUser> _userManager;
         private readonly IMapper _mapper;
+        private readonly IUserRepository _userRepo;
 
-        public UsersManager(ContentHubDbContext context,
+        public UserController(ContentHubDbContext context,
                 UserManager<AppUser> userManager,
-                IMapper mapper)
+                IMapper mapper,
+                IUserRepository userRepo
+                )
         {
             _context = context;
             _userManager = userManager;
             _mapper = mapper;
+            _userRepo = userRepo;
+        }
+        //Get all user paging
+
+        //[Authorize(Policy = Permissions.Users.View)]
+        [HttpGet("paging")]
+        public async Task<ActionResult<PagedResult<UserDto>>> GetUserPaging(
+            string? filter,
+            string? keyword,
+            int pageNumber = 1,
+            int pageSize = 10)
+        {
+            var resullt = await _userRepo.GetUserPaging(filter, keyword, pageNumber, pageSize);
+            return Ok(resullt);
         }
         [Authorize(Permissions.Users.View)]
         [HttpGet("all")]

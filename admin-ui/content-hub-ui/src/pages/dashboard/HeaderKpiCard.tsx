@@ -48,7 +48,7 @@ export default function HeaderKpiCard({
   return (
     <div>
       <div className="row m-0 pb-2">
-        <div className="col-12 col-md-6 col-lg-3">
+        <div className="col-12 col-md-6 col-lg-3 mb-2">
           <div className="card rounded-3 shadow-lg d-flex flex-column p-3" style={{cursor:"pointer"}} 
           onDoubleClick={()=>navigate("/admin/posts")}>
             <div className="d-flex justify-content-center align-items-center gap-2">
@@ -88,7 +88,7 @@ export default function HeaderKpiCard({
             </div>
           </div>
         </div>
-        <div className="col-12 col-md-6 col-lg-3">
+        <div className="col-12 col-md-6 col-lg-3 mb-2">
           <div className="card rounded-3 shadow-lg d-flex flex-column p-3">
             <div className="d-flex justify-content-center align-items-center gap-2">
               <BsNewspaper color="#06a2fc" width={32} height={32} />
@@ -121,7 +121,7 @@ export default function HeaderKpiCard({
             </div>
           </div>
         </div>
-        <div className="col-12 col-md-6 col-lg-3">
+        <div className="col-12 col-md-6 col-lg-3 mb-2">
           <div className="card rounded-3 shadow-lg d-flex flex-column p-3">
             <div className="d-flex justify-content-center align-items-center gap-2">
               <BsEye color="#06a2fc" width={32} height={32} />

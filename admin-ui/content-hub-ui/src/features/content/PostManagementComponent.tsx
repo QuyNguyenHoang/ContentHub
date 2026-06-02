@@ -13,6 +13,7 @@ import Toast from "../../components/common/Toast";
 import { useNavigate } from "react-router-dom";
 import DeletedPost from "../../pages/content/PostUI/DeletedPost";
 import PostDetail from "../../pages/content/PostUI/PostDetail";
+import NotFound from "../../components/common/NotFound";
 
 export const POST_STATUS = {
   DRAFT: "Draft",
@@ -186,11 +187,9 @@ export default function PostManagement() {
         true,
       );
       const data = res.data;
-      
 
       setPageCount(data.pageCount);
       setPost(data.results);
-
     } catch (erorr) {
       console.log("Fetch post faild", erorr);
     } finally {
@@ -220,10 +219,10 @@ export default function PostManagement() {
         </button>
       </div>
       {/* filter areas */}
-      <div className="d-flex flex-column flex-lg-row justify-content-between align-items-start align-items-lg-center gap-3 pt-3">
+      <div className="d-flex flex-column flex-lg-row justify-content-between align-items-start align-items-lg-center gap-3 pt-3 mb-2">
         <div className="d-flex justify-content-between align-items-center gap-2 w-100">
           <div>
-            <h4 className="fw-bold ">Total Post ({totalPosts})</h4>
+            <h4 className="fw-bold m-0">Total Post ({totalPosts})</h4>
           </div>
           {/* delete button */}
           {countPost > 0 && (
@@ -240,10 +239,7 @@ export default function PostManagement() {
         </div>
 
         <div className="d-flex justify-content-between align-items-center gap-2 w-100">
-          <div
-            className="input-group input-group-sm  mb-2"
-           
-          >
+          <div className="input-group input-group-sm">
             <span className="input-group-text">
               <CIcon icon={cilFilter} />
             </span>
@@ -252,7 +248,6 @@ export default function PostManagement() {
               value={filter}
               className="form-select auto"
               onChange={(e) => {
-                setFilter(e.target.value);
                 handleFilterChange(e.target.value);
               }}
             >
@@ -266,7 +261,7 @@ export default function PostManagement() {
             </select>
           </div>
           {/* New button */}
-          <div className="mb-2">
+          <div>
             <button
               className="btn btn-sm btn-outline-success rounded-2 fw-bold text-nowrap"
               onClick={() => navigate("/new")}
@@ -275,7 +270,6 @@ export default function PostManagement() {
             </button>
           </div>
         </div>
-
       </div>
       {/* Content */}
       <div className="flex-grow-1">
@@ -285,15 +279,19 @@ export default function PostManagement() {
           </div>
         ) : (
           <div>
-            <PostTable
-              post={post}
-              selectPostIds={selectPostIds}
-              handleToggleSelectPost={handleToggleSelectPost}
-              handleToggleSelectAllPost={handleToggleSelectAllPost}
-              handleApprove={handleApprove}
-              handleReject={handleReject}
-              setShowPostDetail={setShowPostDetail}
-            />
+            {post.length === 0 ? (
+              <NotFound text="No posts found" />
+            ) : (
+              <PostTable
+                post={post}
+                selectPostIds={selectPostIds}
+                handleToggleSelectPost={handleToggleSelectPost}
+                handleToggleSelectAllPost={handleToggleSelectAllPost}
+                handleApprove={handleApprove}
+                handleReject={handleReject}
+                setShowPostDetail={setShowPostDetail}
+              />
+            )}
           </div>
         )}
       </div>

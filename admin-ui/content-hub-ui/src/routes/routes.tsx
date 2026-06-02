@@ -7,10 +7,11 @@ const Home = lazy(() => import("../pages/home/Home"));
 const ContentHub = lazy(() => import("../pages/home/ContentHub"));
 const Login = lazy(() => import("../pages/auth/login/LoginUI"));
 const ApiTest = lazy(() => import("../features/test/ApiTest"));
-const Dashboard = lazy(() => import("../features/dashboard/DashBoardComponent"));
+const Dashboard = lazy(
+  () => import("../features/dashboard/DashBoardComponent"),
+);
 const RoleList = lazy(() => import("../features/system/Role"));
 const RoleForm = lazy(() => import("../pages/system/role.form"));
-const UserList = lazy(() => import("../features/system/User"));
 const UserUpdate = lazy(() => import("../pages/system/user.update"));
 const Regiter = lazy(() => import("../pages/auth/register/Register"));
 const TagList = lazy(() => import("../features/content/TagComponent"));
@@ -24,6 +25,9 @@ const Comment = lazy(() => import("../features/content/CommentBox"));
 const PostManagement = lazy(
   () => import("../features/content/PostManagementComponent"),
 );
+const UserManagement = lazy(
+  () => import("../features/system/UserManagementComponent"),
+);
 const routes = [
   {
     path: "/admin",
@@ -36,11 +40,11 @@ const routes = [
       { path: "roles/create", element: <RoleForm /> },
       { path: "roles/edit/:id", element: <RoleForm /> },
       { path: "roles/:id/permissions", element: <RolePermission /> },
-      { path: "users", element: <UserList /> },
       { path: "users/update/:id", element: <UserUpdate /> },
-      { path: "tags",name:"Tags", element: <TagList /> },
-      { path: "series", name:"Series", element: <SeriesList /> },
+      { path: "tags", name: "Tags", element: <TagList /> },
+      { path: "series", name: "Series", element: <SeriesList /> },
       { path: "posts", name: "Posts", element: <PostManagement /> },
+      { path: "users", name: "Users", element: <UserManagement /> },
     ],
   },
   {

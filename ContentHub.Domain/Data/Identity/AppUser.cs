@@ -25,7 +25,7 @@ namespace ContentHub.Domain.Data.Identity
         public string? Avatar { get; set; }
         public DateTime? LastLoginDate { get; set; }
         public ICollection<Post> Posts { get; set; } = new List<Post>();
-        public ICollection<AppUserRole> UserRoles { get; set; } = new List<AppUserRole>();
+        //public ICollection<AppUserRole> UserRoles { get; set; } = new List<AppUserRole>();
         public string GetFullName()
         {
             return this.FirstName + " " + this.LastName;

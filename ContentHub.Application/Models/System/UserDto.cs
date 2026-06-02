@@ -28,6 +28,8 @@ namespace ContentHub.Application.Models.System
 
         public bool EmailConfirmed { get; set; }
         public int TotalPost {  get; set; }
+        public int TotalUser { get; set; }
+        public bool IsAdmin { get; set; }
         public class AutoMapperProfiles : Profile
         {
             public AutoMapperProfiles()

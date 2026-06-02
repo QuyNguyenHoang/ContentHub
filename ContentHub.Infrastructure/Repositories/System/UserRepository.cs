@@ -5,6 +5,7 @@ using ContentHub.Domain.Data.Identity;
 using ContentHub.Domain.SeedWorks.Constant;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using static ContentHub.Domain.SeedWorks.Constant.Permissions;
 
 namespace ContentHub.Infrastructure.Repositories.System
 {
@@ -33,7 +34,12 @@ namespace ContentHub.Infrastructure.Repositories.System
 
             IQueryable<AppUser> query = _context.Users
                 .AsNoTracking();
+            var totalUsers = await _context.Users.CountAsync();
 
+            var adminIds = (await _userManager
+    .GetUsersInRoleAsync(Domain.SeedWorks.Constant.Roles.Admin.ToString()))
+    .Select(x => x.Id)
+    .ToHashSet();
             // Active / inactive
             if (filter == "not_active")
             {
@@ -47,10 +53,10 @@ namespace ContentHub.Infrastructure.Repositories.System
             // Role filter
             if (filter == "admin")
             {
-                query = query.Where(u =>
-                    u.UserRoles.Any(ur =>
-                        ur.Role.Name == Roles.Admin.ToString()));
+                query = query.Where(u => adminIds.Contains(u.Id));
             }
+
+
 
             // Search
             if (!string.IsNullOrWhiteSpace(keyword))
@@ -91,16 +97,20 @@ namespace ContentHub.Infrastructure.Repositories.System
                     UserName = u.UserName!,
                     Email = u.Email!,
                     EmailConfirmed = u.EmailConfirmed,
-                    TotalPost = u.Posts.Count()
+                    TotalPost = u.Posts.Count(),
                 })
                 .ToListAsync();
-
+            foreach (var user in users)
+            {
+                user.IsAdmin = adminIds.Contains(user.Id);
+            }
             return new PagedResult<UserDto>
             {
                 Results = users,
                 PageSize = pageSize,
                 RowCount = totalRow,
-                CurrentPage = pageNumber
+                CurrentPage = pageNumber,
+                TotalCount = totalUsers
             };
         }
     }

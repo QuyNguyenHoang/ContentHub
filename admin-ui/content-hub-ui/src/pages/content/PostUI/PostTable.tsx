@@ -46,9 +46,6 @@ export default function PostTable({
   useClickOutside(outSideRef, () => {
     setOptionId(null);
   });
-  if (post.length === 0) {
-    return <div className="text-center text-black">No post found</div>;
-  }
   return (
     <div className="card-body p-0">
       <div className="table-responsive">
