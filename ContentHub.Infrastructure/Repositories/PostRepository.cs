@@ -662,11 +662,11 @@ namespace ContentHub.Infrastructure.Repositories
             {
                 if (isSoftDelete)
                 {
-                    _context.Remove(post);
+                    post.IsDeleted = true;
                 }
                 else
                 {
-                    post.IsDeleted = true;
+                    _context.Posts.Remove(post);
                 }
 
                 deleteCount++;

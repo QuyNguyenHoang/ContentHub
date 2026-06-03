@@ -6,12 +6,14 @@ interface Props {
   selectUserIds: string[];
   handleSelectUser: (id: string) => void;
   handleToggleSelectUser: () => void;
+  setShowUserDetail: (id:string | null) => void;
 }
 export default function UserTable({
   users,
   selectUserIds,
   handleSelectUser,
   handleToggleSelectUser,
+  setShowUserDetail,
 }: Props) {
   return (
     <div className="card-body p-0 table-responsive">
@@ -47,6 +49,7 @@ export default function UserTable({
                 key={u.id}
                 style={{ cursor: "pointer" }}
                 className={u.isAdmin ? "table-success fw-semibold " : ""}
+                onClick={()=> setShowUserDetail(u.id)}
               >
                 <td>
                   <input

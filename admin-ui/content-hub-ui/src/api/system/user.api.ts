@@ -31,6 +31,13 @@ export interface PagedResult<T> {
   pageCount:number;
   totalCount:number;
 }
+export interface UpdateUserDto {
+  firstName?: string;
+  lastName?: string;
+  isActive?: boolean;
+  dob?: string | null;
+  avatar?: string | null;
+}
 export const userApi = {
   getUserPaging: (params?: {
     keyword?: string;

@@ -1,5 +1,9 @@
 import { useCallback, useEffect, useState } from "react";
-import { userApi, type UserDto } from "../../api/system/user.api";
+import {
+  type UpdateUserDto,
+  userApi,
+  type UserDto,
+} from "../../api/system/user.api";
 import UserTable from "../../pages/system/User/UserTable";
 import SearchBox from "../../components/common/SearchBox";
 import Paging from "../../components/common/PagingComponent";
@@ -7,6 +11,8 @@ import { useNavigate } from "react-router-dom";
 import CIcon from "@coreui/icons-react";
 import { cilFilter, cilTrash } from "@coreui/icons";
 import NotFound from "../../components/common/NotFound";
+import UserDetail from "../../pages/system/User/UserDetail";
+
 
 interface Props {}
 export const USER_FILTER = {
@@ -26,6 +32,40 @@ export default function UserManagement({}: Props) {
   const [filter, setFilter] = useState("");
   const [keyword, setKeyWord] = useState("");
   const [totalUsers, setTotalUsers] = useState(0);
+  //User Detail + Update
+  const [showUserDetail, setShowUserDetail] = useState<string | null>(null);
+  const [userDetail, setUserDetail] = useState<UserDto | null>(null);
+  const [updateUser, setUpdateUser] = useState<UpdateUserDto>({
+    firstName: "",
+    lastName: "",
+    dob: "",
+    avatar: "",
+    isActive: true,
+  });
+  const loadUserDetail = async () => {
+    try {
+      setLoading(true);
+      if (showUserDetail) {
+        const res = await userApi.getById(showUserDetail);
+        const data = res.data;
+        setUserDetail(data);
+        setUpdateUser({
+          firstName:data.firstName,
+          lastName:data.lastName,
+          dob:data.dob,
+          avatar:data.avatar,
+          isActive:data.isActive
+        })
+      }
+    } catch (error) {
+      console.log(error, "Load user detail faild");
+    } finally {
+      setLoading(false);
+    }
+  };
+  useEffect(() => {
+    loadUserDetail();
+  }, [showUserDetail]);
   //selected User
   const [selectUserIds, setSelectUserIds] = useState<string[]>([]);
   const countUser = selectUserIds.length;
@@ -152,6 +192,7 @@ export default function UserManagement({}: Props) {
                 selectUserIds={selectUserIds}
                 handleSelectUser={handleSelectUser}
                 handleToggleSelectUser={handleToggleSelectUser}
+                setShowUserDetail={setShowUserDetail}
               />
             )}
           </div>
@@ -165,6 +206,15 @@ export default function UserManagement({}: Props) {
           onPageChange={setPageNumber}
         />
       </div>
+      {/* User Detail */}
+      <UserDetail
+        loading={loading}
+        updateUser ={updateUser}
+        setUpdateUser = {setUpdateUser}
+        userDetail={userDetail}
+        showUserDetail={showUserDetail}
+        setShowUserDetail={setShowUserDetail}
+      />
     </div>
   );
 }

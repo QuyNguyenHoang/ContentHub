@@ -3,6 +3,7 @@ using AutoMapper.QueryableExtensions;
 using ContentHub.Application.IRepositories.System;
 using ContentHub.Application.Models;
 using ContentHub.Application.Models.System;
+using ContentHub.Application.Models.System.UserDto;
 using ContentHub.Domain.Data.Identity;
 using ContentHub.Domain.SeedWorks.Constant;
 using ContentHub.Infrastructure;
@@ -37,19 +38,39 @@ namespace ContentHub.Api.Controllers.System
 
         //[Authorize(Policy = Permissions.Users.View)]
         [HttpGet("paging")]
-        public async Task<ActionResult<PagedResult<UserDto>>> GetUserPaging(
+        public async Task<ActionResult<PagedResult<UserResponseDto>>> GetUserPaging(
             string? filter,
             string? keyword,
             int pageNumber = 1,
             int pageSize = 10)
         {
-            var resullt = await _userRepo.GetUserPaging(filter, keyword, pageNumber, pageSize);
+            var resullt = await _userRepo.GetUserPagingAsync(filter, keyword, pageNumber, pageSize);
             return Ok(resullt);
+        }
+        //Update User
+        [HttpPut("{id}")]
+        public async Task<ActionResult<ApiResponse<UserResponseDto>>> UpdateUser(Guid id, UpdateUserDto updateUserDto)
+        {
+            var result = await _userRepo.UpdateUserAsync(id, updateUserDto);
+            return Ok(result);
+        }
+        //Delete User
+        [HttpDelete]
+        public async Task<ActionResult<int>> DeleteUser([FromBody] DeleteUserDto deleteUserDto)
+        {
+            var result = await _userRepo.DeleteUserAsync(deleteUserDto);
+            return Ok(result);
+        }
+        //Get User Detail
+        [HttpGet("{id}")]
+        public async Task<ActionResult<UserResponseDto>> GetUserDetail(Guid id)
+        {
+            var result = await _userRepo.GetUserDetailAsync(id);
+            return Ok(result);
         }
         [Authorize(Permissions.Users.View)]
         [HttpGet("all")]
-        
-        public async Task<ActionResult<PagedResult<UserDto>>> GetUsers(string? keyword, int pageNumber = 1, int pageSize = 10)
+        public async Task<ActionResult<PagedResult<UserResponseDto>>> GetUsers(string? keyword, int pageNumber = 1, int pageSize = 10)
         {
             pageNumber = pageNumber < 1 ? 1 : pageNumber;
             pageSize = pageSize < 1 ? 10 : pageSize;
@@ -61,12 +82,12 @@ namespace ContentHub.Api.Controllers.System
             }
             query = query.OrderByDescending(x => x.DateCreated);
             var totalRow = await query.CountAsync();
-            var users = await _mapper.ProjectTo<UserDto>(query)
+            var users = await _mapper.ProjectTo<UserResponseDto>(query)
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
 
-            return Ok(new PagedResult<UserDto>
+            return Ok(new PagedResult<UserResponseDto>
             {
                 Results = users,
                 CurrentPage = pageNumber,
@@ -74,34 +95,6 @@ namespace ContentHub.Api.Controllers.System
                 RowCount = totalRow
             });
         }
-        [HttpGet("{id}")]
-        public async Task<ActionResult<UserDto>> GetUserById(Guid id)
-        {
-            var userById = await _context.Users.AsNoTracking().Where(x=>x.Id == id)
-                .ProjectTo<UserDto>(_mapper.ConfigurationProvider).FirstOrDefaultAsync();
-            if (userById == null)
-            {
-                return NotFound("User does not found");
-            };
-            return Ok(userById);
-        }
-        [HttpPut("{id}")]
-        public async Task<ActionResult<UserDto>> UpdateUser(Guid id, [FromBody] UserRequest request)
-        {
-            var user = await _userManager.FindByIdAsync(id.ToString());
-
-            if (user == null)
-                return NotFound("User not found");
-
-            _mapper.Map(request, user);
-
-            await _userManager.UpdateAsync(user);
-
-            var result = _mapper.Map<UserDto>(user);
-
-            return Ok(result);
-        }
-       
     }
 
 

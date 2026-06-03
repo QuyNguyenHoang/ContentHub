@@ -1,6 +1,6 @@
 ﻿using ContentHub.Application.IRepositories;
 using ContentHub.Application.Models.AnalyticDto;
-using ContentHub.Application.Models.System;
+using ContentHub.Application.Models.System.UserDto;
 using ContentHub.Domain.Data.Entities;
 using Microsoft.EntityFrameworkCore;
 using System.Net;
@@ -17,7 +17,7 @@ namespace ContentHub.Infrastructure.Repositories
             _context = context;
             _dateRangeResolver = dateRangeResolver;
         }
-        public async Task<List<UserDto>> TopUserByPostAsync()
+        public async Task<List<UserResponseDto>> TopUserByPostAsync()
         {
             var topUser = await _context.Posts
                 .GroupBy(p => p.AuthorUserId)
@@ -26,7 +26,7 @@ namespace ContentHub.Infrastructure.Repositories
                      UserId = g.Key,
                      TotalPost = g.Count(),
                  })
-                 .Join(_context.Users, g => g.UserId, u => u.Id, (g, u) => new UserDto
+                 .Join(_context.Users, g => g.UserId, u => u.Id, (g, u) => new UserResponseDto
                  {
                      Id = u.Id,
                      UserName =

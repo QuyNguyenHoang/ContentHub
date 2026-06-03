@@ -19,7 +19,7 @@ namespace ContentHub.Domain.Data.Identity
         public string? RefreshToken { get; set; }
         public DateTime? RefreshTokenExpiryTime { get; set; }
         public DateTime DateCreated { get; set; }
-        public DateTime? Dob { get; set; }
+        public DateOnly? Dob { get; set; }
 
         [MaxLength(500)]
         public string? Avatar { get; set; }

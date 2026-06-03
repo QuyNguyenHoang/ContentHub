@@ -1,6 +1,6 @@
 ﻿using ContentHub.Application.IRepositories;
 using ContentHub.Application.Models.AnalyticDto;
-using ContentHub.Application.Models.System;
+using ContentHub.Application.Models.System.UserDto;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -16,7 +16,7 @@ namespace ContentHub.Api.Controllers.AnalyticApi
             _analyticRepository = analyticRepository;
         }
         [HttpGet("top-user-by-post")]
-        public async Task<ActionResult<List<UserDto>>> GetTopUser()
+        public async Task<ActionResult<List<UserResponseDto>>> GetTopUser()
         {
             var result = await _analyticRepository.TopUserByPostAsync();
             return Ok(result);

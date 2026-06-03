@@ -1,11 +1,11 @@
 ﻿using ContentHub.Application.Models.AnalyticDto;
-using ContentHub.Application.Models.System;
+using ContentHub.Application.Models.System.UserDto;
 
 namespace ContentHub.Application.IRepositories
 {
     public interface IAnalyticRepository
     {
-        Task<List<UserDto>> TopUserByPostAsync();
+        Task<List<UserResponseDto>> TopUserByPostAsync();
         Task<TotalPostCountResponseDto> GetTotalPostAsync(TimeRange timeRange);
         Task<TotalUserCountResponseDto> GetTotalUserAsync(TimeRange timeRange);
     }

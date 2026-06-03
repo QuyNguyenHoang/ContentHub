@@ -28,6 +28,6 @@ namespace ContentHub.Application.Models.Auth
         [Compare("Password", ErrorMessage = "Confirm password does not match")]
         public string ConfirmPassword { get; set; } = default!;
 
-        public DateTime? Dob { get; set; }
+        public DateOnly? Dob { get; set; }
     }
 }

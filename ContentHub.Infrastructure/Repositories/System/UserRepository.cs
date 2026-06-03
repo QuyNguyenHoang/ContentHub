@@ -1,6 +1,6 @@
 ﻿using ContentHub.Application.IRepositories.System;
 using ContentHub.Application.Models;
-using ContentHub.Application.Models.System;
+using ContentHub.Application.Models.System.UserDto;
 using ContentHub.Domain.Data.Identity;
 using ContentHub.Domain.SeedWorks.Constant;
 using Microsoft.AspNetCore.Identity;
@@ -19,8 +19,8 @@ namespace ContentHub.Infrastructure.Repositories.System
             _context = context;
             _userManager = userManager;
         }
-        //get user paging
-        public async Task<PagedResult<UserDto>> GetUserPaging(
+        //Get User Paging
+        public async Task<PagedResult<UserResponseDto>> GetUserPagingAsync(
     string? filter,
     string? keyword,
     int pageNumber = 1,
@@ -84,27 +84,13 @@ namespace ContentHub.Infrastructure.Repositories.System
             var users = await query
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)
-                .Select(u => new UserDto
-                {
-                    Id = u.Id,
-                    FirstName = u.FirstName,
-                    LastName = u.LastName,
-                    IsActive = u.IsActive,
-                    DateCreated = u.DateCreated,
-                    Dob = u.Dob,
-                    Avatar = u.Avatar,
-                    LastLoginDate = u.LastLoginDate,
-                    UserName = u.UserName!,
-                    Email = u.Email!,
-                    EmailConfirmed = u.EmailConfirmed,
-                    TotalPost = u.Posts.Count(),
-                })
+                .Select(u => u.ToResponse())
                 .ToListAsync();
             foreach (var user in users)
             {
                 user.IsAdmin = adminIds.Contains(user.Id);
             }
-            return new PagedResult<UserDto>
+            return new PagedResult<UserResponseDto>
             {
                 Results = users,
                 PageSize = pageSize,
@@ -113,5 +99,74 @@ namespace ContentHub.Infrastructure.Repositories.System
                 TotalCount = totalUsers
             };
         }
+        //Update User
+        public async Task<ApiResponse<UserResponseDto>> UpdateUserAsync(Guid id, UpdateUserDto updateUserDto)
+        {
+            var userUpdate = await _context.Users.FindAsync(id);
+            if (userUpdate == null)
+            {
+                throw new KeyNotFoundException($"User with id {id} not found.");
+            }
+            userUpdate.FirstName = updateUserDto.FirstName;
+            userUpdate.LastName = updateUserDto.LastName;
+            userUpdate.IsActive = updateUserDto.IsActive;
+            userUpdate.Dob = updateUserDto.Dob;
+            userUpdate.Avatar = updateUserDto.Avatar;
+            await _context.SaveChangesAsync();
+            return new ApiResponse<UserResponseDto>
+            {
+                IsSuccess = true,
+                Message = "User updated successfully!",
+                Data = userUpdate.ToResponse()
+            };
+        }
+        //Delete User 
+        public async Task<ApiResponse<int>> DeleteUserAsync(DeleteUserDto deleteUserDto)
+        {
+            if (deleteUserDto.Ids == null || deleteUserDto.Ids.Length == 0)
+                throw new ArgumentException("Ids cannot be empty");
+
+            var users = await _context.Users
+                .Where(x => deleteUserDto.Ids.Contains(x.Id))
+                .ToListAsync();
+
+            if (!users.Any())
+                throw new KeyNotFoundException("No users found for the provided IDs.");
+
+            foreach (var user in users)
+            {
+                if (deleteUserDto.IsSoftDelete)
+                {
+                    user.IsActive = false;
+                }
+                else
+                {
+                    _context.Users.Remove(user);
+                }
+            }
+
+            await _context.SaveChangesAsync();
+
+            return new ApiResponse<int>
+            {
+                IsSuccess = true,
+                Message = "User deleted successfully!",
+                Data = users.Count
+            }
+            ;
+
+        }
+        //User Detail
+        public async Task<UserResponseDto> GetUserDetailAsync(Guid id)
+        {
+            var userDetail = await _context.Users.AsNoTracking().Where(u=>u.Id == id).FirstOrDefaultAsync();
+            if(userDetail == null)
+            {
+                throw new KeyNotFoundException("User not found");
+            }
+            return userDetail.ToResponse();
+                
+        }
+
     }
 }
