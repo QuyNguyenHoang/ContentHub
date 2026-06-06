@@ -1,6 +1,6 @@
 export function PostSideBar() {
   return (
-    <div className="col-12 col-lg-3">
+    <div>
       {/* Collapse đơn giản: desktop luôn hiện, mobile ẩn */}
       <div className="collapse d-lg-block" id="sidebarHot">
         <div

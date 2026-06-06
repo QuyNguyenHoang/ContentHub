@@ -9,7 +9,7 @@ namespace ContentHub.Domain.Data.Entities
     public class PostPicture
     {
         [Key]
-        public Guid Id { get; set; }
+        public required string Id { get; set; }
         [MaxLength(250)]
         public string? Name { get; set; }
         [MaxLength(250)]

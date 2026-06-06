@@ -23,7 +23,7 @@ namespace ContentHub.Api.Controllers.ContentApi
         }
 
         // GET: admin/api/posts
-        [Authorize(Policy = Permissions.Posts.View)]    
+        //[Authorize(Policy = Permissions.Posts.View)]    
         [HttpGet]
         public async Task<ActionResult<PagedResult<PostDto>>> GetPostPaged(
             [FromQuery] string? keyword,

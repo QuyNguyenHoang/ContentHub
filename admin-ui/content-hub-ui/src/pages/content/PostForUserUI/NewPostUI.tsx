@@ -31,6 +31,7 @@ import CIcon from "@coreui/icons-react";
 import "./style.css";
 import { useNavigate } from "react-router-dom";
 
+
 export default function NewPostPage() {
   //Auto save
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -65,6 +66,7 @@ export default function NewPostPage() {
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState<string | null>(null);
   const [form, setForm] = useState({
+    coverImageId:"",
     name: "",
     description: "",
     content: "",
@@ -259,7 +261,7 @@ export default function NewPostPage() {
     e.preventDefault();
     setErr(null);
 
-    if (!form.name?.trim()  || !form.authorUserId) {
+    if (!form.name?.trim() || !form.authorUserId) {
       setErr("Missing required fields");
       return;
     }
@@ -269,6 +271,8 @@ export default function NewPostPage() {
 
       const payload = {
         ...form,
+        coverImageId:coverImageId,
+        coverImageUrl:coverPreview,
         name: form.name.trim(),
         content: editor?.getHTML() || "",
         tags: form.tags.join(","),
@@ -291,6 +295,7 @@ export default function NewPostPage() {
       alert("Post saved successfully");
       setPostId(null);
       setForm({
+        coverImageId:"",
         name: "",
         description: "",
         content: "",
@@ -301,7 +306,7 @@ export default function NewPostPage() {
       });
       // reset editor
       editor?.commands.clearContent();
-      alert("Please watting for admin approve your post!!!")
+      alert("Please watting for admin approve your post!!!");
       navigate("/posts");
       // reset auto save cache
       lastSavedRef.current = "";
@@ -328,6 +333,10 @@ export default function NewPostPage() {
   );
   const navigate = useNavigate();
   const [showToast, setShowToast] = useState(false);
+  //upload cover image
+  const [coverPreview, setCoverPreview] = useState("");
+  const [loadingImgCover, setLoadingImgCover] = useState(false);
+  const [coverImageId, setCoverImageId] = useState("");
   return (
     <div>
       <div className="container py-4" style={{ maxWidth: 900 }}>
@@ -428,9 +437,98 @@ export default function NewPostPage() {
             {err && <div className="alert alert-danger">{err}</div>}
 
             <form onSubmit={handleSubmit}>
+              {/* Upload cover image */}
+              <div className="row g-2">
+                <div className="col-12 col-md-auto border rounded p-3 me-2 ">
+                  <input
+                    id="coverImage"
+                    type="file"
+                    className="d-none"
+                    accept="image/*"
+                    disabled={loading}
+                    onChange={async (e) => {
+                      const file = e.target.files?.[0];
+                      if (!file) return;
+
+                      try {
+                        setLoadingImgCover(true);
+
+                        const res = await mediaApi.uploadMedia(file);
+
+                        setCoverPreview(res.path);
+                        setCoverImageId(res.imageId);
+                        console.log(res.imageId);
+                        const html = editor.getHTML();
+                        setForm((prev) => {
+                          const updated = { ...prev, content: html };
+                          triggerAutoSave(updated);
+                          return updated;
+                        });
+                      } catch (error) {
+                        console.error("Upload failed:", error);
+                      } finally {
+                        setLoadingImgCover(false);
+                        e.target.value = "";
+                      }
+                    }}
+                  />
+
+                  {coverPreview ? (
+                    <>
+                      <img
+                        src={coverPreview}
+                        alt="Cover"
+                        className="w-100 rounded mb-3"
+                      />
+
+                      <div className="d-flex gap-2">
+                        <label
+                          htmlFor="coverImage"
+                          className="btn btn-outline-primary"
+                        >
+                          Change
+                        </label>
+
+                        <button
+                          type="button"
+                          className="btn btn-outline-danger"
+                          onClick={() => setCoverPreview("")}
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    </>
+                  ) : loadingImgCover ? (
+                    <div className="d-flex flex-row align-items-center">
+                      <div className="spinner-border text-center text-primary me-2"></div>
+                      <span className="small">Loading Image Cover...</span>
+                    </div>
+                  ) : (
+                    <label
+                      htmlFor="coverImage"
+                      className="btn btn-outline-primary w-100"
+                    >
+                      Upload Cover
+                    </label>
+                  )}
+                </div>
+                <div className="col-12 col-md-auto border rounded p-3 me-2">
+                  <button className="btn btn-outline-primary w-100">
+                    Generate Image
+                  </button>
+                </div>
+
+                <div className="col-12 col-md-auto border rounded p-3">
+                  <button className="btn btn-outline-primary w-100">
+                    Upload Video Cover
+                  </button>
+                </div>
+              </div>
               {/* TITLE */}
               <div className="mb-4">
-                <label className="form-labelsmall text-muted mb-2">Title</label>
+                <label className="form-label small text-muted mb-2">
+                  Title
+                </label>
 
                 <input
                   name="name"

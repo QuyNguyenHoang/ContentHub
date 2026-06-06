@@ -8,6 +8,8 @@ namespace ContentHub.Application.Models.Contents
     {
         [Required]
         [MaxLength(250)]
+        public string CoverImageId { get; set; } = string.Empty;
+        public string CoverImageUrl { get; set; } = string.Empty;
         public string Name { get; set; } = default!;
 
         public string? Description { get; set; }

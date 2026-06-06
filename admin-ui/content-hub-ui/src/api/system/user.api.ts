@@ -15,7 +15,7 @@ export interface UserDto {
   email: string;
   emailConfirmed: boolean;
   totalPost: number;
-  isAdmin:boolean;
+  isAdmin: boolean;
 }
 export interface UserRequest {
   firstName: string;
@@ -28,8 +28,13 @@ export interface PagedResult<T> {
   currentPage: number;
   pageSize: number;
   rowCount: number;
-  pageCount:number;
-  totalCount:number;
+  pageCount: number;
+  totalCount: number;
+}
+export interface ApiResponse<T> {
+  isSuccess: boolean;
+  message: string;
+  data?: T[];
 }
 export interface UpdateUserDto {
   firstName?: string;
@@ -41,10 +46,13 @@ export interface UpdateUserDto {
 export const userApi = {
   getUserPaging: (params?: {
     keyword?: string;
-    filter?:string;
+    filter?: string;
     pageNumber: number;
     pageSize: number;
   }) => axiosClient.get<PagedResult<UserDto>>("/api/users/paging", { params }),
+  updateUser: (id: string, data: UpdateUserDto) => {
+    return axiosClient.put<ApiResponse<UserDto>>(`/api/users/${id}`, data);
+  },
   getById: (id: string) => axiosClient.get<UserDto>(`/api/users/${id}`),
   update: (id: string, data: UserRequest) =>
     axiosClient.put<UserDto>(`/api/users/${id}`, data),

@@ -12,7 +12,10 @@ import CIcon from "@coreui/icons-react";
 import { cilFilter, cilTrash } from "@coreui/icons";
 import NotFound from "../../components/common/NotFound";
 import UserDetail from "../../pages/system/User/UserDetail";
-
+import axios from "axios";
+import axiosClient from "../../config/axios";
+import { Colors } from "chart.js";
+import Toast from "../../components/common/Toast";
 
 interface Props {}
 export const USER_FILTER = {
@@ -42,6 +45,29 @@ export default function UserManagement({}: Props) {
     avatar: "",
     isActive: true,
   });
+  //Alert
+  const [alertColor, setAlertColor] = useState<"success" | "danger">("success");
+  const [message, setMessage] = useState("");
+  const [showToast, setShowToast] = useState(false);
+  const showAlert = (message: string, color: "success" | "danger") => {
+    setMessage(message);
+    setAlertColor(color);
+    setShowToast(true);
+  };
+  const putUser = async () => {
+    try {
+      setLoading(true);
+      if (showUserDetail) {
+        const res = await userApi.updateUser(showUserDetail, updateUser);
+        showAlert(res.data.message, "success");
+        await loadUser();
+      }
+    } catch (error) {
+      console.log(error, "Can not update user");
+    } finally {
+      setLoading(false);
+    }
+  };
   const loadUserDetail = async () => {
     try {
       setLoading(true);
@@ -50,12 +76,12 @@ export default function UserManagement({}: Props) {
         const data = res.data;
         setUserDetail(data);
         setUpdateUser({
-          firstName:data.firstName,
-          lastName:data.lastName,
-          dob:data.dob,
-          avatar:data.avatar,
-          isActive:data.isActive
-        })
+          firstName: data.firstName,
+          lastName: data.lastName,
+          dob: data.dob,
+          avatar: data.avatar,
+          isActive: data.isActive,
+        });
       }
     } catch (error) {
       console.log(error, "Load user detail faild");
@@ -209,11 +235,19 @@ export default function UserManagement({}: Props) {
       {/* User Detail */}
       <UserDetail
         loading={loading}
-        updateUser ={updateUser}
-        setUpdateUser = {setUpdateUser}
+        updateUser={updateUser}
+        setUpdateUser={setUpdateUser}
         userDetail={userDetail}
         showUserDetail={showUserDetail}
         setShowUserDetail={setShowUserDetail}
+        putUser={putUser}
+      />
+      {/* Toast */}
+      <Toast
+        showToast={showToast}
+        message={message}
+        alertColor={alertColor}
+        onClose={() => setShowToast(false)}
       />
     </div>
   );

@@ -15,6 +15,7 @@ namespace ContentHub.Application.Models.Contents
         public DateTime? DateModified { get; set; }
         public decimal RoyaltyAmount { get; set; }
         public Guid CategoryId { get; set; }
+        public string? CoverImage { get; set; } = string.Empty;
         public List<TagDto> ListTag { get; set; } = new();
         public class AutomapperProfiles : Profile
         {

@@ -106,6 +106,10 @@ namespace ContentHub.Infrastructure.Repositories
                         AuthorName = p.Author != null
                             ? p.Author.GetFullName()
                             : null,
+                        CoverImage = p.Picture
+            .Where(pic => pic.Id == p.CoverImageId)
+            .Select(pic => pic.Url)
+            .FirstOrDefault(),
                         AuthorAvatar = p.Author != null ? p.Author.Avatar : "No Avatar",
                         CommentCount = commentCounts.ContainsKey(p.Id) ? commentCounts[p.Id] : 0,
                         ListTag = p.PostTags
@@ -189,6 +193,11 @@ namespace ContentHub.Infrastructure.Repositories
                             ? p.Author.GetFullName()
                             : null,
                     AuthorAvatar = p.Author != null ? p.Author.Avatar : "No Avatar",
+                    CoverImage = p.Picture
+            .Where(pic => pic.Id == p.CoverImageId)
+            .Select(pic => pic.Url)
+            .FirstOrDefault(),
+
                     ListTag = p.PostTags
                         .Where(pt => pt.Tag != null)
                         .Select(pt => new TagDto
@@ -227,6 +236,7 @@ namespace ContentHub.Infrastructure.Repositories
         //Create Post
         public async Task<PostDto> AddNewPostAsync(CreatePostRequest postRequest)
         {
+            using var transaction = await _context.Database.BeginTransactionAsync();
             var checkAuthorId = await IsAuthorExisted(postRequest.AuthorUserId);
             Console.WriteLine(checkAuthorId);
             if (!checkAuthorId)
@@ -253,27 +263,46 @@ namespace ContentHub.Infrastructure.Repositories
             {
                 throw new InvalidOperationException("Tag does not null");
             }
-
-            var addNewPost = _mapper.Map<Post>(postRequest);
-            await _repo.Add(addNewPost);
-            await _repo.CompleteAsync();
-            var postId = addNewPost.Id;
-            var tagGuids = postRequest.Tags
-             .Split(',', StringSplitOptions.RemoveEmptyEntries)
-             .Select(id => Guid.Parse(id))
-             .ToList();
-            var postTags = tagGuids.Select(tagId => new PostTag
+            try
             {
-                PostId = postId,
-                TagId = tagId
-            }).ToList();
+                var addNewPost = _mapper.Map<Post>(postRequest);
+                await _repo.Add(addNewPost);
+                await _repo.CompleteAsync();
+                var postId = addNewPost.Id;
+                var tagGuids = postRequest.Tags
+                 .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                 .Select(id => Guid.Parse(id))
+                 .ToList();
+                var postTags = tagGuids.Select(tagId => new PostTag
+                {
+                    PostId = postId,
+                    TagId = tagId
+                }).ToList();
 
-            await _context.PostTags.AddRangeAsync(postTags);
+                await _context.PostTags.AddRangeAsync(postTags);
+                if (postRequest.CoverImageId != null)
+                {
+                    var picture = new PostPicture
+                    {
+                        Id = postRequest.CoverImageId,
+                        Name = $"{postRequest.Name}_cover",
+                        Url = postRequest.CoverImageUrl,
+                        PostId = postId,
+                    };
+                    await _context.AddAsync(picture);
+                }
 
 
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+                return _mapper.Map<PostDto>(addNewPost);
+            }
+            catch (Exception ex)
+            {
+                transaction.Rollback();
+                throw new Exception(ex.ToString());
 
-            await _context.SaveChangesAsync();
-            return _mapper.Map<PostDto>(addNewPost);
+            }
 
         }
 
@@ -297,7 +326,7 @@ namespace ContentHub.Infrastructure.Repositories
         public async Task<PostDto> GetPostById(Guid postId)
         {
             var post = await _context.Posts
-                .Where(p=>p.Id == postId)
+                .Where(p => p.Id == postId)
                 .Select(p => new PostDto
                 {
                     Id = p.Id,
@@ -319,6 +348,10 @@ namespace ContentHub.Infrastructure.Repositories
                             ? p.Author.GetFullName()
                             : null,
                     AuthorAvatar = p.Author != null ? p.Author.Avatar : "No Avatar",
+                    CoverImage = p.Picture
+            .Where(pic => pic.Id == p.CoverImageId)
+            .Select(pic => pic.Url)
+            .FirstOrDefault(),
                     ListTag = p.PostTags
                         .Where(pt => pt.Tag != null)
                         .Select(pt => new TagDto

@@ -34,11 +34,12 @@ namespace ContentHub.Domain.Data.Entities
         public bool IsDeleted { get; set; }
         [Column(TypeName = "Decimal(18,2)")]
         public decimal RoyaltyAmount { get; set; }
-        
+        public string CoverImageId { get; set; } = string.Empty;
         public Guid? CategoryId { get; set; }
         public PostCategory? Category { get; set; }
         public Guid AuthorUserId {  get; set; }
-        public AppUser? Author { get; set; }
+        public AppUser? Author { get; set; } 
+        public ICollection<PostPicture> Picture { get; set; } = new List<PostPicture>();
         public ICollection<PostActivityLog> ActivityLogs { get; set; } = new List<PostActivityLog>();
         public ICollection<PostTag> PostTags { get; set; } = new List<PostTag>();
         public ICollection<PostSeries> PostSeries { get; set; } = new List<PostSeries>();

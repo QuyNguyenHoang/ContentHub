@@ -16,6 +16,7 @@ export interface PostResponse {
   categoryName: string;
   authorName: string;
   authorAvatar?: string;
+  coverImage?: string;
   commentCount: number;
   listTag?: Tag[];
 }
@@ -44,15 +45,15 @@ export interface PostDetailResponse {
   categoryName?: string | null;
 
   listTag: Tag[];
-
+  coverImage?: string;
   authorName: string;
   authorAvatar?: string | null;
 
   dateCreated: string;
   dateModified?: string | null;
   paidDate?: string | null;
-  isDeleted:boolean;
-  commentCount:number;
+  isDeleted: boolean;
+  commentCount: number;
 }
 export interface Tag {
   id: string;
@@ -72,6 +73,8 @@ export interface PagedResponse<T> {
 }
 
 export interface CreatePostRequest {
+  coverImageId?: string;
+  coverImageUrl?: string;
   name: string;
   description?: string;
   content?: string;
@@ -152,7 +155,7 @@ export const postApi = {
   deletePosts: (ids: string[], isSoftDelete: boolean) =>
     axiosClient.delete("/admin/api/posts", {
       data: ids,
-      params:{isSoftDelete}
+      params: { isSoftDelete },
     }),
   uploadMedia: (file: File, type: string) => {
     const formData = new FormData();

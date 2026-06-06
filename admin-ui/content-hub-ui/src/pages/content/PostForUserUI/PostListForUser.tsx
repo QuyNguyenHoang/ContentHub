@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { cilThumbUp } from "@coreui/icons";
 import { useState } from "react";
 
+
 interface Props {
   posts?: PostResponse[];
 }
@@ -38,9 +39,28 @@ export function PostList({ posts = [] }: Props) {
             className="card mb-4 border-0 shadow-lg rounded-4"
             style={{ transition: "0.25s" }}
           >
+            {/* Cover Image */}
+            {post.coverImage && (
+              <div
+                className="w-100 border-bottom"
+                style={{
+                  overflow: "hidden",
+                }}
+              >
+                <img
+                  className="w-100 rounded-top-4"
+                  src={post.coverImage}
+                  alt={post.name}
+                  style={{
+                    display: "block",
+                    height: "200px"
+                  }}
+                />
+              </div>
+            )}
+
             <div className="card-body p-4">
               {/* Meta */}
-
               <div className="d-flex align-items-center mb-2">
                 {/* Avatar */}
                 <img

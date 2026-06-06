@@ -139,3 +139,19 @@ body {
 .read-the-docs {
   color: #888;
 }
+/* home page */
+.hero-carousel .carousel-inner {
+  border-radius: 20px;
+}
+
+.hero-carousel img {
+  transition: transform 0.5s ease;
+}
+
+.hero-carousel:hover img {
+  transform: scale(1.02);
+}
+
+.hero-carousel .carousel-indicators {
+  margin-bottom: 0.5rem;
+}

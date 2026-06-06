@@ -85,13 +85,15 @@ export default function PostPage() {
     <div className="container">
       <div className="row g-5">
         {/* LEFT CONTENT */}
-        <div className="col-lg-9">
+        <div className="col-12 col-lg-8">
           <PostComposer />
           <PostList posts={posts} />
         </div>
-
-        {/* RIGHT SIDEBAR */}
+        <div className="col-lg-4">
+           {/* RIGHT SIDEBAR */}
         <PostSideBar />
+        </div>
+       
       </div>
 
       {/* LOAD MORE */}

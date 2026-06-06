@@ -9,6 +9,7 @@ interface Props {
   setUpdateUser: (user: UpdateUserDto) => void;
   showUserDetail: string | null;
   setShowUserDetail: (id: string | null) => void;
+  putUser:()=> void;
 }
 export default function UserDetail({
   loading,
@@ -17,6 +18,7 @@ export default function UserDetail({
   userDetail,
   showUserDetail,
   setShowUserDetail,
+  putUser,
 }: Props) {
   if (!showUserDetail) return null;
   return (
@@ -57,7 +59,11 @@ export default function UserDetail({
                       <div className="col-md-3 text-center border-end">
                         <div className="position-relative d-inline-block">
                           <img
-                            src={userDetail.avatar ? userDetail.avatar : "https://cdn-icons-png.flaticon.com/512/149/149071.png"}
+                            src={
+                              userDetail.avatar
+                                ? userDetail.avatar
+                                : "https://cdn-icons-png.flaticon.com/512/149/149071.png"
+                            }
                             alt="Avatar"
                             className="rounded-circle"
                             style={{
@@ -200,12 +206,22 @@ export default function UserDetail({
                                 className="form-check-input"
                                 type="checkbox"
                                 checked={updateUser.isActive}
-                                onChange={(e) =>
+                                onChange={(e) => {
+                                  const checked = e.target.checked;
+
+                                  if (!checked) {
+                                    const confirmed = window.confirm(
+                                      "Are you sure you want to block this user?",
+                                    );
+
+                                    if (!confirmed) return;
+                                  }
+
                                   setUpdateUser({
                                     ...updateUser,
-                                    isActive: e.target.checked,
-                                  })
-                                }
+                                    isActive: checked,
+                                  });
+                                }}
                               />
 
                               <label className="form-check-label ms-2">
@@ -218,11 +234,18 @@ export default function UserDetail({
                     </div>
 
                     <div className="d-flex justify-content-end mt-4">
-                      <button className="btn btn-sm btn-outline-danger me-2"onClick={()=>setShowUserDetail(null)}>
+                      <button
+                        className="btn btn-sm btn-outline-danger me-2"
+                        onClick={() => setShowUserDetail(null)}
+                      >
                         Cancel
                       </button>
 
-                      <button className="btn btn-sm btn-outline-success">
+                      <button
+                        type="button"
+                        className="btn btn-sm btn-outline-success"
+                        onClick={() => putUser()}
+                      >
                         Save Changes
                       </button>
                     </div>

@@ -56,6 +56,7 @@ export default function UserTable({
                     type="checkbox"
                     checked={isChecked}
                     onChange={() => handleSelectUser(u.id)}
+                    onClick={(e)=>e.stopPropagation() }
                   />
                 </td>
 

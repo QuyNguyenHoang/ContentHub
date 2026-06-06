@@ -46,7 +46,23 @@ export function PostDetail() {
       {post && (
         <>
           <div className="row justify-content-center">
-            <div className="col-12 col-md-12 mx-auto">
+            <div className="flex-grow-1">
+              {/* Cover Image */}
+              {
+                post.coverImage && 
+                  (<div> 
+               <img
+                  className="w-100 rounded-top-4"
+                  src={post.coverImage}
+                  alt={post.name}
+                  style={{
+                    display: "block",
+                    height: "auto"
+                  }}
+                />
+              </div>)
+              }
+              
               {/* Title */}
               <h2 className="fw-bold mb-3">{post.name}</h2>
 
