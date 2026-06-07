@@ -1,4 +1,14 @@
-export function PostSideBar() {
+import { BsCalendar, BsCalendar2, BsCalendar2Date, BsCalendar2Event, BsEye, BsFire } from "react-icons/bs";
+import type { PostResponse } from "../../../api/content/post.api";
+import { Link } from "react-router-dom";
+
+interface Props{
+  posts:PostResponse[] | null;
+ }
+
+export function PostSideBar({
+  posts,
+}:Props) {
   return (
     <div>
       {/* Collapse đơn giản: desktop luôn hiện, mobile ẩn */}
@@ -8,26 +18,53 @@ export function PostSideBar() {
           style={{ height: "100vh" }}
         >
           {/* Tiêu đề HOT */}
-          <h5 className="text-danger text-center mb-3">HOT</h5>
+          <div className="d-flex justify-content-center align-items-center gap-2 p-3 text-danger">
+            <BsFire size={24}/>
+            <h5 className="m-0">POPULAR POSTS</h5>
+          </div>
+          
 
-          {/* Danh sách link */}
-          <ul className="nav flex-column gap-2">
-            <li className="nav-item">
-              <a href="#" className="nav-link text-dark fw-medium p-2 rounded">
-                Link 1
-              </a>
-            </li>
-            <li className="nav-item">
-              <a href="#" className="nav-link text-dark fw-medium p-2 rounded">
-                Link 2
-              </a>
-            </li>
-            <li className="nav-item">
-              <a href="#" className="nav-link text-dark fw-medium p-2 rounded">
-                Link 3
-              </a>
-            </li>
-          </ul>
+          {posts?.map((p) => {
+            return (
+              <div className="d-flex flex-row align-items-center border-bottom border-2">
+                <div className="m-2">
+                  <img
+                    src={
+                      p.coverImage
+                        ? p.coverImage
+                        : "https://res.cloudinary.com/dg2ztzhrt/image/upload/v1775317449/contenthub_image/tfypgnrexftyhtdw5yzw.jpg"
+                    }
+                    width={56}
+                    height={56}
+                    style={{ display: "block" }}
+                    className="rounded-2"
+                  />
+                </div>
+                <div className="d-flex flex-column ms-1 small">
+                  <Link
+                    to={`/posts/${p.slug} - ${p.id}`}
+                    className="small text-truncate text-dark fw-bold text-decoration-none link-primary"
+                    style={{
+                      maxWidth: "300px",
+                    }}
+                  >
+                    {p.name}
+                  </Link>
+                  <span>
+                    <BsCalendar className="me-1" />
+                    {p.dateCreated
+                      ? new Date(p.dateCreated).toDateString()
+                      : ""}
+                  </span>
+                  <div className="d-flex align-items-center gap-1">
+                    <BsEye />
+                    <span>100</span>
+                  </div>
+                  
+                </div>
+              </div>
+            );
+          })}
         </div>
       </div>
     </div>

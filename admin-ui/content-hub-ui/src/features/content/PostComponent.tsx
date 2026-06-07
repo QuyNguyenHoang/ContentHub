@@ -91,7 +91,9 @@ export default function PostPage() {
         </div>
         <div className="col-lg-4">
            {/* RIGHT SIDEBAR */}
-        <PostSideBar />
+        <PostSideBar
+        posts = {posts}
+         />
         </div>
        
       </div>

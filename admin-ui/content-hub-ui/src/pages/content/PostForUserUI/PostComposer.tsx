@@ -11,7 +11,7 @@ export function PostComposer() {
     setLoadForm(false); // reset form
   };
   return (
-    <div className="card p-3 mb-4">
+    <div className="card p-3 mb-2">
       <textarea
         maxLength={256}
         className="form-control mb-2"

@@ -1,6 +1,6 @@
 import { PostDetail } from "../../pages/content/PostForUserUI/PostDetail";
 import Comment from "../../features/content/CommentComponent";
-import { useLocation } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import CIcon from "@coreui/icons-react";
 import {
@@ -16,6 +16,7 @@ import {
   cilThumbUp,
   cilWarning,
 } from "@coreui/icons";
+import { postApi, type PostDetailResponse } from "../../api/content/post.api";
 
 export default function PostDetailPage() {
   const location = useLocation();
@@ -30,6 +31,27 @@ export default function PostDetailPage() {
       }, 200);
     }
   }, [location]);
+  const [postDetail, setPostDetail] = useState<PostDetailResponse | null>(null);
+  const [loading, setLoading] = useState(false);
+  const { slug } = useParams();
+  const postId = slug ? slug.slice(-36) : null;
+  const getPostById = async () => {
+    try {
+      if (!postId) return;
+
+      setLoading(true);
+      const res = await postApi.getById(postId);
+      setPostDetail(res.data);
+    } catch (error) {
+      console.log("Load post detail fail", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    getPostById();
+  }, [postId]);
   return (
     <div className="container-fluid">
       <div className="row">
@@ -159,7 +181,7 @@ export default function PostDetailPage() {
           <div>
             {/* POST */}
             <div className="bg-white rounded shadow-sm">
-              <PostDetail />
+              <PostDetail postDetail={postDetail} loading={loading} />
             </div>
 
             {/* COMMENT */}
@@ -173,17 +195,51 @@ export default function PostDetailPage() {
             </div>
           </div>
         </div>
-
         {/* RIGHT NAV */}
-        <div className="d-none d-md-block col-md-3 col-lg-3 bg-white border-start p-0">
-          <div className="position-sticky p-3" style={{ top: "100px" }}>
-            <h6>Right Nav</h6>
+        <div className=" d-none d-md-block col-md-3 col-lg-3 bg-white  rounded-2 p-0">
+          <div
+            style={{
+              position: "sticky",
+              top: "60px",
+              maxHeight: "calc(100vh - 60px)",
+              overflowY: "auto",
+            }}
+          >
+            <div
+              className=" card p-3 vh-100 shadow-lg mb-3"
+              style={{ maxHeight: "300px" }}
+            >
+              {/* Author */}
+              <div>
+                <div className="d-flex align-items-center gap-2">
+                  <img
+                    src={
+                      postDetail?.authorAvatar ? postDetail.authorAvatar : ""
+                    }
+                    className="rounded-circle"
+                    width={48}
+                    height={48}
+                  />
+                  <span>{postDetail?.authorName}</span>
+                </div>
+                <div className="flex-grow-1 px-5">
+                  <button className="btn btn-primary w-100">Follow</button>
+                </div>
+              </div>
+            </div>
+            <div
+              className="card vh-100 shadow-lg px-2"
+              style={{ maxHeight: "400px" }}
+            >
+              <h4 className="text-center text-danger blink-text mt-4">HOT</h4>
+              <span></span>
+            </div>
           </div>
         </div>
       </div>
 
       {/* MOBILE NAV */}
-      <div className="d-md-none position-fixed bottom-0 start-0 w-100 bg-white border-top p-3 shadow">
+      <div className="d-md-none position-fixed bg-secondary bottom-0 start-0 w-100 border-top p-3 ">
         <div className="d-flex justify-content-around">
           <span>🏠</span>
           <span>🔍</span>

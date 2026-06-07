@@ -109,6 +109,26 @@ body {
   50% { opacity: 0.3; }
   100% { opacity: 1; }
 }
+@keyframes blink {
+  0% {
+    opacity: 2;
+    color: red;
+  }
+
+  50% {
+    opacity: 0;
+  }
+
+  100% {
+    opacity: 1;
+    color: red;
+  }
+}
+
+.blink-text {
+  animation: blink 1s infinite;
+  font-weight: bold;
+}
 // .card{
 //   border-radius: 16px;
 //   border: 1px solid #e5e7eb;
