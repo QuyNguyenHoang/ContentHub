@@ -1,13 +1,14 @@
-import { BsCalendar, BsCalendar2, BsCalendar2Date, BsCalendar2Event, BsEye, BsFire } from "react-icons/bs";
+import { BsCalendar, BsEye, BsFire } from "react-icons/bs";
 import type { PostResponse } from "../../../api/content/post.api";
 import { Link } from "react-router-dom";
 
 interface Props{
   posts:PostResponse[] | null;
+  postByViewCount:PostResponse[] | [];
  }
 
 export function PostSideBar({
-  posts,
+  postByViewCount,
 }:Props) {
   return (
     <div>
@@ -15,18 +16,20 @@ export function PostSideBar({
       <div className="collapse d-lg-block" id="sidebarHot">
         <div
           className="bg-white rounded-4 border-0 shadow-lg p-3"
-          style={{ height: "100vh" }}
+          style={{maxHeight:"1000px"}}
         >
           {/* Tiêu đề HOT */}
           <div className="d-flex justify-content-center align-items-center gap-2 p-3 text-danger">
-            <BsFire size={24}/>
+            <BsFire size={24} />
             <h5 className="m-0">POPULAR POSTS</h5>
           </div>
-          
 
-          {posts?.map((p) => {
+          {postByViewCount?.map((p) => {
             return (
-              <div className="d-flex flex-row align-items-center border-bottom border-2">
+              <div
+                className="d-flex flex-row align-items-center border-bottom border-2"
+                key={p.id}
+              >
                 <div className="m-2">
                   <img
                     src={
@@ -58,9 +61,8 @@ export function PostSideBar({
                   </span>
                   <div className="d-flex align-items-center gap-1">
                     <BsEye />
-                    <span>100</span>
+                    <span>{p.viewCount}</span>
                   </div>
-                  
                 </div>
               </div>
             );

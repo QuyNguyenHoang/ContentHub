@@ -10,6 +10,7 @@ export interface PostResponse {
   content?: string;
   source?: string;
   tags?: string;
+  viewCount: number;
   description?: string;
   dateCreated: string;
   dateModified?: string;
@@ -97,6 +98,16 @@ export const postApi = {
     return axiosClient.get<PagedResponse<PostResponse[]>>(
       "/admin/api/posts/list-posts-deleted",
       { params },
+    );
+  },
+  //Increase View Count
+  postIncreaseViewCount: (postId: string) => {
+    return axiosClient.post(`/admin/api/posts/increase_view/${postId}`);
+  },
+  //Get Post by View Count
+  getPostByViewCount: () => {
+    return axiosClient.get<PostResponse[]>(
+      "/admin/api/posts/post_by_view_count",
     );
   },
   //Restore deleted post

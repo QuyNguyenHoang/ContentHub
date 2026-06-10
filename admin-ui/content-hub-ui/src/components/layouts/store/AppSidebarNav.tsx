@@ -1,32 +1,32 @@
-import React from 'react'
-import type { ReactNode } from 'react'
-import { NavLink } from 'react-router-dom'
+import React from "react";
+import type { ReactNode } from "react";
+import { NavLink } from "react-router-dom";
 
-import SimpleBar from 'simplebar-react'
-import 'simplebar-react/dist/simplebar.min.css'
+import SimpleBar from "simplebar-react";
+import "simplebar-react/dist/simplebar.min.css";
 
-import { CBadge, CNavLink, CSidebarNav } from '@coreui/react'
+import { CBadge, CNavLink, CSidebarNav } from "@coreui/react";
 
 /* ================= TYPES ================= */
 
 interface NavBadge {
-  color: string
-  text: string
+  color: string;
+  text: string;
 }
 
 interface NavItem {
-  component: React.ElementType
-  name?: ReactNode
-  to?: string
-  href?: string
-  icon?: ReactNode
-  badge?: NavBadge
-  items?: NavItem[]
-  [key: string]: any
+  component: React.ElementType;
+  name?: ReactNode;
+  to?: string;
+  href?: string;
+  icon?: ReactNode;
+  badge?: NavBadge;
+  items?: NavItem[];
+  [key: string]: any;
 }
 
 interface AppSidebarNavProps {
-  items: NavItem[]
+  items: NavItem[];
 }
 
 /* ================= COMPONENT ================= */
@@ -54,18 +54,18 @@ export const AppSidebarNav: React.FC<AppSidebarNavProps> = ({ items }) => {
           </CBadge>
         )}
       </>
-    )
-  }
+    );
+  };
 
   const navItem = (item: NavItem, index: number, indent = false) => {
-    const { component: Component, name, badge, icon, ...rest } = item
+    const { component: Component, name, badge, icon, ...rest } = item;
 
     return (
       <Component as="div" key={index}>
         {rest.to || rest.href ? (
           <CNavLink
             {...(rest.to && { as: NavLink })}
-            {...(rest.href && { target: '_blank', rel: 'noopener noreferrer' })}
+            {...(rest.href && { target: "_blank", rel: "noopener noreferrer" })}
             {...rest}
           >
             {navLink(name, icon, badge, indent)}
@@ -74,11 +74,11 @@ export const AppSidebarNav: React.FC<AppSidebarNavProps> = ({ items }) => {
           navLink(name, icon, badge, indent)
         )}
       </Component>
-    )
-  }
+    );
+  };
 
   const navGroup = (item: NavItem, index: number) => {
-    const { component: Component, name, icon, items, ...rest } = item
+    const { component: Component, name, icon, items, ...rest } = item;
 
     return (
       <Component
@@ -92,8 +92,8 @@ export const AppSidebarNav: React.FC<AppSidebarNavProps> = ({ items }) => {
           child.items ? navGroup(child, idx) : navItem(child, idx, true),
         )}
       </Component>
-    )
-  }
+    );
+  };
 
   return (
     <CSidebarNav as={SimpleBar}>
@@ -101,5 +101,5 @@ export const AppSidebarNav: React.FC<AppSidebarNavProps> = ({ items }) => {
         item.items ? navGroup(item, index) : navItem(item, index),
       )}
     </CSidebarNav>
-  )
-}
+  );
+};

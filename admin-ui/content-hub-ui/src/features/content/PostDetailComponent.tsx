@@ -19,6 +19,37 @@ import {
 import { postApi, type PostDetailResponse } from "../../api/content/post.api";
 
 export default function PostDetailPage() {
+  const { slug } = useParams();
+  const postId = slug ? slug.slice(-36) : null;
+  // increase View
+  const increaseView = async (id: string) => {
+    try {
+      await postApi.postIncreaseViewCount(id);
+    } catch (error) {
+      console.log(error, "Error");
+    }
+  };
+
+  useEffect(() => {
+    if (!postId) return;
+
+    const key = `viewed_${postId}`;
+    const lastViewed = localStorage.getItem(key);
+
+    const oneDay = 24 * 60 * 60 * 1000;
+
+    if (lastViewed) {
+      const diff = Date.now() - Number(lastViewed);
+
+      if (diff < oneDay) {
+        return;
+      }
+    }
+
+    increaseView(postId);
+
+    localStorage.setItem(key, Date.now().toString());
+  }, [postId]);
   const location = useLocation();
   const [action, setAction] = useState(false);
   useEffect(() => {
@@ -33,8 +64,7 @@ export default function PostDetailPage() {
   }, [location]);
   const [postDetail, setPostDetail] = useState<PostDetailResponse | null>(null);
   const [loading, setLoading] = useState(false);
-  const { slug } = useParams();
-  const postId = slug ? slug.slice(-36) : null;
+
   const getPostById = async () => {
     try {
       if (!postId) return;
@@ -214,7 +244,7 @@ export default function PostDetailPage() {
                 <div className="d-flex align-items-center gap-2">
                   <img
                     src={
-                      postDetail?.authorAvatar ? postDetail.authorAvatar : ""
+                      postDetail?.authorAvatar ? postDetail.authorAvatar : "No"
                     }
                     className="rounded-circle"
                     width={48}

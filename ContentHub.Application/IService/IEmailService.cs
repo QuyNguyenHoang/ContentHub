@@ -1,6 +1,6 @@
-﻿namespace ContentHub.Infrastructure.Service
+﻿namespace ContentHub.Application.IService
 {
-    public interface IEmailSender
+    public interface IEmailService
     {
         Task SendEmailAsync(string toEmail, string subject, string htmlMessage);
     }

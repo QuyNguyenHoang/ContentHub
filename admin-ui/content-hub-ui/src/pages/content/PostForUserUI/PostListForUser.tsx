@@ -3,7 +3,12 @@ import type { PostResponse } from "../../../api/content/post.api";
 import { Link } from "react-router-dom";
 import { cilThumbUp } from "@coreui/icons";
 import { useState } from "react";
-import { BsClock, BsGlobe, BsPeople, BsThreeDotsVertical } from "react-icons/bs";
+import {
+  BsClock,
+  BsGlobe,
+  BsPeople,
+  BsThreeDotsVertical,
+} from "react-icons/bs";
 
 interface Props {
   posts?: PostResponse[];
@@ -59,9 +64,8 @@ export function PostList({ posts = [] }: Props) {
           },
         );
         return (
-          <div>
+          <div key={post.id}>
             <div
-              key={post.id}
               className="card mb-4 border-0 shadow-lg rounded-4"
               style={{ transition: "0.25s" }}
             >
@@ -119,7 +123,7 @@ export function PostList({ posts = [] }: Props) {
                 <div className="d-flex flex-wrap gap-2 mt-2">
                   {post.listTag?.map((tag) => (
                     <Link
-                      key={tag.slug}
+                      key={tag.slug || tag.id}
                       to={`/tags/${tag.slug}`}
                       className="badge rounded-pill bg-light text-dark text-decoration-none"
                     >

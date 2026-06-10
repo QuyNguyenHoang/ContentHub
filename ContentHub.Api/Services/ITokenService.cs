@@ -1,11 +1,11 @@
-﻿using System.Security.Claims;
+﻿//using System.Security.Claims;
 
-namespace ContentHub.Api.Services
-{
-    public interface ITokenService
-    {
-        string GenerateAccessToken(IEnumerable<Claim> claims);
-        string GenerateRefreshToken();
-        ClaimsPrincipal GetPrincipalFromExpiredToken(string token);
-    }
-}
+//namespace ContentHub.Api.Services
+//{
+//    public interface ITokenService
+//    {
+//        string GenerateAccessToken(IEnumerable<Claim> claims);
+//        string GenerateRefreshToken();
+//        ClaimsPrincipal GetPrincipalFromExpiredToken(string token);
+//    }
+//}

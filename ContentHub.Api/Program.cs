@@ -21,6 +21,9 @@ using CloudinaryDotNet;
 using System.Text.Json.Serialization;
 using ContentHub.Infrastructure.Repositories.System;
 using ContentHub.Application.IRepositories.System;
+using ContentHub.Application.IRepositories.Auth;
+using ContentHub.Infrastructure.Services;
+using ContentHub.Infrastructure.Repositories.Auth;
 
 
 Env.Load();
@@ -46,6 +49,17 @@ builder.Services.AddDbContext<ContentHubDbContext>(options =>
 builder.Services.AddIdentity<AppUser, AppRole>()
     .AddEntityFrameworkStores<ContentHubDbContext>()
     .AddDefaultTokenProviders();
+
+
+
+//Lock account after 5 failed login attemps
+builder.Services.Configure<IdentityOptions>(options =>
+{
+    options.Lockout.MaxFailedAccessAttempts = 5;
+    options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
+});
+
+
 
 // =======================
 // JWT
@@ -100,9 +114,9 @@ builder.Services.AddCors(options =>
 // =======================
 // Services
 // =======================
+builder.Services.AddScoped<IAuthRepository,AuthRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
-builder.Services.AddScoped<ITokenService, TokenService>();
-builder.Services.AddScoped<ContentHub.Api.Services.IEmailSender, SmtpEmailSender>();
+builder.Services.AddScoped<ContentHub.Application.IService.ITokenService, ContentHub.Infrastructure.Services.TokenService>();
 builder.Services.AddScoped(typeof(IRepository<,>), typeof(RepositoryBase<,>));
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
@@ -113,7 +127,7 @@ builder.Services.AddScoped<ICommentRepository,CommentRepository>();
 builder.Services.AddScoped<IReactionRepository, ReactionRepository>();
 builder.Services.AddScoped<IPostActivityLogRepository, PostActivityLogRepository>();
 builder.Services.AddScoped<IAnalyticRepository, AnalyticRepository>();
-builder.Services.AddScoped<ContentHub.Infrastructure.Service.IEmailSender, ContentHub.Infrastructure.Service.SmtpEmailSender>();
+builder.Services.AddScoped<ContentHub.Application.IService.IEmailService, ContentHub.Infrastructure.Service.SmtpEmailSender>();
 builder.Services.AddScoped<DateRangeResolver>();
 builder.Services.AddControllers().AddJsonOptions(option =>
 {

@@ -36,7 +36,20 @@ namespace ContentHub.Api.Controllers.ContentApi
             var result = await _postRepository.GetPostPagedAsync(keyword, filter, pageNumber, pageSize, isAdmin);
             return Ok(result);
         }
-
+        //Get Post Count
+        [HttpPost("increase_view/{postId}")]
+        public async Task<ActionResult<int>> GetViewCount([FromRoute] Guid postId)
+        {
+            var result = await _postRepository.IncreaseViewCountAsync(postId);
+            return Ok(result);
+        }
+        //GET: post by view Count
+        [HttpGet("post_by_view_count")]
+        public async Task<ActionResult<List<PostDto>>> GetPostByViewCount()
+        {
+            var result = await _postRepository.GetPostByViewCountAsync();
+            return Ok(result);
+        }
         // GET: admin/api/posts/{id}
         [HttpGet("{id}")]
         public async Task<ActionResult<PostDto>> GetById(Guid id)

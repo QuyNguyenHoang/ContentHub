@@ -35,6 +35,11 @@ namespace ContentHub.Application.IRepositories
         Task<PagedResult<PostDto>> GetListPostDeletedAsync(string? keyword, string? filter , int pageNumber = 1,int pageSize = 10);
         //Restore deleted post
         Task<int> RestoreDeletedPostAsync(Guid[] ids);
+        //get post by view count
+        Task<List<PostDto>> GetPostByViewCountAsync();
+        //View Count
+        Task<int> IncreaseViewCountAsync(Guid postId);
+
 
     }
 }

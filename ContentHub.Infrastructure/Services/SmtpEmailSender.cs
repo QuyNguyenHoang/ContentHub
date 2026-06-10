@@ -1,10 +1,11 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using ContentHub.Application.IService;
+using Microsoft.Extensions.Configuration;
 using System.Net;
 using System.Net.Mail;
 
 namespace  ContentHub.Infrastructure.Service
 {
-    public class SmtpEmailSender : IEmailSender
+    public class SmtpEmailSender : IEmailService
     {
         private readonly IConfiguration _configuration;
 

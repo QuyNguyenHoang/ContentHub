@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using ContentHub.Application.IRepositories;
+using ContentHub.Application.IService;
 using ContentHub.Application.Models;
 using ContentHub.Application.Models.Contents;
 using ContentHub.Domain.Data.Entities;
@@ -19,11 +20,11 @@ namespace ContentHub.Infrastructure.Repositories
     {
         private readonly IMapper _mapper;
         private readonly IRepository<Post, Guid> _repo;
-        private readonly ContentHub.Infrastructure.Service.IEmailSender _emailSender;
+        private readonly ContentHub.Application.IService.IEmailService _emailSender;
         private readonly ILogger<PostRepository> _logger;
         public PostRepository(ContentHubDbContext context, IMapper mapper,
             IRepository<Post, Guid> repo,
-            IEmailSender emailSender,
+            IEmailService emailSender,
             ILogger<PostRepository> logger
             ) : base(context)
         {
@@ -32,7 +33,55 @@ namespace ContentHub.Infrastructure.Repositories
             _emailSender = emailSender;
             _logger = logger;
         }
+        //View count by Post
+        public async Task<int> IncreaseViewCountAsync(Guid postId)
+        {
+            var postView = await _context.Posts 
+                .Where(p => p.Status == PostStatus.Published && p.IsDeleted == false && p.Id == postId).FirstOrDefaultAsync();
+            if (postView == null)
+            {
+                throw new InvalidDataException();
+            }
+            postView.ViewCount++;
+            await _context.SaveChangesAsync();
+            return postView.ViewCount;
+        }
+        //Get post by view Count 
+        public async Task<List<PostDto>> GetPostByViewCountAsync()
+        {
+            return await _context.Posts
+                .Where(p => p.IsDeleted == false && p.Status == PostStatus.Published)
+                .OrderByDescending(p => p.ViewCount)
+                .Select(p => new PostDto
+                {
+                    Id = p.Id,
+                    Name = p.Name,
+                    Status = p.Status,
+                    Slug = p.Slug,
+                    IsPaid = p.IsPaid,
+                    IsDeleted = p.IsDeleted,
+                    Content = p.Content ?? "No content",
+                    Description = p.Description,
+                    DateCreated = p.DateCreated,
+                    DateModified = p.DateModified,
+                    CategoryName = p.Category != null ? p.Category.Name : "No Category",
+                    CategorySlug = p.Category != null && !string.IsNullOrEmpty(p.Category.Slug)
+                    ? p.Category.Slug
+                    : "No Slug",
+                    ViewCount = p.ViewCount,
+                    AuthorName = p.Author != null
+                            ? p.Author.GetFullName()
+                            : null,
+                    CoverImage = p.Picture
+            .Where(pic => pic.Id == p.CoverImageId)
+            .Select(pic => pic.Url)
+            .FirstOrDefault(),
+                    AuthorAvatar = p.Author != null ? p.Author.Avatar : "No Avatar",
+                })
+                .Take(10)
+                .ToListAsync();
 
+        }
         public async Task<PagedResult<PostDto>> GetPostPagedAsync(
     string? keyword,
     string? filter,
@@ -120,7 +169,6 @@ namespace ContentHub.Infrastructure.Repositories
                             Slug = pt.Tag != null ? pt.Tag.Slug : "",
                         })
                         .ToList(),
-
 
                     }).ToListAsync();
 

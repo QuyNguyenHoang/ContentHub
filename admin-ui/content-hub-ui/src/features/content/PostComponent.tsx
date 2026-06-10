@@ -5,6 +5,7 @@ import { PostComposer } from "../../pages/content/PostForUserUI/PostComposer";
 import { PostSideBar } from "../../pages/content/PostForUserUI/PostSideBar";
 
 export default function PostPage() {
+  const [postByViewCount, setPostByViewCount] = useState<PostResponse[]>([]);
   const [posts, setPosts] = useState<PostResponse[]>([]);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
@@ -17,6 +18,33 @@ export default function PostPage() {
   const keyword = "";
   const filter = "";
   const isAdmin = true;
+  const getViewCount = async (id:string)=>{
+    try{
+      setLoading(true);
+      await postApi.postIncreaseViewCount(id);
+    }
+    catch(error)
+    {
+      console.log(error,"Error")
+    }
+    finally{
+      setLoading(false);
+    }
+  }
+  const loadPostByViewCount = async () => {
+    try {
+      setLoading(true);
+      const res = await postApi.getPostByViewCount();
+      setPostByViewCount(res.data);
+    } catch (error) {
+      console.log(error, "Load post by view count Faild");
+    } finally {
+      setLoading(false);
+    }
+  };
+  useEffect(() => {
+    loadPostByViewCount();
+  }, []);
   //Fetch API chuẩn (không stale state)
   const fetchPosts = useCallback(async () => {
     if (loading || !hasMore) return;
@@ -24,7 +52,13 @@ export default function PostPage() {
     setLoading(true);
 
     try {
-      const res = await postApi.getPost(keyword, filter, page, pageSize, isAdmin);
+      const res = await postApi.getPost(
+        keyword,
+        filter,
+        page,
+        pageSize,
+        isAdmin,
+      );
       const newPosts = res.data.results || [];
 
       // merge + remove duplicate
@@ -87,15 +121,13 @@ export default function PostPage() {
         {/* LEFT CONTENT */}
         <div className="col-12 col-lg-8">
           <PostComposer />
-          <PostList posts={posts} />
+          <PostList posts={posts}
+          getViewCount = {getViewCount} />
         </div>
         <div className="col-lg-4">
-           {/* RIGHT SIDEBAR */}
-        <PostSideBar
-        posts = {posts}
-         />
+          {/* RIGHT SIDEBAR */}
+          <PostSideBar posts={posts} postByViewCount={postByViewCount} />
         </div>
-       
       </div>
 
       {/* LOAD MORE */}
