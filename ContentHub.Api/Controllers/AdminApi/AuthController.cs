@@ -22,7 +22,7 @@ namespace ContentHub.Api.Controllers.AdminApi
         }
 
         [HttpPost("login")]
-        public async Task<ActionResult<AuthenticatedResult>> Login([FromBody] LoginRequest loginRequest)
+        public async Task<ActionResult> Login([FromBody] LoginRequest loginRequest)
         {
             if (!ModelState.IsValid)
             {
@@ -37,7 +37,10 @@ namespace ContentHub.Api.Controllers.AdminApi
                 Expires = DateTime.UtcNow.AddDays(30),
             });
 
-            return Ok();
+            return Ok(new
+            {
+                Token = result.Token,
+            });
         }
 
         //Refresh Token
@@ -45,6 +48,7 @@ namespace ContentHub.Api.Controllers.AdminApi
         public async Task<ActionResult> RefreshToken()
         {
             var refreshToken = Request.Cookies["refreshToken"];
+            
 
             if (string.IsNullOrEmpty(refreshToken))
             {

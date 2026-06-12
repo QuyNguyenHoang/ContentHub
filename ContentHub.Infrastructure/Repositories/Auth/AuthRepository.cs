@@ -14,6 +14,8 @@ using Microsoft.EntityFrameworkCore;
 using System.IdentityModel.Tokens.Jwt;
 using System.Reflection;
 using System.Security.Claims;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace ContentHub.Infrastructure.Repositories.Auth
 {
@@ -23,22 +25,29 @@ namespace ContentHub.Infrastructure.Repositories.Auth
         private readonly SignInManager<AppUser> _signInManager;
         private readonly RoleManager<AppRole> _roleManager;
         private readonly ITokenService _tokenService;
-        private readonly IEmailSender _emailSender;
+        private readonly IEmailService _emailSevice;
 
         public AuthRepository(UserManager<AppUser> userManager,
             SignInManager<AppUser> signInManager,
             RoleManager<AppRole> roleManager,
             ITokenService tokenService,
-             IEmailSender emailSender)
+             IEmailService emailService)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _roleManager = roleManager;
             _tokenService = tokenService;
-            _emailSender = emailSender;
+            _emailSevice = emailService;
+        }
+        //Hasing Token 
+        private static string HashRefreshToken(string refreshToken)
+        {
+            return Convert.ToHexString(
+                SHA256.HashData(Encoding.UTF8.GetBytes(refreshToken))
+            );
         }
         //Login 
-        public async Task<AppUser> LoginAsync(LoginRequest loginRequest)
+        public async Task<AuthenticatedResult> LoginAsync(LoginRequest loginRequest)
         {
             var user = await _userManager.FindByNameAsync(loginRequest.UserName.Trim());
 
@@ -49,6 +58,10 @@ namespace ContentHub.Infrastructure.Repositories.Auth
             if (await _userManager.IsLockedOutAsync(user))
             {
                 throw new UnauthorizedAccessException("Your account is locked!");
+            }
+            if (!user.EmailConfirmed)
+            {
+                throw new UnauthorizedAccessException("Please verify your Email first!");
             }
             var result = await _signInManager.CheckPasswordSignInAsync(user,
                 loginRequest.Password,
@@ -68,15 +81,15 @@ namespace ContentHub.Infrastructure.Repositories.Auth
             }
             await _userManager.ResetAccessFailedCountAsync(user);
             //generate Token
-        return await GenerateAccessTokenAsync(user);
-           
+            return await GenerateTokenPairAsync(user);
+
 
 
 
         }
 
-        //Generate Access Token
-        private async Task<AuthenticatedResult> GenerateAccessTokenAsync(AppUser user)
+        //Generate Access + RefrehToken Token
+        private async Task<AuthenticatedResult> GenerateTokenPairAsync(AppUser user)
         {
             var roles = await _userManager.GetRolesAsync(user);
             var permissions = await GetPermissionsByUserIdAsync(user.Id.ToString());
@@ -99,7 +112,8 @@ namespace ContentHub.Infrastructure.Repositories.Auth
             //Token 
             var accessToken = _tokenService.GenerateAccessToken(claims);
             var refreshToken = _tokenService.GenerateRefreshToken();
-            user.RefreshToken = refreshToken;
+            var refreshTokenHash = HashRefreshToken(refreshToken);
+            user.RefreshToken = refreshTokenHash;
             user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(30);
             var updateResult = await _userManager.UpdateAsync(user);
             if (!updateResult.Succeeded)
@@ -111,27 +125,59 @@ namespace ContentHub.Infrastructure.Repositories.Auth
             };
 
         }
+        //Generate Access Token
+        private async Task<string> GenerateAccessTokenAsync(AppUser user)
+        {
+            var roles = await _userManager.GetRolesAsync(user);
+            var permissions = await GetPermissionsByUserIdAsync(user.Id.ToString());
+            //Get Claim
+            var claims = new List<Claim>
+            {
+                new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
+                new Claim(JwtRegisteredClaimNames.Email, user.Email ?? string.Empty),
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                new Claim(ClaimTypes.Name, user.UserName ?? string.Empty),
+                new Claim(UserClaims.FirstName, user.FirstName ?? string.Empty),
+                new Claim(UserClaims.Roles, string.Join(";", roles)),
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+            };
+            //add permisions
+            foreach (var permission in permissions)
+            {
+                claims.Add(new Claim(AppClaimTypes.Permission, permission));
+            }
+            //Token 
+            var accessToken = _tokenService.GenerateAccessToken(claims);
+            return accessToken;
+        }
         //refresh Token
         public async Task<AuthenticatedResult> RefreshTokenAsync(string refreshToken)
         {
+            var refreshTokenHash = HashRefreshToken(refreshToken);
 
-            var user = await _userManager.Users.Where(u => u.RefreshToken == refreshToken).FirstOrDefaultAsync();
+            var user = await _userManager.Users.Where(u => u.RefreshToken == refreshTokenHash).FirstOrDefaultAsync();
             if (user == null)
             {
                 throw new ArgumentException("User not found!");
             }
             if (user.RefreshTokenExpiryTime <= DateTime.UtcNow)
             {
-                throw new ArgumentException("Refresh token expired!");
+                throw new UnauthorizedAccessException("Refresh token expired");
             }
             var newRefreshToken = _tokenService.GenerateRefreshToken();
-            user.RefreshToken = newRefreshToken;
+            var newRefreshTokenHash = HashRefreshToken(newRefreshToken);
+            user.RefreshToken = newRefreshTokenHash;
             user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(30);
 
             var updateResult = await _userManager.UpdateAsync(user);
             if (!updateResult.Succeeded)
                 throw new Exception("Cannot update refresh token");
-            return await GenerateAccessTokenAsync(user);
+            var accessToken = await GenerateAccessTokenAsync(user);
+            return new AuthenticatedResult
+            {
+                Token = accessToken,
+                RefreshToken = newRefreshToken
+            };
         }
         //Get permissions by UserId
         public async Task<List<string>> GetPermissionsByUserIdAsync(string userId)
@@ -213,7 +259,7 @@ namespace ContentHub.Infrastructure.Repositories.Auth
 
         public async Task SendMailConfirmAsync(string email, string confirmUrl)
         {
-            await _emailSender.SendEmailAsync(
+            await _emailSevice.SendEmailAsync(
                 email,
                 "Confirm your Email to complete registration",
                $@"

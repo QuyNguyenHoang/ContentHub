@@ -24,6 +24,8 @@ using ContentHub.Application.IRepositories.System;
 using ContentHub.Application.IRepositories.Auth;
 using ContentHub.Infrastructure.Services;
 using ContentHub.Infrastructure.Repositories.Auth;
+using Microsoft.OpenApi.Models;
+using ContentHub.Domain.SeedWorks.Constant;
 
 
 Env.Load();
@@ -87,7 +89,10 @@ builder.Services.AddAuthentication(options =>
         ValidAudience = configuration["JwtTokenSettings:Issuer"],
         IssuerSigningKey = new SymmetricSecurityKey(
            Encoding.UTF8.GetBytes(configuration["JwtTokenSettings:Key"]!)
-        )
+        ),
+        RoleClaimType = Roles.Admin,
+        NameClaimType = "sub",
+        
     };
 });
 
@@ -134,7 +139,34 @@ builder.Services.AddControllers().AddJsonOptions(option =>
     option.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
 });
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(options =>
+{
+    options.SwaggerDoc("v1", new OpenApiInfo { 
+        Title = "ContentHub API",
+        Version = "v1",
+    });
+    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        Type = SecuritySchemeType.Http,
+        Scheme = "bearer",
+        BearerFormat = "JWT",
+        In = ParameterLocation.Header,
+        Description = "Input JWT Token"
+    });
+    options.AddSecurityRequirement(new OpenApiSecurityRequirement {
+        {
+            new OpenApiSecurityScheme
+            {
+               Reference = new OpenApiReference {
+                   Type = ReferenceType.SecurityScheme,
+                   Id = "Bearer"
+               }
+            },
+            Array.Empty<string>()
+        }
+    });
+});
 
 
 

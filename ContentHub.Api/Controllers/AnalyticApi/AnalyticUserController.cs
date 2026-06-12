@@ -1,12 +1,16 @@
-﻿using ContentHub.Application.IRepositories;
+﻿using CloudinaryDotNet.Actions;
+using ContentHub.Application.IRepositories;
 using ContentHub.Application.Models.AnalyticDto;
 using ContentHub.Application.Models.System.UserDto;
+using ContentHub.Domain.SeedWorks.Constant;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ContentHub.Api.Controllers.AnalyticApi
 {
     [Route("api/admin/analytic/users")]
+    [Authorize(Roles = Roles.Admin)]
     [ApiController]
     public class AnalyticUserController : ControllerBase
     {

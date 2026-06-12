@@ -1,26 +1,18 @@
 import { useState, useRef, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { DecodeToken } from "../../../../../api/extentions/decodeToken";
+
 import { userApi } from "../../../../../api/system/user.api";
 import {
-  BsArrow90DegDown,
-  BsArrowBarLeft,
   BsArrowBarRight,
-  BsArrowDown,
   BsBellFill,
   BsBoxArrowInRight,
-  BsChevronBarDown,
   BsChevronDown,
   BsFacebook,
-  BsHouse,
   BsHouseDoorFill,
-  BsHouseExclamation,
   BsInfoCircle,
   BsLightbulb,
-  BsLightbulbFill,
   BsList,
   BsMortarboard,
-  BsNewspaper,
   BsPeople,
   BsPersonPlus,
   BsPlayBtn,
@@ -47,14 +39,14 @@ export default function AppHeaderUser() {
 
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const user = DecodeToken.accessToken();
-    const id = user?.userId;
+  // useEffect(() => {
+  //   const user = decodeToken.accessToken();
+  //   const id = user?.userId;
 
-    if (id) {
-      setAuthId(id);
-    }
-  }, []);
+  //   if (id) {
+  //     setAuthId(id);
+  //   }
+  // }, []);
 
   useEffect(() => {
     if (!authId) return;
@@ -194,12 +186,11 @@ export default function AppHeaderUser() {
                     Trang chủ
                   </Link>
                 </li>
-                 <li className="nav-item">
+                <li className="nav-item">
                   <Link className="nav-link" to="/courses">
-                     Portfolio
+                    Portfolio
                   </Link>
                 </li>
-                
 
                 <li className="nav-item">
                   <Link className="nav-link" to="/posts">
@@ -208,10 +199,9 @@ export default function AppHeaderUser() {
                 </li>
                 <li className="nav-item">
                   <Link className="nav-link" to="/courses">
-                     Tài liệu
+                    Tài liệu
                   </Link>
                 </li>
-                
 
                 <li className="nav-item">
                   <Link className="nav-link" to="/about">
@@ -588,7 +578,7 @@ export default function AppHeaderUser() {
         <div
           ref={overlayRef}
           className="search-overlay"
-          style={{zIndex:"2000"}}
+          style={{ zIndex: "2000" }}
           onClick={handleOverlayClick}
         >
           <div className="container-fluid shadow-lg rounded-2 bg-light">

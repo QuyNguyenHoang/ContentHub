@@ -1,30 +1,53 @@
-import {jwtDecode} from "jwt-decode";
+import { jwtDecode } from "jwt-decode";
 
-export interface TokenPayLoad {
-  userId?: string;
-  userName?: string;
-  email?: string;
-  firstName?: string;
-  roles?: string;
+export interface TokenPayload {
+  userId: string;
+  userName: string;
+  email: string;
+  firstName: string;
+  roles: string;
 }
 
-export const DecodeToken = {
-  accessToken: (): TokenPayLoad | null => {
-    const token = localStorage.getItem("access_token");
-    if (!token) return null;
+interface JwtClaims {
+  sub?: string;
+  email?: string;
+  firstName?: string;
+  role?: string;
+  roles?: string;
 
-    try {
-      const decoded: any = jwtDecode(token); // 'any' để map các claim
-      return {
-        userId: decoded.sub || decoded['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'],
-        userName: decoded['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name'] || decoded.userName,
-        email: decoded.email,
-        firstName: decoded.firstName,
-        roles: decoded.roles,
-      };
-    } catch (error) {
-      console.error("Invalid token", error);
-      return null;
-    }
-  },
+  [key: string]: any;
+}
+
+export const decodeToken = (token: string): TokenPayload | null => {
+  if (!token?.trim()) {
+    return null;
+  }
+
+  try {
+    const claims = jwtDecode<JwtClaims>(token);
+
+    return {
+      userId:
+        claims.sub ??
+        claims[
+          "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"
+        ] ??
+        "",
+
+      userName:
+        claims["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"] ??
+        claims.unique_name ??
+        claims.userName ??
+        "",
+
+      email: claims.email ?? "",
+
+      firstName: claims.firstName ?? "",
+
+      roles: claims.role || claims.roles || "",
+    };
+  } catch (error) {
+    console.error("Failed to decode JWT token", error);
+    return null;
+  }
 };

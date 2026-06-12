@@ -1,11 +1,14 @@
-import { lazy } from "react";
+import { Children, lazy } from "react";
 import DefaultLayout from "../components/layouts/adminLayout";
 import UserLayout from "../components/layouts/userLayout";
 import RolePermission from "../pages/system/role.permission";
-
+import LoginComponent from "../features/auth/LoginComponent";
+import authSlice from "../components/layouts/store/slices/authSlice";
+import AdminGuard from "../api/extentions/adminGuad";
+const NotFoundPage = lazy(() => import("../pages/ErrorPage/404"));
 const Home = lazy(() => import("../pages/home/Home"));
 const ContentHub = lazy(() => import("../pages/home/ContentHub"));
-const Login = lazy(() => import("../pages/auth/login/LoginUI"));
+const Login = lazy(() => import("../pages/auth/login/LoginForm"));
 const ApiTest = lazy(() => import("../features/test/ApiTest"));
 const Dashboard = lazy(
   () => import("../features/dashboard/DashBoardComponent"),
@@ -28,23 +31,29 @@ const PostManagement = lazy(
 const UserManagement = lazy(
   () => import("../features/system/UserManagementComponent"),
 );
+//get token
 const routes = [
   {
-    path: "/admin",
-    element: <DefaultLayout />,
+    element: <AdminGuard />,
     children: [
-      { index: true, element: <Home /> },
-      { path: "dashboard", element: <Dashboard /> },
-      { path: "test", element: <ApiTest /> },
-      { path: "roles", element: <RoleList /> },
-      { path: "roles/create", element: <RoleForm /> },
-      { path: "roles/edit/:id", element: <RoleForm /> },
-      { path: "roles/:id/permissions", element: <RolePermission /> },
-      { path: "users/update/:id", element: <UserUpdate /> },
-      { path: "tags", name: "Tags", element: <TagList /> },
-      { path: "series", name: "Series", element: <SeriesList /> },
-      { path: "posts", name: "Posts", element: <PostManagement /> },
-      { path: "users", name: "Users", element: <UserManagement /> },
+      {
+        path: "/admin",
+        element: <DefaultLayout />,
+        children: [
+          { index: true, element: <Home /> },
+          { path: "dashboard", element: <Dashboard /> },
+          { path: "test", element: <ApiTest /> },
+          { path: "roles", element: <RoleList /> },
+          { path: "roles/create", element: <RoleForm /> },
+          { path: "roles/edit/:id", element: <RoleForm /> },
+          { path: "roles/:id/permissions", element: <RolePermission /> },
+          { path: "users/update/:id", element: <UserUpdate /> },
+          { path: "tags", name: "Tags", element: <TagList /> },
+          { path: "series", name: "Series", element: <SeriesList /> },
+          { path: "posts", name: "Posts", element: <PostManagement /> },
+          { path: "users", name: "Users", element: <UserManagement /> },
+        ],
+      },
     ],
   },
   {
@@ -83,10 +92,11 @@ const routes = [
       },
     ],
   },
-  { path: "/login", element: <Login /> },
+  { path: "/login", element: <LoginComponent /> },
   { path: "/register", element: <Regiter /> },
   { path: "posts", element: <PostList /> },
   { path: "/comment", element: <Comment /> },
+  { path: "/404", element: <NotFoundPage /> },
 ];
 
 export default routes;

@@ -7,7 +7,7 @@ namespace ContentHub.Application.IRepositories.Auth
     public interface IAuthRepository
     {
         //Login
-        Task  LoginAsync(LoginRequest loginRequest);
+        Task<AuthenticatedResult>  LoginAsync(LoginRequest loginRequest);
         //Get permissions
         Task<List<string>> GetPermissionsByUserIdAsync(string userId);
         //refresh Token

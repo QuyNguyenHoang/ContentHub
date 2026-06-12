@@ -9,7 +9,7 @@ import TextAlign from "@tiptap/extension-text-align";
 import React, { useEffect, useRef, useState } from "react";
 import { postApi, type Series } from "../../../api/content/post.api";
 import { mediaApi } from "../../../api/extentions/media.api";
-import { DecodeToken } from "../../../api/extentions/decodeToken";
+
 import TagList from "../PostForUserUI/PostTagUI";
 import {
   cilAlignCenter,
@@ -41,10 +41,7 @@ export default function NewPostPage() {
   const [modalSetting, setModalSetting] = useState(false);
   const [loadingMedia, setLoadingMedia] = useState(false);
   const [seriesList, setSeriesList] = useState<Series[]>([]);
-  useEffect(() => {
-    const user = DecodeToken.accessToken();
-    setAuthId(user?.userId || null);
-  }, []);
+ 
   useEffect(() => {
     const fetchSeriesList = async () => {
       try {
