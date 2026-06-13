@@ -32,7 +32,7 @@ export default function AppHeaderUser() {
   const [showOption, setShowOption] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
   const [inf, setInf] = useState<UserInf | null>(null);
-  const [authId, setAuthId] = useState("");
+  const [authId] = useState("");
 
   const inputRef = useRef<HTMLInputElement>(null);
   const overlayRef = useRef<HTMLDivElement>(null);
@@ -157,7 +157,7 @@ export default function AppHeaderUser() {
                   <BsBoxArrowInRight />
                   <span>Login</span>
                 </button>
-                <button className="btn btn-sm btn-outline-light rounded-pill fw-bold d-flex align-items-center gap-1">
+                <button className="btn btn-sm btn-outline-light rounded-pill fw-bold d-flex align-items-center gap-1" onClick={()=> navigate("/register")}>
                   <BsPersonPlus />
                   <span>Register</span>
                 </button>

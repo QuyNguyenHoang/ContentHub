@@ -33,8 +33,9 @@ namespace ContentHub.Api.Controllers.AdminApi
             {
                 HttpOnly = true,
                 Secure = true,
-                SameSite = SameSiteMode.Strict,
-                Expires = DateTime.UtcNow.AddDays(30),
+                SameSite = SameSiteMode.None,
+                Path = "/",
+                Expires = DateTime.UtcNow.AddDays(30)
             });
 
             return Ok(new
@@ -56,18 +57,19 @@ namespace ContentHub.Api.Controllers.AdminApi
             }
 
             var result = await _authRepository.RefreshTokenAsync(refreshToken);
-
+            Console.WriteLine(result.RefreshToken);
             Response.Cookies.Append("refreshToken", result.RefreshToken, new CookieOptions
             {
                 HttpOnly = true,
                 Secure = true,
-                SameSite = SameSiteMode.Strict,
+                SameSite = SameSiteMode.None,
+                Path = "/",
                 Expires = DateTime.UtcNow.AddDays(30)
             });
 
             return Ok(new
             {
-                accessToken = result.Token
+                Token = result.Token
             });
         }
 
@@ -93,7 +95,10 @@ namespace ContentHub.Api.Controllers.AdminApi
             await _authRepository.SendMailConfirmAsync(result.Email, confirmUrl);
 
 
-            return Ok("Register success. Please check email to confirm.");
+            return Ok(new
+            {
+                Message = "Register success. Please check email to confirm."
+            });
         }
 
         // ================= CONFIRM EMAIL =================

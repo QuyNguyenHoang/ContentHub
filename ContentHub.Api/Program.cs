@@ -26,6 +26,7 @@ using ContentHub.Infrastructure.Services;
 using ContentHub.Infrastructure.Repositories.Auth;
 using Microsoft.OpenApi.Models;
 using ContentHub.Domain.SeedWorks.Constant;
+using System.Security.Claims;
 
 
 Env.Load();
@@ -90,8 +91,8 @@ builder.Services.AddAuthentication(options =>
         IssuerSigningKey = new SymmetricSecurityKey(
            Encoding.UTF8.GetBytes(configuration["JwtTokenSettings:Key"]!)
         ),
-        RoleClaimType = Roles.Admin,
-        NameClaimType = "sub",
+        RoleClaimType = ClaimTypes.Role,
+        NameClaimType = "sub"
         
     };
 });

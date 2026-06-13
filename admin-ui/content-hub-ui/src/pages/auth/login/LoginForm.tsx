@@ -1,7 +1,12 @@
 import React, { useState, type Dispatch, type SetStateAction } from "react";
-import { Link } from "react-router-dom";
 import type { LoginRequestDto } from "../../../api/auth/auth.api";
-import { BsEye, BsEyeSlash } from "react-icons/bs";
+import {
+  BsEye,
+  BsEyeSlash,
+  BsFacebook,
+  BsGithub,
+  BsGoogle,
+} from "react-icons/bs";
 
 interface Props {
   handleLogin: (e: React.FormEvent) => void;
@@ -9,6 +14,7 @@ interface Props {
   loading: boolean;
   loginForm: LoginRequestDto;
 }
+
 export default function LoginForm({
   handleLogin,
   setLoginForm,
@@ -16,99 +22,179 @@ export default function LoginForm({
   loginForm,
 }: Props) {
   const [showPassword, setShowPassword] = useState(false);
+
   return (
-    <div className="min-vh-100 d-flex align-items-center bg-light">
-      <div className="container">
-        <div className="row justify-content-center">
-          <div className="col-md-9 col-lg-8 col-xl-7">
-            <div className="d-flex shadow rounded-4 overflow-hidden">
-              {/* LEFT - LOGIN FORM */}
-              <div className="p-4 bg-white flex-fill">
-                <h2 className="fw-bold mb-1">Welcome back 👋</h2>
+    <div className="min-vh-100 d-flex align-items-center justify-content-center bg-light position-relative px-3">
+      {/* SIMPLE BACKGROUND  */}
+      <div className="position-absolute top-0 start-0 w-100 h-100 bg-light">
+        <div
+          className="position-absolute top-0 start-0 w-100 h-100 opacity-50"
+          style={{
+            background:
+              "radial-gradient(circle at 20% 20%, rgba(13,110,253,0.08), transparent 40%), radial-gradient(circle at 80% 80%, rgba(13,110,253,0.06), transparent 40%)",
+          }}
+        />
+      </div>
 
-                <p className="text-secondary mb-4">Sign in to ContentHub</p>
-
-                {/* FORM */}
-                <form onSubmit={handleLogin}>
-                  {/* USERNAME */}
-                  <div className="input-group mb-3">
-                    <span className="input-group-text">👤</span>
-
-                    <input
-                      className="form-control"
-                      placeholder="Username"
-                      value={loginForm.username}
-                      onChange={(e) =>
-                        setLoginForm((prev) => ({
-                          ...prev,
-                          username: e.target.value,
-                        }))
-                      }
-                      required
-                      disabled={loading}
-                    />
-                  </div>
-
-                  {/* PASSWORD */}
-                  <div className="input-group mb-4 position-relative">
-                    <span className="input-group-text">🔒</span>
-
-                    <input
-                      className="form-control"
-                      type={showPassword ? "text" : "password"}
-                      placeholder="Password"
-                      value={loginForm.password}
-                      onChange={(e) =>
-                        setLoginForm((prev) => ({
-                          ...prev,
-                          password: e.target.value,
-                        }))
-                      }
-                      required
-                      disabled={loading}
-                    />
-
-                    {/* TOGGLE PASSWORD */}
-                    <button
-                      type="button"
-                      className="btn btn-sm position-absolute top-50 end-0 translate-middle-y border-0 bg-transparent"
-                      style={{ zIndex: 10 }}
-                      onClick={() => setShowPassword(!showPassword)}
-                    >
-                      {showPassword ? <BsEye /> : <BsEyeSlash />}
-                    </button>
-                  </div>
-
-                  {/* SUBMIT BUTTON */}
-                  <button
-                    type="submit"
-                    className="btn btn-primary w-100 d-flex justify-content-center align-items-center"
-                    disabled={loading}
-                  >
-                    {loading && (
-                      <span className="spinner-border spinner-border-sm me-2" />
-                    )}
-
-                    {loading ? "Logging in..." : "Login"}
-                  </button>
-                </form>
+      {/* CARD */}
+      <div
+        className="w-100 position-relative"
+        style={{ maxWidth: 420, zIndex: 1 }}
+      >
+        <div className="card border-0 shadow-sm rounded-4">
+          <div className="card-body p-4 p-md-5">
+            {/* HEADER */}
+            <div className="text-center mb-4">
+              <div
+                className="mx-auto mb-3 d-flex align-items-center justify-content-center bg-primary text-white rounded-circle"
+                style={{ width: 52, height: 52 }}
+              >
+                <span className="fw-bold">CH</span>
               </div>
 
-              {/* RIGHT - INFO PANEL */}
-              <div className="bg-primary text-white text-center p-4 d-flex flex-column justify-content-center flex-fill">
-                <h3 className="fw-bold">New here?</h3>
+              <h4 className="fw-bold mb-1">Welcome back</h4>
 
-                <p className="opacity-75 mt-2">
-                  Create an account to manage content
-                </p>
-
-                <Link to="/register" className="btn btn-light mt-3">
-                  Register
-                </Link>
-              </div>
+              <p className="text-muted small mb-0">Sign in to ContentHub</p>
             </div>
+
+            {/* FORM */}
+            <form onSubmit={handleLogin}>
+              {/* USERNAME */}
+              <div className="mb-2 ">
+                <label className="form-label small text-muted">Username</label>
+
+                <div></div>
+                <div className="input-group  ">
+                  <span className="input-group-text bg-white">👤</span>
+
+                  <input
+                    className="form-control"
+                    placeholder="Enter username"
+                    value={loginForm.username}
+                    onChange={(e) =>
+                      setLoginForm((prev) => ({
+                        ...prev,
+                        username: e.target.value,
+                      }))
+                    }
+                    autoComplete="username"
+                    disabled={loading}
+                    required
+                  />
+                </div>
+              </div>
+
+              {/* PASSWORD */}
+              <div className="mb-3">
+                <label className="form-label small text-muted">Password</label>
+
+                <div className="input-group input-group">
+                  <span className="input-group-text bg-white">🔒</span>
+
+                  <input
+                    className="form-control"
+                    type={showPassword ? "text" : "password"}
+                    placeholder="Enter password"
+                    value={loginForm.password}
+                    onChange={(e) =>
+                      setLoginForm((prev) => ({
+                        ...prev,
+                        password: e.target.value,
+                      }))
+                    }
+                    autoComplete="current-password"
+                    disabled={loading}
+                    required
+                  />
+
+                  <button
+                    type="button"
+                    className="btn btn-outline-secondary"
+                    onClick={() => setShowPassword(!showPassword)}
+                    tabIndex={-1}
+                  >
+                    {showPassword ? <BsEye /> : <BsEyeSlash />}
+                  </button>
+                </div>
+              </div>
+
+              {/* OPTIONS */}
+              <div className="d-flex justify-content-between align-items-center mb-4">
+                <div className="form-check">
+                  <input
+                    className="form-check-input"
+                    type="checkbox"
+                    id="rememberMe"
+                  />
+                  <label className="form-check-label small text-muted">
+                    Remember me
+                  </label>
+                </div>
+
+                <a href="#" className="small text-decoration-none text-primary">
+                  Forgot password?
+                </a>
+              </div>
+
+              <div className="d-flex flex-column justify-content-center align-items-center gap-2">
+                {/* BUTTON */}
+                <button
+                  type="submit"
+                  className="btn btn-outline-primary w-100 py-2 fw-semibold d-flex justify-content-center align-items-center"
+                  disabled={loading}
+                >
+                  {loading && (
+                    <span className="spinner-border spinner-border-sm me-2" />
+                  )}
+                  {loading ? "Signing in..." : "Sign in"}
+                </button>
+                <span>Or</span>
+                {/* Social Login */}
+                <div className="d-flex gap-2">
+                  <button
+                    type="button"
+                    className="btn btn-sm btn-outline-danger flex-fill d-flex align-items-center justify-content-center gap-2"
+                  >
+                    <BsGoogle />
+                    <span>Google</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    className="btn btn-sm btn-outline-primary flex-fill d-flex align-items-center justify-content-center gap-2"
+                  >
+                    <BsFacebook />
+                    <span>Facebook</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    className="btn btn-sm btn-outline-dark flex-fill d-flex align-items-center justify-content-center gap-2"
+                  >
+                    <BsGithub />
+                    <span>GitHub</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* FOOTER */}
+              <div className="text-center mt-4">
+                <span className="text-muted small">Don’t have an account?</span>{" "}
+                <a
+                  href="/register"
+                  className="small text-primary text-decoration-none fw-semibold"
+                >
+                  Create account
+                </a>
+              </div>
+            </form>
           </div>
         </div>
+
+        {/* FOOT NOTE */}
+        <p className="text-center text-muted small mt-3 mb-0">
+          Secure login • ContentHub
+        </p>
       </div>
     </div>
   );

@@ -11,51 +11,53 @@ export default function DashBoardComponent() {
   const [topUser, setTopUser] = useState<UserDto[]>([]);
   //Total posts
 
-  const [totalPostFilter,setTotalPostFilter] = useState<TimeRange>(TimeRange.All);
+  const [totalPostFilter, setTotalPostFilter] = useState<TimeRange>(
+    TimeRange.All,
+  );
   const [growth, setGrowth] = useState(0);
   const [totalPost, setTotalPost] = useState(0);
   const loadTotalPostCount = async () => {
     try {
       setLoading(true);
       const res = await analyticApi.getTotalPosts(totalPostFilter);
-      const data = res.data
+      const data = res.data;
       setTotalPost(data.totalPost);
       setGrowth(data.growth);
       console.log(totalPost);
     } catch (error) {
       console.error("Load total posts failed:", error);
       return 0;
-    }
-    finally{
+    } finally {
       setLoading(false);
     }
   };
-  useEffect(()=>{
+  useEffect(() => {
     loadTotalPostCount();
-  },[totalPostFilter])
+  }, [totalPostFilter]);
   //total user
   const [totalUser, setTotalUser] = useState(0);
-    const [growthUser, setGrowthUser] = useState(0);
-  const [totalUserFilter,setTotalUserFilter] = useState<TimeRange>(TimeRange.All);
-    const loadTotalUserCount = async () => {
+  const [growthUser, setGrowthUser] = useState(0);
+  const [totalUserFilter, setTotalUserFilter] = useState<TimeRange>(
+    TimeRange.All,
+  );
+  const loadTotalUserCount = async () => {
     try {
       setLoading(true);
       const res = await analyticApi.getTotalUsers(totalUserFilter);
-      const data = res.data
+      const data = res.data;
       setTotalUser(data.totalUser);
       setGrowthUser(data.growth);
       console.log(totalUser);
     } catch (error) {
       console.error("Load total user failed:", error);
       return 0;
-    }
-    finally{
+    } finally {
       setLoading(false);
     }
   };
-  useEffect(()=>{
+  useEffect(() => {
     loadTotalUserCount();
-  },[totalUserFilter])
+  }, [totalUserFilter]);
   const [loading, setLoading] = useState(false);
   const loadTopUser = async () => {
     try {

@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace ContentHub.Api.Controllers.AnalyticApi
 {
     [Route("api/admin/analytic/users")]
-    [Authorize(Roles = Roles.Admin)]
+    [Authorize(Roles = "admin")]
     [ApiController]
     public class AnalyticUserController : ControllerBase
     {

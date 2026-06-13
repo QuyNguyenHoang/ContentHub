@@ -1,50 +1,43 @@
-import axios from 'axios'
+import axios from "axios";
+import store from "../components/layouts/store/store";
 
 const axiosClient = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
-  timeout: 100000,
-    withCredentials: true,
+  timeout: 10000,
+  withCredentials: true,
   headers: {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
   },
-  
-  
- 
-})
+});
 
-// =========================
-// REQUEST INTERCEPTOR
-// =========================
+// REQUEST
 axiosClient.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('access_token')
+    const token = store.getState().auth.accessToken;
 
-    if (token && config.headers) {
-      config.headers.set('Authorization', `Bearer ${token}`)
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
     }
 
-    return config
+    return config;
   },
-  (error) => Promise.reject(error)
-)
+  (error) => Promise.reject(error),
+);
 
-// =========================
-// RESPONSE INTERCEPTOR
-// =========================
-let isRedirecting = false
-
+// RESPONSE
 axiosClient.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401 && !isRedirecting) {
-      isRedirecting = true
+    if (error.response?.status === 401) {
+      console.error("Unauthorized");
 
-      localStorage.removeItem('access_token')
-      window.location.href = '/login'
+      // Không redirect ở đây
+      // Không refresh ở đây
+      // Chỉ trả lỗi về component xử lý
     }
 
-    return Promise.reject(error)
-  }
-)
+    return Promise.reject(error);
+  },
+);
 
-export default axiosClient
+export default axiosClient;

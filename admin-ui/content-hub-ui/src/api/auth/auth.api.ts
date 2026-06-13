@@ -13,17 +13,21 @@ export interface RegisterRequestDto{
   confirmPassword: string
   dob: string | null
 }
+export interface RegisterResponseDto{
+    message?:string;
+}
 export interface LoginResponseDto {
     token:string;
+    message?:string;
 }
 export const authApi = {
     loginApi:(data:LoginRequestDto) => {
         return axiosClient.post<LoginResponseDto>("/api/admin/auth/login", data)
     },
     registerApi:(data:RegisterRequestDto) => {
-        return axiosClient.post<string>("/api/admin/auth/register", data)
+        return axiosClient.post<RegisterResponseDto>("/api/admin/auth/register", data)
     },
     refreshTokenApi:()=>{
-        return axiosClient.post("/api/admin/auth/refresh_token")
+        return axiosClient.post<LoginResponseDto>("/api/admin/auth/refresh_token")
     }
 }

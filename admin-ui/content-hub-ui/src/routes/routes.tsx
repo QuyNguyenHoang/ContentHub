@@ -1,14 +1,13 @@
-import { Children, lazy } from "react";
+import { lazy } from "react";
 import DefaultLayout from "../components/layouts/adminLayout";
 import UserLayout from "../components/layouts/userLayout";
 import RolePermission from "../pages/system/role.permission";
 import LoginComponent from "../features/auth/LoginComponent";
-import authSlice from "../components/layouts/store/slices/authSlice";
 import AdminGuard from "../api/extentions/adminGuad";
+import RegisterComponent from "../features/auth/RegisterComponent";
 const NotFoundPage = lazy(() => import("../pages/ErrorPage/404"));
 const Home = lazy(() => import("../pages/home/Home"));
 const ContentHub = lazy(() => import("../pages/home/ContentHub"));
-const Login = lazy(() => import("../pages/auth/login/LoginForm"));
 const ApiTest = lazy(() => import("../features/test/ApiTest"));
 const Dashboard = lazy(
   () => import("../features/dashboard/DashBoardComponent"),
@@ -16,7 +15,6 @@ const Dashboard = lazy(
 const RoleList = lazy(() => import("../features/system/Role"));
 const RoleForm = lazy(() => import("../pages/system/role.form"));
 const UserUpdate = lazy(() => import("../pages/system/user.update"));
-const Regiter = lazy(() => import("../pages/auth/register/Register"));
 const TagList = lazy(() => import("../features/content/TagComponent"));
 const SeriesList = lazy(() => import("../features/content/SeriesComponent"));
 const PostList = lazy(() => import("../features/content/PostComponent"));
@@ -93,7 +91,7 @@ const routes = [
     ],
   },
   { path: "/login", element: <LoginComponent /> },
-  { path: "/register", element: <Regiter /> },
+  { path: "/register", element: <RegisterComponent /> },
   { path: "posts", element: <PostList /> },
   { path: "/comment", element: <Comment /> },
   { path: "/404", element: <NotFoundPage /> },

@@ -155,7 +155,11 @@ namespace ContentHub.Infrastructure.Repositories.Auth
         {
             var refreshTokenHash = HashRefreshToken(refreshToken);
 
+            var hash = await _userManager.Users.Where(u => u.UserName == "QuyNguyen").Select(u => u.RefreshToken).FirstOrDefaultAsync();
             var user = await _userManager.Users.Where(u => u.RefreshToken == refreshTokenHash).FirstOrDefaultAsync();
+            Console.WriteLine("COOKIE: " + refreshToken);
+            Console.WriteLine("Hash" + hash);
+            Console.WriteLine("HASH COOKIE: " + HashRefreshToken(refreshToken));
             if (user == null)
             {
                 throw new ArgumentException("User not found!");

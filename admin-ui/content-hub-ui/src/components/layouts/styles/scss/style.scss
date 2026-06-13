@@ -1,5 +1,4 @@
-@use "@coreui/coreui/scss/coreui" as * with ( 
-  $enable-deprecation-messages: false,
+@use "@coreui/coreui/scss/coreui" as * with ($enable-deprecation-messages: false,
 );
 @use "@coreui/chartjs/scss/coreui-chartjs";
 @use "vendors/simplebar";
@@ -15,7 +14,7 @@ body {
   @include transition(padding .15s);
 }
 
-.header > .container-fluid,
+.header>.container-fluid,
 .sidebar-header {
   min-height: calc(4rem + 1px); // stylelint-disable-line function-disallowed-list
 }
@@ -48,7 +47,7 @@ body {
   }
 }
 
-.header > .container-fluid + .container-fluid {
+.header>.container-fluid+.container-fluid {
   min-height: 3rem;
 }
 
@@ -65,6 +64,7 @@ body {
     --cui-footer-bg: var(--cui-body-bg);
   }
 }
+
 //row hover
 .table-row {
   transition: background-color 0.2s ease;
@@ -104,15 +104,25 @@ body {
 
   border-radius: 8px;
 }
+
 @keyframes blink {
-  0% { opacity: 1; }
-  50% { opacity: 0.3; }
-  100% { opacity: 1; }
+  0% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.3;
+  }
+
+  100% {
+    opacity: 1;
+  }
 }
+
 @keyframes blink {
   0% {
     opacity: 2;
-    color: red;
+    color: rgb(77, 237, 13);
   }
 
   50% {
@@ -121,7 +131,7 @@ body {
 
   100% {
     opacity: 1;
-    color: red;
+    color: rgb(48, 237, 10);
   }
 }
 
@@ -129,6 +139,7 @@ body {
   animation: blink 1s infinite;
   font-weight: bold;
 }
+
 // .card{
 //   border-radius: 16px;
 //   border: 1px solid #e5e7eb;
@@ -159,6 +170,7 @@ body {
 .read-the-docs {
   color: #888;
 }
+
 /* home page */
 .hero-carousel .carousel-inner {
   border-radius: 20px;
