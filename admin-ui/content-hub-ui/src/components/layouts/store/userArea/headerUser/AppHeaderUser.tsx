@@ -1,7 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
-import { userApi } from "../../../../../api/system/user.api";
 import {
   BsArrowBarRight,
   BsBellFill,
@@ -19,50 +18,36 @@ import {
   BsQuestionCircle,
   BsSearch,
 } from "react-icons/bs";
-
-export interface UserInf {
-  avatar?: string | null;
-  fullName?: string;
-  userName: string;
-}
+import { useDispatch, useSelector } from "react-redux";
+import type { RootState } from "./../../store";
+import { logout } from "../../slices/authSlice";
+import { authApi } from "../../../../../api/auth/auth.api";
 
 const DEFAULT_AVATAR = "https://cdn-icons-png.flaticon.com/512/149/149071.png";
 
 export default function AppHeaderUser() {
   const [showOption, setShowOption] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
-  const [inf, setInf] = useState<UserInf | null>(null);
-  const [authId] = useState("");
-
+  //Check login + user inf
+  const { user } = useSelector((state: RootState) => state.auth);
+ const dispatch = useDispatch();
   const inputRef = useRef<HTMLInputElement>(null);
   const overlayRef = useRef<HTMLDivElement>(null);
+ 
 
+  //log out
+  const handleLogout = async () => {
+    try{
+        await authApi.logOut();
+        dispatch(logout());
+    }
+    catch(error)
+    {
+      console.log(error,"Logout failed!!!")
+    }  
+  }
   const navigate = useNavigate();
-
-  // useEffect(() => {
-  //   const user = decodeToken.accessToken();
-  //   const id = user?.userId;
-
-  //   if (id) {
-  //     setAuthId(id);
-  //   }
-  // }, []);
-
-  useEffect(() => {
-    if (!authId) return;
-
-    const fetchUser = async () => {
-      try {
-        const res = await userApi.getById(authId);
-        setInf(res.data);
-      } catch (err) {
-        console.log(err);
-      }
-    };
-
-    fetchUser();
-  }, [authId]);
-
+ 
   useEffect(() => {
     if (showSearch) {
       inputRef.current?.focus();
@@ -89,10 +74,6 @@ export default function AppHeaderUser() {
     }
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem("access_token");
-    window.location.href = "/login";
-  };
 
   return (
     <>
@@ -147,7 +128,7 @@ export default function AppHeaderUser() {
               </Link>
             </div>
           </div>
-          {!inf && (
+          {!user && (
             <div>
               <div className="d-flex gap-2">
                 <button
@@ -157,7 +138,10 @@ export default function AppHeaderUser() {
                   <BsBoxArrowInRight />
                   <span>Login</span>
                 </button>
-                <button className="btn btn-sm btn-outline-light rounded-pill fw-bold d-flex align-items-center gap-1" onClick={()=> navigate("/register")}>
+                <button
+                  className="btn btn-sm btn-outline-light rounded-pill fw-bold d-flex align-items-center gap-1"
+                  onClick={() => navigate("/register")}
+                >
                   <BsPersonPlus />
                   <span>Register</span>
                 </button>
@@ -213,7 +197,7 @@ export default function AppHeaderUser() {
 
             {/* RIGHT SIDE */}
             <div className="ms-auto d-flex align-items-center gap-3">
-              {inf && (
+              {user && (
                 <>
                   <button
                     className="btn btn-success btn-sm px-3"
@@ -270,7 +254,7 @@ export default function AppHeaderUser() {
                         data-bs-toggle="dropdown"
                       >
                         <img
-                          src={inf.avatar || DEFAULT_AVATAR}
+                          src={ DEFAULT_AVATAR}
                           width={32}
                           height={32}
                           className="rounded-circle"
@@ -284,10 +268,10 @@ export default function AppHeaderUser() {
                             to="/profile"
                             className="text-decoration-none text-dark"
                           >
-                            <div className="fw-semibold">{inf.fullName}</div>
+                            <div className="fw-semibold">{user.userName}</div>
 
                             <small className="text-muted">
-                              @{inf.userName}
+                              @{user.userName}
                             </small>
                           </Link>
                         </li>
@@ -307,7 +291,7 @@ export default function AppHeaderUser() {
                         <li>
                           <button
                             className="dropdown-item text-danger"
-                            onClick={handleLogout}
+                            onClick={()=>handleLogout()}
                           >
                             🚪 Logout
                           </button>
@@ -539,7 +523,7 @@ export default function AppHeaderUser() {
               </ul>
             </li>
             <li>
-              {inf ? (
+              {user ? (
                 <div>
                   <div className="d-flex justify-content-end gap-2">
                     <button

@@ -3,6 +3,7 @@ import axiosClient from "./../../config/axios";
 
 export interface UserDto {
   id: string;
+  userId:number;
   firstName: string;
   lastName: string;
   fullName: string;

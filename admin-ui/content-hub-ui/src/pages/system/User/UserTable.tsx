@@ -32,6 +32,7 @@ export default function UserTable({
                 onChange={handleToggleSelectUser}
               />
             </th>
+            <th>Id</th>
             <th>User</th>
             <th>User Name</th>
             <th>Email</th>
@@ -59,7 +60,9 @@ export default function UserTable({
                     onClick={(e)=>e.stopPropagation() }
                   />
                 </td>
-
+                <td>
+                  {"0000" + u.userId}
+                </td>
                 <td>
                   <span>
                     <img

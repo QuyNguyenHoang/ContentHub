@@ -12,7 +12,7 @@ export default function AdminGuard() {
   if (!accessToken) return <Navigate to="/404" replace />;
 
   const roles = user?.roles?.split(";") || [];
-
+  console.log(roles);
   if (!roles.includes("admin")) {
     return <Navigate to="/403" replace />;
   }

@@ -72,10 +72,10 @@ builder.Services.Configure<JwtTokenSettings>(
 
 builder.Services.AddAuthentication(options =>
 {
-    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultAuthenticateScheme = "Local";
+    options.DefaultChallengeScheme = "Local";
 })
-.AddJwtBearer(options =>
+.AddJwtBearer("Local", options =>
 {
     options.RequireHttpsMetadata = false;
     options.SaveToken = true;
@@ -93,7 +93,22 @@ builder.Services.AddAuthentication(options =>
         ),
         RoleClaimType = ClaimTypes.Role,
         NameClaimType = "sub"
-        
+
+    };
+})
+.AddJwtBearer("Auth0", options =>
+{
+    options.Authority = "https://contenthub-dev.us.auth0.com/";
+
+    options.Audience = "ContentHub.Api";
+
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ClockSkew = TimeSpan.Zero
     };
 });
 

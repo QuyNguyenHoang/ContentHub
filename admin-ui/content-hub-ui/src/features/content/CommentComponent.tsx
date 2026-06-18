@@ -1,6 +1,5 @@
 import * as signalR from "@microsoft/signalr";
-import { DecodeToken } from "../../api/extentions/decodeToken";
-import {  useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import PostComment from "../../pages/content/PostForUserUI/PostComment";
 import {
@@ -11,8 +10,6 @@ import CIcon from "@coreui/icons-react";
 import { cilCheck, cilSwapVertical } from "@coreui/icons";
 
 export default function Comment() {
-
-
   const [loading, setLoading] = useState(false);
   const [pageNumber, setPageNumber] = useState(1);
   const [filterBox, setFilter] = useState("all");
@@ -35,22 +32,22 @@ export default function Comment() {
   const postId = slug ? slug.slice(-36) : null;
 
   //Delete
- const handleDelete = async (id: string) => {
-  try {
-    await commentApi.deleteComment(id);
-  } catch (error) {
-    console.error(error);
-  }
-};
-
-  useEffect(() => {
-    const userInf = DecodeToken.accessToken();
-    const userId = userInf?.userId;
-    if (!userId) {
-      navigate("/login");
+  const handleDelete = async (id: string) => {
+    try {
+      await commentApi.deleteComment(id);
+    } catch (error) {
+      console.error(error);
     }
-    setAuthId(userId || null);
-  }, [navigate]);
+  };
+
+  // useEffect(() => {
+  //   const userInf = DecodeToken.accessToken();
+  //   const userId = userInf?.userId;
+  //   if (!userId) {
+  //     navigate("/login");
+  //   }
+  //   setAuthId(userId || null);
+  // }, [navigate]);
 
   const mergeComments = (
     prev: CommentResponse[],

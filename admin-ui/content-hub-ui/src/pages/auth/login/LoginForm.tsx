@@ -6,11 +6,14 @@ import {
   BsFacebook,
   BsGithub,
   BsGoogle,
+  BsLock,
+  BsPerson,
 } from "react-icons/bs";
 
 interface Props {
   handleLogin: (e: React.FormEvent) => void;
   setLoginForm: Dispatch<SetStateAction<LoginRequestDto>>;
+  loginWithRedirect: () => void;
   loading: boolean;
   loginForm: LoginRequestDto;
 }
@@ -18,6 +21,7 @@ interface Props {
 export default function LoginForm({
   handleLogin,
   setLoginForm,
+  loginWithRedirect,
   loading,
   loginForm,
 }: Props) {
@@ -65,7 +69,9 @@ export default function LoginForm({
 
                 <div></div>
                 <div className="input-group  ">
-                  <span className="input-group-text bg-white">👤</span>
+                  <span className="input-group-text">
+                    <BsPerson/>
+                  </span>
 
                   <input
                     className="form-control"
@@ -89,7 +95,9 @@ export default function LoginForm({
                 <label className="form-label small text-muted">Password</label>
 
                 <div className="input-group input-group">
-                  <span className="input-group-text bg-white">🔒</span>
+                  <span className="input-group-text">
+                    <BsLock />
+                  </span>
 
                   <input
                     className="form-control"
@@ -107,14 +115,16 @@ export default function LoginForm({
                     required
                   />
 
-                  <button
-                    type="button"
-                    className="btn btn-outline-secondary"
-                    onClick={() => setShowPassword(!showPassword)}
-                    tabIndex={-1}
-                  >
-                    {showPassword ? <BsEye /> : <BsEyeSlash />}
-                  </button>
+                  <span className="input-group-text p-0">
+                    <button
+                      type="button"
+                      className="btn border-0 "
+                      onClick={() => setShowPassword(!showPassword)}
+                      tabIndex={-1}
+                    >
+                      {showPassword ? <BsEye /> : <BsEyeSlash />}
+                    </button>
+                  </span>
                 </div>
               </div>
 
@@ -154,6 +164,7 @@ export default function LoginForm({
                   <button
                     type="button"
                     className="btn btn-sm btn-outline-danger flex-fill d-flex align-items-center justify-content-center gap-2"
+                    onClick={()=>loginWithRedirect()}
                   >
                     <BsGoogle />
                     <span>Google</span>

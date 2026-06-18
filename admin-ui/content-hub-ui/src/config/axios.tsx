@@ -3,7 +3,7 @@ import store from "../components/layouts/store/store";
 
 const axiosClient = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
-  timeout: 10000,
+  timeout: 60000,
   withCredentials: true,
   headers: {
     "Content-Type": "application/json",

@@ -8,6 +8,8 @@ namespace ContentHub.Application.IRepositories.Auth
     {
         //Login
         Task<AuthenticatedResult>  LoginAsync(LoginRequest loginRequest);
+        //Login with Auth0 (google)
+        Task<AuthenticatedResult> Auth0LoginAsync(string auth0Token);
         //Get permissions
         Task<List<string>> GetPermissionsByUserIdAsync(string userId);
         //refresh Token

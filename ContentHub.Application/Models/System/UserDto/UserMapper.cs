@@ -9,6 +9,7 @@ namespace ContentHub.Application.Models.System.UserDto
             return new UserResponseDto
             {
                 Id = user.Id,
+                UserId = user.UserId,
                 FirstName = user.FirstName,
                 LastName = user.LastName,
                 IsActive = user.IsActive,

@@ -8,8 +8,8 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace ContentHub.Api.Controllers.AdminApi
 {
-    [Route("api/admin/auth")]
     [ApiController]
+    [Route("api/admin/auth")]
     public class AuthController : ControllerBase
     {
         private readonly IAuthRepository _authRepository;
@@ -43,13 +43,31 @@ namespace ContentHub.Api.Controllers.AdminApi
                 Token = result.Token,
             });
         }
+        //Login with Auth0
+        [HttpPost("google_login")]
+        public async Task<ActionResult> GoogleLogin([FromBody] string auth0Token)
+        {
+            var result = await _authRepository.Auth0LoginAsync(auth0Token);
+            Response.Cookies.Append("refreshToken", result.RefreshToken, new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.None,
+                Path = "/",
+                Expires = DateTime.UtcNow.AddDays(30)
+            });
 
+            return Ok(new
+            {
+                Token = result.Token,
+            });
+        }
         //Refresh Token
         [HttpPost("refresh_token")]
         public async Task<ActionResult> RefreshToken()
         {
             var refreshToken = Request.Cookies["refreshToken"];
-            
+
 
             if (string.IsNullOrEmpty(refreshToken))
             {
@@ -110,6 +128,26 @@ namespace ContentHub.Api.Controllers.AdminApi
             var result = await _authRepository.ConfirmEmailAsync(userId, token);
 
             return Ok(result);
+        }
+        //LogOut
+        [HttpPost("logout")]
+        public IActionResult Logout()
+        {
+            Console.WriteLine(
+                "Before delete: " +
+                Request.Cookies["refreshToken"]
+            );
+
+            Response.Cookies.Delete(
+                "refreshToken",
+                new CookieOptions
+                {
+                    Path = "/",
+                    Secure = true,
+                    SameSite = SameSiteMode.None
+                });
+
+            return Ok();
         }
     }
 }

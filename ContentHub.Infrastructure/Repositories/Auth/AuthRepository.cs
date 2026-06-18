@@ -16,6 +16,7 @@ using System.Reflection;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
+using static ContentHub.Domain.SeedWorks.Constant.Permissions;
 
 namespace ContentHub.Infrastructure.Repositories.Auth
 {
@@ -83,10 +84,66 @@ namespace ContentHub.Infrastructure.Repositories.Auth
             //generate Token
             return await GenerateTokenPairAsync(user);
 
-
-
-
         }
+        //Login with Auth0 (google)
+        public async Task<AuthenticatedResult> Auth0LoginAsync(string auth0Token)
+        {
+            var refreshTokenHash = HashRefreshToken(auth0Token);
+            var user = await _userManager.Users.Where(u => u.RefreshToken == auth0Token).FirstOrDefaultAsync();
+            if (user == null)
+            {
+                throw new ArgumentException("User not found!");
+            }
+            if (user.RefreshTokenExpiryTime <= DateTime.UtcNow)
+            {
+                throw new UnauthorizedAccessException("Refresh token expired");
+            }
+            var handler = new JwtSecurityTokenHandler();
+            var jwt = handler.ReadJwtToken(auth0Token);
+
+            // 🔥 Auth0 user id (quan trọng nhất)
+            var auth0Id = jwt.Claims.FirstOrDefault(x => x.Type == "sub")?.Value;
+            Console.WriteLine(auth0Id);
+
+            // email + name (có thể null nếu chưa bật scope)
+            var email = jwt.Claims.FirstOrDefault(x => x.Type == "email")?.Value;
+            var name = jwt.Claims.FirstOrDefault(x => x.Type == "name")?.Value;
+            var picture = jwt.Claims.FirstOrDefault(x => x.Type == "picture")?.Value;
+
+            if (string.IsNullOrEmpty(auth0Id))
+                throw new Exception("Invalid token: missing sub");
+
+            if (user == null)
+            {
+                user = new AppUser
+                {
+                    Id = Guid.NewGuid(),
+                    ProviderUserId = auth0Id,
+                    Email = email,
+                    UserName = email,
+                    Avatar = picture,
+                    DateCreated = DateTime.UtcNow,
+                    LoginProvider = "Google",
+                    IsActive = true
+                };
+
+                var createResult = await _userManager.CreateAsync(user);
+                await _userManager.AddToRoleAsync(user, Domain.SeedWorks.Constant.Roles.User);
+                if (!createResult.Succeeded)
+                    throw new Exception("Cannot create Auth0 user");
+            }
+            else
+            {
+                user.Email = email;
+                user.UserName = email;
+                user.Avatar = picture;
+
+                await _userManager.UpdateAsync(user);
+            }
+
+            return await GenerateTokenPairAsync(user);
+        }
+    
 
         //Generate Access + RefrehToken Token
         private async Task<AuthenticatedResult> GenerateTokenPairAsync(AppUser user)
@@ -194,7 +251,7 @@ namespace ContentHub.Infrastructure.Repositories.Auth
             var roles = await _userManager.GetRolesAsync(user);
             var permissions = new List<string>();
             var allPermissions = new List<RoleClaimsDto>();
-            if (roles.Contains(Roles.Admin))
+            if (roles.Contains(Domain.SeedWorks.Constant.Roles.Admin))
             {
                 var types = typeof(Permissions).GetTypeInfo().DeclaredNestedTypes;
                 foreach (var type in types)
@@ -250,7 +307,7 @@ namespace ContentHub.Infrastructure.Repositories.Auth
             {
                 throw new ArgumentException("Register Acount failed!");
             }
-            await _userManager.AddToRoleAsync(user, Roles.User);
+            await _userManager.AddToRoleAsync(user, Domain.SeedWorks.Constant.Roles.User);
             //create Token
             var tokenConfirmEmail = await _userManager.GenerateEmailConfirmationTokenAsync(user);
             return new RegisterResponseDto

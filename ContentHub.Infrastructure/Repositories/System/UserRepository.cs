@@ -84,6 +84,7 @@ namespace ContentHub.Infrastructure.Repositories.System
             var users = await query
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)
+                .OrderBy(u => u.UserId)
                 .Select(u => u.ToResponse())
                 .ToListAsync();
             foreach (var user in users)

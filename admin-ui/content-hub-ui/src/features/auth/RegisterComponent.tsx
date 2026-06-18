@@ -1,10 +1,22 @@
 import React, { useState } from "react";
-import RegisterForm from "./../../pages/auth/register/RegisterForm";
+import RegisterForm from "../../pages/auth/register/RegisterForm";
 import { authApi, type RegisterRequestDto } from "../../api/auth/auth.api";
-import { Toast, ToastContainer } from "react-bootstrap";
+import Toast from "../../components/common/Toast";
+
+export interface ValidationErrors {
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+  userName?: string;
+  password?: string;
+  confirmPassword?: string;
+  dob?: string;
+}
 
 export default function RegisterComponent() {
   const [loading, setLoading] = useState(false);
+
+  const [errors, setErrors] = useState<ValidationErrors>({});
 
   const [registerForm, setRegisterForm] = useState<RegisterRequestDto>({
     firstName: "",
@@ -13,34 +25,75 @@ export default function RegisterComponent() {
     email: "",
     password: "",
     confirmPassword: "",
-    dob: "",
+    dob: null,
   });
 
-  const [toast, setToast] = useState({
-    show: false,
-    message: "",
-    variant: "success" as "success" | "danger",
-  });
+  // Toast
+  const [alertColor, setAlertColor] = useState<"success" | "danger">("success");
+  const [message, setMessage] = useState("");
+  const [showToast, setShowToast] = useState(false);
 
-  const showToast = (message: string, variant: "success" | "danger") => {
-    setToast({
-      show: true,
-      message,
-      variant,
-    });
+  const showAlert = (
+    message: string,
+    color: "success" | "danger"
+  ) => {
+    setMessage(message);
+    setAlertColor(color);
+    setShowToast(true);
   };
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // clear validation cũ
+    setErrors({});
 
     try {
       setLoading(true);
 
       const res = await authApi.registerApi(registerForm);
 
-      showToast(res.data.message ?? "Register success", "success");
+      showAlert(
+        res.data?.message ?? "Register successful",
+        "success"
+      );
+
+      // reset form nếu muốn
+      setRegisterForm({
+        firstName: "",
+        lastName: "",
+        userName: "",
+        email: "",
+        password: "",
+        confirmPassword: "",
+        dob: "",
+      });
     } catch (error: any) {
-      showToast(error?.response?.data?.message ?? "Register failed", "danger");
+      const apiErrors = error?.response?.data?.errors;
+
+      // Validation Error 400
+      if (apiErrors) {
+        const formattedErrors: ValidationErrors = {};
+
+        Object.entries(apiErrors).forEach(([key, value]) => {
+          const camelKey =
+            key.charAt(0).toLowerCase() + key.slice(1);
+
+          formattedErrors[
+            camelKey as keyof ValidationErrors
+          ] = (value as string[])[0];
+        });
+
+        setErrors(formattedErrors);
+        return;
+      }
+
+      // Server Error / Business Error
+      showAlert(
+        error?.response?.data?.message ??
+          "Register failed",
+        "danger"
+      );
     } finally {
       setLoading(false);
     }
@@ -53,19 +106,16 @@ export default function RegisterComponent() {
         setRegisterForm={setRegisterForm}
         handleRegister={handleRegister}
         loading={loading}
+        errors={errors}
+        setErrors={setErrors}
       />
 
-      <ToastContainer position="top-end" className="p-3">
-        <Toast
-          bg={toast.variant}
-          show={toast.show}
-          onClose={() => setToast((p) => ({ ...p, show: false }))}
-          delay={3000}
-          autohide
-        >
-          <Toast.Body className="text-white">{toast.message}</Toast.Body>
-        </Toast>
-      </ToastContainer>
+      <Toast
+        showToast={showToast}
+        message={message}
+        alertColor={alertColor}
+        onClose={() => setShowToast(false)}
+      />
     </>
   );
 }

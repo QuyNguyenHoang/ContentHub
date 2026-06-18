@@ -1,4 +1,4 @@
-import { Suspense, useEffect, useRef, useState } from "react";
+import { Suspense, useEffect, useRef } from "react";
 import { CSpinner } from "@coreui/react";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -11,15 +11,50 @@ import "bootstrap/dist/js/bootstrap.bundle.min.js";
 
 import { authApi } from "./api/auth/auth.api";
 import { decodeToken } from "./api/extentions/decodeToken";
-import { loginSuccess, logout, setAuthLoading } from "./components/layouts/store/slices/authSlice";
+import {
+  loginSuccess,
+  logout,
+  setAuthLoading,
+} from "./components/layouts/store/slices/authSlice";
 import type { RootState } from "./components/layouts/store/store";
+
+// 🔥 AUTH0 ADD
+import { useAuth0 } from "@auth0/auth0-react";
 
 export default function App() {
   const dispatch = useDispatch();
   const { isAuthLoading } = useSelector((state: RootState) => state.auth);
 
- 
-  const hasRefreshed = useRef(false); // ✅ LOCK
+  const hasRefreshed = useRef(false);
+  const { getIdTokenClaims } = useAuth0();
+  const { isAuthenticated: isAuth0Authenticated, isLoading: isAuth0Loading } =
+    useAuth0();
+  useEffect(() => {
+    const syncUser = async () => {
+      if (isAuth0Loading) return;
+      if (!isAuth0Authenticated) return;
+      console.log("auth0 state:", {
+        isAuth0Authenticated,
+        isAuth0Loading,
+      });
+      try {
+        const claims = await getIdTokenClaims();
+
+        const idToken = claims?.__raw;
+        if (!idToken) return;
+
+        const res = await authApi.googleLogin(idToken);
+        const token = res.data.token;
+        const user = await decodeToken(token);
+        if (!user) return;
+        dispatch(loginSuccess({ token, user }));
+      } catch (err) {
+        console.error("Auth0 token error:", err);
+      }
+    };
+
+    syncUser();
+  }, [isAuth0Authenticated, isAuth0Loading]);
 
   useEffect(() => {
     const restoreSession = async () => {
@@ -28,19 +63,17 @@ export default function App() {
 
       try {
         dispatch(setAuthLoading(true));
-        const res = await authApi.refreshTokenApi();
 
+        const res = await authApi.refreshTokenApi();
         const token = res.data.token;
 
         const user = await decodeToken(token);
-        console.log(user?.userName);
+
         if (!user) throw new Error("Invalid token");
 
         dispatch(loginSuccess({ token, user }));
       } catch (error) {
         console.error("Restore session failed:", error);
-
-        // ✅ CLEAR AUTH STATE
         dispatch(logout());
       } finally {
         dispatch(setAuthLoading(false));
@@ -49,8 +82,7 @@ export default function App() {
 
     restoreSession();
   }, [dispatch]);
-
-  if (isAuthLoading) {
+  if (isAuthLoading || isAuth0Loading) {
     return (
       <div className="d-flex justify-content-center align-items-center vh-100">
         <CSpinner color="primary" />
