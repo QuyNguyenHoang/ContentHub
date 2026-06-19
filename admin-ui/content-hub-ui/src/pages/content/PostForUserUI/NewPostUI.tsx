@@ -30,13 +30,16 @@ import {
 import CIcon from "@coreui/icons-react";
 import "./style.css";
 import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
+import type { RootState } from "../../../components/layouts/store/store";
 
 
 export default function NewPostPage() {
   //Auto save
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const savingRef = React.useRef(false);
-  const [AuthId, setAuthId] = useState<string | null>(null);
+  const {user} = useSelector((state:RootState)=>state.auth);
+  const AuthId = user?.userId;
   const [postId, setPostId] = useState<string | null>(null);
   const [modalSetting, setModalSetting] = useState(false);
   const [loadingMedia, setLoadingMedia] = useState(false);

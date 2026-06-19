@@ -1,6 +1,6 @@
 import * as signalR from "@microsoft/signalr";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import PostComment from "../../pages/content/PostForUserUI/PostComment";
 import {
   commentApi,
@@ -8,13 +8,16 @@ import {
 } from "../../api/content/comment.api";
 import CIcon from "@coreui/icons-react";
 import { cilCheck, cilSwapVertical } from "@coreui/icons";
+import { useSelector } from "react-redux";
+import type { RootState } from "../../components/layouts/store/store";
 
 export default function Comment() {
+  const { user } = useSelector((state: RootState) => state.auth);
+  const authId = user?.userId;
   const [loading, setLoading] = useState(false);
   const [pageNumber, setPageNumber] = useState(1);
   const [filterBox, setFilter] = useState("all");
   const [hasMore, setHasMore] = useState(true);
-  const [authId, setAuthId] = useState<string | null>(null);
   const [content, setContent] = useState("");
   const [comments, setComments] = useState<CommentResponse[]>([]);
   const [connection, setConnection] = useState<signalR.HubConnection | null>(
@@ -27,7 +30,6 @@ export default function Comment() {
   const loadMoreRef = useRef<HTMLDivElement | null>(null);
   //paged
   const pageSize = 2;
-  const navigate = useNavigate();
   const { slug } = useParams();
   const postId = slug ? slug.slice(-36) : null;
 

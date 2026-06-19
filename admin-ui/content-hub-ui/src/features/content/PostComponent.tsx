@@ -18,19 +18,7 @@ export default function PostPage() {
   const keyword = "";
   const filter = "";
   const isAdmin = true;
-  const getViewCount = async (id:string)=>{
-    try{
-      setLoading(true);
-      await postApi.postIncreaseViewCount(id);
-    }
-    catch(error)
-    {
-      console.log(error,"Error")
-    }
-    finally{
-      setLoading(false);
-    }
-  }
+
   const loadPostByViewCount = async () => {
     try {
       setLoading(true);
@@ -121,8 +109,7 @@ export default function PostPage() {
         {/* LEFT CONTENT */}
         <div className="col-12 col-lg-8">
           <PostComposer />
-          <PostList posts={posts}
-          getViewCount = {getViewCount} />
+          <PostList posts={posts} />
         </div>
         <div className="col-lg-4">
           {/* RIGHT SIDEBAR */}
