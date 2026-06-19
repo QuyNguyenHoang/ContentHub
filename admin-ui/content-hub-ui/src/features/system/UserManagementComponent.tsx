@@ -12,9 +12,6 @@ import CIcon from "@coreui/icons-react";
 import { cilFilter, cilTrash } from "@coreui/icons";
 import NotFound from "../../components/common/NotFound";
 import UserDetail from "../../pages/system/User/UserDetail";
-import axios from "axios";
-import axiosClient from "../../config/axios";
-import { Colors } from "chart.js";
 import Toast from "../../components/common/Toast";
 
 interface Props {}

@@ -23,9 +23,9 @@ namespace ContentHub.Application.Models.System.UserDto
 
         public DateTime? LastLoginDate { get; set; }
 
-        public string UserName { get; set; }
+        public required string UserName { get; set; }
 
-        public string Email { get; set; }
+        public required string Email { get; set; }
 
         public bool EmailConfirmed { get; set; }
         public int TotalPost { get; set; }
