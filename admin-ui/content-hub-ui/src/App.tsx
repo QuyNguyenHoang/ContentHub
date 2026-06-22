@@ -42,7 +42,7 @@ export default function App() {
 
         const idToken = claims?.__raw;
         if (!idToken) return;
-
+        console.log("ID",idToken)
         const res = await authApi.googleLogin(idToken);
         const token = res.data.token;
         const user = await decodeToken(token);

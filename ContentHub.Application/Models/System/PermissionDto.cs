@@ -9,6 +9,7 @@ namespace ContentHub.Application.Models.System
     public class PermissionDto
     {
         public string RoleId { get; set; } = default!;
+        public string RoleName { get; set; } = default!;
         public List<RoleClaimsDto> RoleClaims { get; set; } = new();
     }
 

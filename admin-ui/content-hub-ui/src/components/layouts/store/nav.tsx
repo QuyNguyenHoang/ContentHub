@@ -46,12 +46,6 @@ const nav = [
       },
       {
         component: CNavItem,
-        name: "Create Role",
-        to: "/admin/roles/create",
-        icon: <CIcon icon={cilPlus} customClassName="nav-icon" />,
-      },
-      {
-        component: CNavItem,
         name: "User Manager",
         to: "/admin/users",
         icon: <CIcon icon={cilUser} customClassName="nav-icon" />,
@@ -69,12 +63,6 @@ const nav = [
         name: "Total Users",
         to: "/roles/create",
         icon: <CIcon icon={cilUser} customClassName="nav-icon" />,
-      },
-      {
-        component: CNavItem,
-        name: "Total Posts",
-        to: "/roles/create",
-        icon: <CIcon icon={cilDescription} customClassName="nav-icon" />,
       },
       {
         component: CNavItem,
@@ -199,6 +187,11 @@ const nav = [
         component: CNavItem,
         name: "Error 500",
         to: "/500",
+      },
+      {
+        component: CNavItem,
+        name: "User UI",
+        to: "/posts",
       },
     ],
   },

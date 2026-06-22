@@ -22,7 +22,7 @@ interface Props {
   handleApprove: (postId: string) => void;
   handleReject: (postId: string) => void;
   selectPostIds: string[];
-  setShowPostDetail:(id:string | null) => void;
+  setShowPostDetail: (id: string | null) => void;
 }
 
 export default function PostTable({
@@ -32,7 +32,7 @@ export default function PostTable({
   handleApprove,
   handleReject,
   selectPostIds,
-  setShowPostDetail
+  setShowPostDetail,
 }: Props) {
   const [optionId, setOptionId] = useState<string | null>(null);
   const outSideRef = useRef<HTMLDivElement>(null);
@@ -49,7 +49,10 @@ export default function PostTable({
   return (
     <div className="card-body p-0">
       <div className="table-responsive">
-        <table className="table table-sm table-hover align-middle mb-0 small "style={{ minWidth: "1200px" }}>
+        <table
+          className="table table-sm table-hover align-middle mb-0 small "
+          style={{ minWidth: "1200px" }}
+        >
           <thead className="table-light text-center">
             <tr className="text-sm">
               <th>
@@ -82,7 +85,7 @@ export default function PostTable({
                   key={p.id}
                   className="align-middle text-center"
                   onDoubleClick={() => setShowPostDetail(p.id)}
-                  style={{cursor:"pointer"}}
+                  style={{ cursor: "pointer" }}
                 >
                   <td>
                     <input
@@ -153,93 +156,94 @@ export default function PostTable({
                     {p.status}
                   </td>
                   <td className="text-center">
-                    <div className="dropdown position-relative">
-                      <button
-                        className="btn btn-sm"
-                        onClick={() => handleOption(p.id)}
-                      >
-                        <CIcon
-                          icon={cilOptions}
-                          size="sm"
-                          title="Detail this post"
-                        />
-                      </button>
+                    <div className="d-inline-flex align-items-center gap-1 position-relative">
+                      {/* Dropdown */}
+                      <div className="dropdown position-relative">
+                        <button
+                          className="btn btn-sm"
+                          onClick={() => handleOption(p.id)}
+                        >
+                          <CIcon
+                            icon={cilOptions}
+                            size="sm"
+                            title="Post options"
+                          />
+                        </button>
 
-                      {optionId === p.id && (
-                        <ul className="dropdown-menu show position-absolute end-0 mt-1">
-                          <li>
-                            <button className="dropdown-item d-flex align-items-center">
-                              <CIcon
-                                icon={cilPencil}
-                                size="sm"
-                                className="me-2"
-                              />
-                              Edit
-                            </button>
-                          </li>
+                        {optionId === p.id && (
+                          <ul className="dropdown-menu show position-absolute end-0 mt-1">
+                            <li>
+                              <button className="dropdown-item d-flex align-items-center">
+                                <CIcon
+                                  icon={cilPencil}
+                                  size="sm"
+                                  className="me-2"
+                                />
+                                Edit
+                              </button>
+                            </li>
 
-                          <li>
-                            <button className="dropdown-item d-flex align-items-center text-danger">
-                              <CIcon
-                                icon={cilTrash}
-                                size="sm"
-                                className="me-2"
-                              />
-                              Delete
-                            </button>
-                          </li>
+                            <li>
+                              <button className="dropdown-item d-flex align-items-center text-danger">
+                                <CIcon
+                                  icon={cilTrash}
+                                  size="sm"
+                                  className="me-2"
+                                />
+                                Delete
+                              </button>
+                            </li>
 
-                          <li>
-                            <button className="dropdown-item d-flex align-items-center">
-                              <CIcon
-                                icon={cilShare}
-                                size="sm"
-                                className="me-2"
-                              />
-                              Share
-                            </button>
-                          </li>
-                        </ul>
-                      )}
+                            <li>
+                              <button className="dropdown-item d-flex align-items-center">
+                                <CIcon
+                                  icon={cilShare}
+                                  size="sm"
+                                  className="me-2"
+                                />
+                                Share
+                              </button>
+                            </li>
+                          </ul>
+                        )}
+                      </div>
+
+                      {/* Approve / Reject */}
                       {p.status !== POST_STATUS.PUBLISHED &&
                       p.status !== POST_STATUS.REJECTED ? (
                         <>
                           <button
-                            className="btn btn-sm "
+                            className="btn btn-sm"
                             onClick={() => handleApprove(p.id)}
+                            title="Approve this post"
                           >
                             <CIcon
                               icon={cilCheck}
                               size="sm"
                               className="text-success"
-                              title="Approve this post"
                             />
                           </button>
+
                           <button
                             className="btn btn-sm"
                             onClick={() => handleReject(p.id)}
+                            title="Reject this post"
                           >
                             <CIcon
                               icon={cilBan}
                               size="sm"
                               className="text-danger"
-                              title="Reject this post"
                             />
                           </button>
                         </>
                       ) : (
-                        <>
-                          <button
-                            className="btn btn-sm"
-                            onClick={() => setSelectedPostId(p.id)}
-                          >
-                            <CIcon
-                              icon={cilHistory}
-                              size="sm"
-                              title="Approve history"
-                            />
-                          </button>
-                        </>
+                        <button
+                          className="btn btn-sm"
+                          onClick={() => setSelectedPostId(p.id)}
+                          title="Approval history"
+                        >
+                          <CIcon icon={cilHistory} size="sm" />
+                        </button>
                       )}
                     </div>
                   </td>

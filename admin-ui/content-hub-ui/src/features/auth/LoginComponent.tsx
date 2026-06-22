@@ -43,9 +43,10 @@ useEffect(() => {
       if (!token) return;
 
       await authApi.googleLogin(token);
-    } catch (err) {
-      console.log("Auth0 token error:", err);
-    }
+    } catch (error: any) {
+   console.log("Status:", error.response?.status);
+   console.log("Data:", error.response?.data);
+}
   };
 
   syncUser();

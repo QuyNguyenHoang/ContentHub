@@ -42,15 +42,6 @@ export default function Comment() {
     }
   };
 
-  // useEffect(() => {
-  //   const userInf = DecodeToken.accessToken();
-  //   const userId = userInf?.userId;
-  //   if (!userId) {
-  //     navigate("/login");
-  //   }
-  //   setAuthId(userId || null);
-  // }, [navigate]);
-
   const mergeComments = (
     prev: CommentResponse[],
     newComments: CommentResponse[],

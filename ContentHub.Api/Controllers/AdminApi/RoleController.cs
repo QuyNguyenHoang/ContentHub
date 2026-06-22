@@ -183,7 +183,40 @@ namespace ContentHub.Api.Controllers
                 message = "Role deleted successfully"
             });
         }
+        
+        [HttpDelete]
+        public async Task<ActionResult> DeleteRoles([FromBody] Guid[] ids)
+        {
+            if (ids == null || ids.Length == 0)
+            {
+                return BadRequest("No roles selected.");
+            }
 
+            var roles = _roleManager.Roles
+                .Where(r => ids.Contains(r.Id))
+                .ToList();
+
+            if (!roles.Any())
+            {
+                return NotFound("Roles not found.");
+            }
+
+            foreach (var role in roles)
+            {
+                var result = await _roleManager.DeleteAsync(role);
+
+                if (!result.Succeeded)
+                {
+                    return BadRequest(result.Errors);
+                }
+            }
+
+            return Ok(new
+            {
+                success = true,
+                deletedCount = roles.Count
+            });
+        }
         // =========================
         // GET ROLE PERMISSIONS
         // =========================
@@ -198,6 +231,7 @@ namespace ContentHub.Api.Controllers
             var model = new PermissionDto
             {
                 RoleId = roleId.ToString(),
+                RoleName = role.Name ?? "No Name",
                 RoleClaims = new List<RoleClaimsDto>()
             };
 
@@ -216,7 +250,7 @@ namespace ContentHub.Api.Controllers
             var grantedPermissions = roleClaims
                 .Where(c => c.Type == AppClaimTypes.Permission)
                 .Select(c => c.Value)
-                .ToHashSet(); // ⚡ nhanh hơn List
+                .ToHashSet(); 
 
             // 3. Đánh dấu selected
             foreach (var permission in model.RoleClaims)

@@ -39,6 +39,7 @@ const authSlice = createSlice({
       state.user = null;
       state.isAuthenticated = false;
       state.isAuthLoading = false;
+      
     },
     setAuthLoading: (state, action: PayloadAction<boolean>) => {
       state.isAuthLoading = action.payload;

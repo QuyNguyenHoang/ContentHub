@@ -22,6 +22,7 @@ import { useDispatch, useSelector } from "react-redux";
 import type { RootState } from "./../../store";
 import { logout } from "../../slices/authSlice";
 import { authApi } from "../../../../../api/auth/auth.api";
+import { useAuth0 } from "@auth0/auth0-react";
 
 const DEFAULT_AVATAR = "https://cdn-icons-png.flaticon.com/512/149/149071.png";
 
@@ -30,24 +31,26 @@ export default function AppHeaderUser() {
   const [showSearch, setShowSearch] = useState(false);
   //Check login + user inf
   const { user } = useSelector((state: RootState) => state.auth);
- const dispatch = useDispatch();
+  const dispatch = useDispatch();
   const inputRef = useRef<HTMLInputElement>(null);
   const overlayRef = useRef<HTMLDivElement>(null);
- 
-
+  const { logout: auth0Logout } = useAuth0();
   //log out
   const handleLogout = async () => {
-    try{
-        await authApi.logOut();
-        dispatch(logout());
+    try {
+      await authApi.logOut();
+      dispatch(logout());
+      auth0Logout({
+        logoutParams: {
+          returnTo: window.location.origin,
+        },
+      });
+    } catch (error) {
+      console.log(error, "Logout failed!!!");
     }
-    catch(error)
-    {
-      console.log(error,"Logout failed!!!")
-    }  
-  }
+  };
   const navigate = useNavigate();
- 
+
   useEffect(() => {
     if (showSearch) {
       inputRef.current?.focus();
@@ -73,7 +76,6 @@ export default function AppHeaderUser() {
       setShowSearch(false);
     }
   };
-
 
   return (
     <>
@@ -196,34 +198,25 @@ export default function AppHeaderUser() {
             </nav>
 
             {/* RIGHT SIDE */}
-            <div className="ms-auto d-flex align-items-center gap-3">
+            <div className="ms-auto d-flex align-items-center gap-2">
               {user && (
                 <>
-                  <button
-                    className="btn btn-success btn-sm px-3"
-                    onClick={() => navigate("/new")}
-                  >
-                    Create Post
-                  </button>
+                  {/* Desktop */}
+                  <div className="d-none d-md-flex align-items-center gap-2">
+                    <button
+                      className="btn btn-success btn-sm px-3"
+                      onClick={() => navigate("/new")}
+                    >
+                      Create Post
+                    </button>
 
-                  <div className="d-flex justify-content-center">
-                    {/* Search */}
                     <button
                       className="btn btn-light rounded-circle"
                       onClick={() => setShowSearch(true)}
                     >
                       <BsSearch />
                     </button>
-                    {/* Mobile */}
-                    <button
-                      className="d-flex d-md-none justify-content-end btn btn-lg"
-                      onClick={() => setShowOption(true)}
-                    >
-                      <BsList />
-                    </button>
-                  </div>
-                  {/* Notification +  Avatar  */}
-                  <div className="d-none d-md-flex gap-3">
+
                     {/* Notification */}
                     <div className="position-relative">
                       <button
@@ -247,14 +240,15 @@ export default function AppHeaderUser() {
                         3
                       </span>
                     </div>
-                    {/* Dropdown */}
+
+                    {/* Avatar Dropdown */}
                     <div className="dropdown">
                       <button
                         className="btn p-0 border-0 bg-transparent"
                         data-bs-toggle="dropdown"
                       >
                         <img
-                          src={ DEFAULT_AVATAR}
+                          src={DEFAULT_AVATAR}
                           width={32}
                           height={32}
                           className="rounded-circle"
@@ -269,7 +263,6 @@ export default function AppHeaderUser() {
                             className="text-decoration-none text-dark"
                           >
                             <div className="fw-semibold">{user.userName}</div>
-
                             <small className="text-muted">
                               @{user.userName}
                             </small>
@@ -291,13 +284,37 @@ export default function AppHeaderUser() {
                         <li>
                           <button
                             className="dropdown-item text-danger"
-                            onClick={()=>handleLogout()}
+                            onClick={handleLogout}
                           >
                             🚪 Logout
                           </button>
                         </li>
                       </ul>
                     </div>
+                  </div>
+
+                  {/* Mobile */}
+                  <div className="d-flex d-md-none align-items-center gap-2">
+                    <button
+                      className="btn btn-success btn-sm"
+                      onClick={() => navigate("/new")}
+                    >
+                      Create Post
+                    </button>
+
+                    <button
+                      className="btn btn-light rounded-circle"
+                      onClick={() => setShowSearch(true)}
+                    >
+                      <BsSearch />
+                    </button>
+
+                    <button
+                      className="btn btn-light rounded-circle"
+                      onClick={() => setShowOption(true)}
+                    >
+                      <BsList />
+                    </button>
                   </div>
                 </>
               )}

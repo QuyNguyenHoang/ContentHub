@@ -88,31 +88,37 @@ namespace ContentHub.Infrastructure.Repositories.Auth
         //Login with Auth0 (google)
         public async Task<AuthenticatedResult> Auth0LoginAsync(string auth0Token)
         {
-            var refreshTokenHash = HashRefreshToken(auth0Token);
-            var user = await _userManager.Users.Where(u => u.RefreshToken == auth0Token).FirstOrDefaultAsync();
-            if (user == null)
-            {
-                throw new ArgumentException("User not found!");
-            }
-            if (user.RefreshTokenExpiryTime <= DateTime.UtcNow)
-            {
-                throw new UnauthorizedAccessException("Refresh token expired");
-            }
             var handler = new JwtSecurityTokenHandler();
+
+            if (!handler.CanReadToken(auth0Token))
+                throw new UnauthorizedAccessException("Invalid token");
+
             var jwt = handler.ReadJwtToken(auth0Token);
 
-            // 🔥 Auth0 user id (quan trọng nhất)
-            var auth0Id = jwt.Claims.FirstOrDefault(x => x.Type == "sub")?.Value;
-            Console.WriteLine(auth0Id);
+            var auth0Id = jwt.Claims
+                .FirstOrDefault(x => x.Type == "sub")
+                ?.Value;
 
-            // email + name (có thể null nếu chưa bật scope)
-            var email = jwt.Claims.FirstOrDefault(x => x.Type == "email")?.Value;
-            var name = jwt.Claims.FirstOrDefault(x => x.Type == "name")?.Value;
-            var picture = jwt.Claims.FirstOrDefault(x => x.Type == "picture")?.Value;
+            var email = jwt.Claims
+                .FirstOrDefault(x => x.Type == "email")
+                ?.Value;
 
-            if (string.IsNullOrEmpty(auth0Id))
-                throw new Exception("Invalid token: missing sub");
+            var name = jwt.Claims
+                .FirstOrDefault(x => x.Type == "name")
+                ?.Value;
 
+            var picture = jwt.Claims
+                .FirstOrDefault(x => x.Type == "picture")
+                ?.Value;
+
+            if (string.IsNullOrWhiteSpace(auth0Id))
+                throw new UnauthorizedAccessException("Missing Auth0 user id");
+
+            // Tìm theo Auth0 UserId
+            var user = await _userManager.Users
+                .FirstOrDefaultAsync(x => x.ProviderUserId == auth0Id);
+
+            // Chưa có user => tạo mới
             if (user == null)
             {
                 user = new AppUser
@@ -122,18 +128,28 @@ namespace ContentHub.Infrastructure.Repositories.Auth
                     Email = email,
                     UserName = email,
                     Avatar = picture,
-                    DateCreated = DateTime.UtcNow,
                     LoginProvider = "Google",
-                    IsActive = true
+                    IsActive = true,
+                    DateCreated = DateTime.UtcNow
                 };
 
                 var createResult = await _userManager.CreateAsync(user);
-                await _userManager.AddToRoleAsync(user, Domain.SeedWorks.Constant.Roles.User);
+
                 if (!createResult.Succeeded)
-                    throw new Exception("Cannot create Auth0 user");
+                {
+                    throw new Exception(
+                        string.Join(", ", createResult.Errors.Select(x => x.Description))
+                    );
+                }
+
+                await _userManager.AddToRoleAsync(
+                    user,
+                    Domain.SeedWorks.Constant.Roles.User
+                );
             }
             else
             {
+                // cập nhật thông tin mới nhất từ Auth0
                 user.Email = email;
                 user.UserName = email;
                 user.Avatar = picture;
@@ -143,8 +159,6 @@ namespace ContentHub.Infrastructure.Repositories.Auth
 
             return await GenerateTokenPairAsync(user);
         }
-    
-
         //Generate Access + RefrehToken Token
         private async Task<AuthenticatedResult> GenerateTokenPairAsync(AppUser user)
         {

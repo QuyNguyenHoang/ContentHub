@@ -26,30 +26,31 @@ export function PostList({ posts = [] }: Props) {
 
   return (
     <div>
-      <div className="d-flex justify-content-between align-items-center">
-        <div className="card rounded-5 border-0 shadow-sm p-2 w-50 mb-2">
-          <div className="btn-group w-100 col-md-5">
-            <button className="btn btn-light  rounded-pill d-flex align-items-center justify-content-center gap-2">
-              <BsGlobe />
-              Discover
-            </button>
+      <div className="d-flex align-items-center gap-2 mb-2">
+        <div className="flex-grow-1">
+          <div className="card rounded-5 border-0 shadow-sm p-2">
+            <div className="d-flex">
+              <button className="btn btn-light rounded-pill flex-fill d-flex align-items-center justify-content-center gap-2">
+                <BsGlobe />
+                <span>Discover</span>
+              </button>
 
-            <button className="btn btn-light rounded-pill d-flex align-items-center justify-content-center gap-2">
-              <BsPeople />
-              Following
-            </button>
+              <button className="btn btn-light rounded-pill flex-fill d-flex align-items-center justify-content-center gap-2">
+                <BsPeople />
+                <span>Following</span>
+              </button>
 
-            <button className="btn btn-light rounded-pill d-flex align-items-center justify-content-center gap-2">
-              <BsClock />
-              Latest
-            </button>
+              <button className="btn btn-light rounded-pill flex-fill d-flex align-items-center justify-content-center gap-2">
+                <BsClock />
+                <span>Latest</span>
+              </button>
+            </div>
           </div>
         </div>
-        <div>
-          <button className="btn">
-            <BsThreeDotsVertical />
-          </button>
-        </div>
+
+        <button className="btn btn-light rounded-circle">
+          <BsThreeDotsVertical />
+        </button>
       </div>
       {posts.map((post) => {
         const formattedDate = new Date(post.dateCreated).toLocaleString(

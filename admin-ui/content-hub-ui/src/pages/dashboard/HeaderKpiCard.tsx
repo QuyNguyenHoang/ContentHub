@@ -49,7 +49,7 @@ export default function HeaderKpiCard({
     <div>
       <div className="row m-0 pb-2">
         <div className="col-12 col-md-6 col-lg-3 mb-2">
-          <div className="card rounded-3 shadow-lg d-flex flex-column p-3" style={{cursor:"pointer"}} 
+          <div className="card rounded-3 shadow-lg d-flex flex-column p-2" style={{cursor:"pointer"}} 
           onDoubleClick={()=>navigate("/admin/posts")}>
             <div className="d-flex justify-content-center align-items-center gap-2">
               <BsPostcard color="#06a2fc" width={32} height={32} />
@@ -178,7 +178,7 @@ export default function HeaderKpiCard({
                   ))}
                 </select>
               </div>
-              <div className="pe-4">
+              <div className="pe-1">
                 <span
                   className={`d-flex align-items-center fw-bold small text-white rounded-2 ps-2 pe-2${
                     growthUser > 0 ? " bg-success" : " bg-danger"
