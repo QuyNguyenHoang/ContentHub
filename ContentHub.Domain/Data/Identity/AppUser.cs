@@ -38,6 +38,11 @@ namespace ContentHub.Domain.Data.Identity
 
         public ICollection<Post> Posts { get; set; } = new List<Post>();
         //public ICollection<AppUserRole> UserRoles { get; set; } = new List<AppUserRole>();
+        public ICollection<UserFollow> Followers { get; set; }
+        = new List<UserFollow>(); // người follow tôi
+
+        public ICollection<UserFollow> Followings { get; set; }
+            = new List<UserFollow>(); // tôi đang follow ai
         public string GetFullName()
         {
             return this.FirstName + " " + this.LastName;

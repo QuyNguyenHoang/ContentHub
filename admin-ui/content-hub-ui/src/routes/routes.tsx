@@ -7,6 +7,7 @@ import RegisterComponent from "../features/auth/RegisterComponent";
 import UserGuad from "../api/extentions/userGuad";
 import RoleManagement from "../features/system/RoleManagement";
 import PermissionManagement from "../features/system/PermissionManagement";
+import FollowButton from "../features/content/FollowComponent";
 const NotFoundPage = lazy(() => import("../pages/ErrorPage/404"));
 const Home = lazy(() => import("../pages/home/Home"));
 const ContentHub = lazy(() => import("../pages/home/ContentHub"));
@@ -95,6 +96,14 @@ const routes = [
   { path: "/register", element: <RegisterComponent /> },
 
   { path: "/404", element: <NotFoundPage /> },
+  {
+  path: "/follow",
+  element: (
+    <FollowButton
+      authorId="c3d746ba-a82d-421e-bb8e-64ae705d9626"
+    />
+  ),
+}
 ];
 
 export default routes;

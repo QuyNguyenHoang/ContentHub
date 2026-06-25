@@ -150,6 +150,7 @@ builder.Services.AddScoped<IPostActivityLogRepository, PostActivityLogRepository
 builder.Services.AddScoped<IAnalyticRepository, AnalyticRepository>();
 builder.Services.AddScoped<ContentHub.Application.IService.IEmailService, ContentHub.Infrastructure.Service.SmtpEmailSender>();
 builder.Services.AddScoped<DateRangeResolver>();
+builder.Services.AddScoped<IUserFollowRepository, UserFollowRepository>();
 builder.Services.AddControllers().AddJsonOptions(option =>
 {
     option.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());

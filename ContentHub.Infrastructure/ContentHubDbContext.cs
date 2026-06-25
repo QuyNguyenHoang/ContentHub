@@ -29,9 +29,24 @@ namespace ContentHub.Infrastructure
         public DbSet<WalletTransaction> WalletTransactions { get; set; }
         public DbSet<Comment> Comments { get; set; }
         public DbSet<Reaction> Reactions { get; set; }
+        public DbSet<UserFollow> UserFollows { get; set; }
         protected override void OnModelCreating(ModelBuilder builder)
 
         {
+            builder.Entity<UserFollow>(entity =>
+            {
+                entity.HasKey(x => new { x.FollowerId, x.FollowingId });
+
+                entity.HasOne(x => x.Follower)
+                    .WithMany(x => x.Followings)
+                    .HasForeignKey(x => x.FollowerId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(x => x.Following)
+                    .WithMany(x => x.Followers)
+                    .HasForeignKey(x => x.FollowingId)
+                    .OnDelete(DeleteBehavior.Restrict);
+            });
             builder.Entity<AppUser>().ToTable("AppUsers");
             builder.Entity<AppRole>().ToTable("AppRoles");
             builder.Entity<IdentityUserClaim<Guid>>().ToTable("AppUserClaims").HasKey(x => x.Id);
